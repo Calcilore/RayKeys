@@ -1,3 +1,64 @@
 {
-  "bpm": 170
+  "name": "First Town Of This Journey",
+  "artist": "Camellia",
+  "bpm": 170,
+  "players": [
+  	{"beatmap": 2, "xpos": 480, "controls": 0},
+  	{"beatmap": 1, "xpos": 1440, "controls": 1}
+  ],
+  "beatmaps": [
+  	[
+  	  {
+  	    "lane": 0,
+  	    "time": 3
+  	  },
+  	  {
+  	    "lane": 3,
+  	    "time": 5
+  	  },
+  	  {
+  	    "lane": 2,
+  	    "time": 7
+  	  },
+  	  {
+  	    "lane": 0,
+  	    "time": 9
+  	  },
+  	  {
+  	    "lane": 5,
+  	    "time": 11
+  	  },
+  	  {
+  	    "lane": 1,
+  	    "time": 13
+  	  }
+  	],
+  	[
+  	  {
+  	    "lane": 4,
+  	    "time": 2
+  	  },
+  	  {
+  	    "lane": 1,
+  	    "time": 4
+  	  },
+  	  {
+  	    "lane": 5,
+  	    "time": 6
+  	  },
+  	  {
+  	    "lane": 2,
+  	    "time": 8
+  	  },
+  	  {
+  	    "lane": 3,
+  	    "time": 10
+  	  },
+  	  {
+  	    "lane": 5,
+  	    "time": 12
+  	  }
+  	]
+  ]
 }
+

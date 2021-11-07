@@ -14,6 +14,7 @@ namespace RayKeys {
         public Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
         public Dictionary<string, SoundEffect> Sounds = new Dictionary<string, SoundEffect>();
         public SpriteFont Font;
+        public Keys[][] Controls = new Keys[4][];
 
         public delegate void UpdateEventD(float delta);
         public event UpdateEventD UpdateEvent;
@@ -26,6 +27,11 @@ namespace RayKeys {
             Graphics = new GraphicsDeviceManager(this);
             AudioManager.Initialize();
 
+            Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
+            Controls[1] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
+            Controls[2] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
+            Controls[3] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
+            
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -53,9 +59,8 @@ namespace RayKeys {
             Textures.Add("notes"    , Content.Load<Texture2D>("Textures/notes"    ));
             Textures.Add("keys"     , Content.Load<Texture2D>("Textures/keys"     ));
             Textures.Add("healthbar", Content.Load<Texture2D>("Textures/healthbar"));
-
-            EngineManager.addEngine(new [] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L} );
-            EngineManager.Start();
+            
+            EngineManager.Start("1", 1.2f);
         }
 
         protected override void Update(GameTime gameTime) {

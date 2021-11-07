@@ -1,18 +1,47 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using Microsoft.Xna.Framework.Input;
 
 namespace RayKeys {
     public class EngineManager {
         public static RhythmManager Music = new RhythmManager();
-
         private static List<Engine> engines = new List<Engine>();
 
-        public static void addEngine(Keys[] controls, int xpos = 960, float speed = 1f) {
-            engines.Add(new Engine(new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L}, xpos, speed));
-        }
+        public static void Start(string level, float speed = 1f) {
+            // Read Json
+            string fileS = File.ReadAllText("Content/Levels/" + level + "/song.json");
+            using JsonDocument doc = JsonDocument.Parse(fileS);
+            JsonElement root = doc.RootElement;
 
-        public static void Start() {
-            Music.PlaySongBPM("Levels/1/song.ogg", 170);
+            // Get notes
+            JsonElement beatmaps = root.GetProperty("beatmaps");
+            List<Note>[] notes = new List<Note>[beatmaps.GetArrayLength()];
+            
+            for (int i = 0; i < notes.Length; i++) {
+                notes[i] = new List<Note>();
+                for (int j = 0; j < beatmaps[i].GetArrayLength(); j++) {
+                    notes[i].Add(new Note((float) beatmaps[i][j].GetProperty("time").GetDouble(), beatmaps[i][j].GetProperty("lane").GetByte()));
+                }
+            }
+            
+            // Get which engine for which beatmap
+            JsonElement playersJ = root.GetProperty("players");
+            int[] players = new int[playersJ.GetArrayLength()];
+
+            // add notes to engines
+            for (int i = 0; i < players.Length; i++) {
+                int xpos = playersJ[i].TryGetProperty("xpos", out JsonElement xposJ) ? 
+                    xposJ.GetInt32() : 960;
+                
+                int cont = playersJ[i].TryGetProperty("controls", out JsonElement contJ) ? 
+                    contJ.GetInt32() : 1;
+                
+                engines.Add(new Engine(cont, xpos, speed));
+                //engines[i].notes = notes[playersJ[i].GetProperty("beatmap").GetInt32() - 1];
+            }
+
+            Music.PlaySongBPM("Levels/" + level + "/song.ogg", 170); 
 
             foreach (Engine engine in engines) {
                 engine.Start();
