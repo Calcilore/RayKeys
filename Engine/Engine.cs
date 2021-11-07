@@ -66,7 +66,7 @@ namespace RayKeys {
 
         private void Update(float delta) {
             frameTime += delta * speed;
-            float musicTime = EngineManager.Music.GetTime() * speed;
+            float musicTime = EngineManager.Music.GetTime()/* * speed*/;
             
             // if music time changes, then set frametime to musictime (sync to song)
             if (Math.Abs(musicTime - musicTimePre) > 0.05) {
@@ -175,11 +175,13 @@ namespace RayKeys {
 
                 ThingTools.DrawToSpriteBatch(notesTexture, xpos+(n.lane-3)*96, 880 - (int)((n.time - frameTime) * 800f), n.lane*64, 0, 64, 64);
             }
+
+            if (!autoPlay) {
+                healthD = ThingTools.Lerp(healthD, health, 10f * delta);
             
-            healthD = ThingTools.Lerp(healthD, health, 10f * delta);
-            
-            ThingTools.DrawToSpriteBatch(healthBarTexture, xpos - 200, 1040 - 10, 0, 40, 400, 40);
-            ThingTools.DrawToSpriteBatch(healthBarTexture, xpos - 200, 1040 - 10, 0, 0, (int) (400 * healthD), 40);
+                ThingTools.DrawToSpriteBatch(healthBarTexture, xpos - 200, 1040 - 10, 0, 40, 400, 40);
+                ThingTools.DrawToSpriteBatch(healthBarTexture, xpos - 200, 1040 - 10, 0, 0, (int) (400 * healthD), 40);
+            }
         } 
     }
 }
