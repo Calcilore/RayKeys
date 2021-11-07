@@ -5,7 +5,6 @@
 ### currently very unfinished.
 
 ## How to compile:
-- press build
-- copy assets folder into the game
+- press build (dotnet build)
 
 *Untested on windows*
