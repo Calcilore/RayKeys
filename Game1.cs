@@ -7,28 +7,26 @@ using Microsoft.Xna.Framework.Input;
 
 namespace RayKeys {
     public class Game1 : Game {
-        public static Game1 Me; 
+        public static Game1 Game; 
         public readonly GraphicsDeviceManager Graphics;
         public SpriteBatch SpriteBatch;
         public float Scaling = 0;
-        public RhythmManager Music = new RhythmManager();
         public Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
         public Dictionary<string, SoundEffect> Sounds = new Dictionary<string, SoundEffect>();
+        public SpriteFont Font;
 
-        private Engine engine;
-
-        public delegate void UpdateEventD(double delta);
+        public delegate void UpdateEventD(float delta);
         public event UpdateEventD UpdateEvent;
         
-        public delegate void DrawEventD(double delta);
+        public delegate void DrawEventD(float delta);
         public event DrawEventD DrawEvent;
 
         public Game1() {
-            Me = this;
+            Game = this;
             Graphics = new GraphicsDeviceManager(this);
             AudioManager.Initialize();
 
-            Content.RootDirectory = "Assets";
+            Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
 
@@ -38,6 +36,7 @@ namespace RayKeys {
             Graphics.PreferredBackBufferWidth = 1920;
             Graphics.PreferredBackBufferHeight = 1080;
             Graphics.SynchronizeWithVerticalRetrace = false;
+            IsFixedTimeStep = false;
             Graphics.ApplyChanges();
 
             Scaling = Graphics.PreferredBackBufferHeight / 1080.0f;
@@ -48,12 +47,15 @@ namespace RayKeys {
         protected override void LoadContent() {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-              Sounds.Add("hitsound" , SoundEffect.FromFile("Assets/Sounds/hitsound.wav"));
-            Textures.Add("notes"    , ThingTools.LoadImage("Textures/notes.png"    ));
-            Textures.Add("keys"     , ThingTools.LoadImage("Textures/keys.png"     ));
-            Textures.Add("healthbar", ThingTools.LoadImage("Textures/healthbar.png"));
+            Font = Content.Load<SpriteFont>("Font");
 
-            engine = new Engine(new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L}, speed: 10f);
+              Sounds.Add("hitsound" , Content.Load<SoundEffect>("Sounds/hitsound" ));
+            Textures.Add("notes"    , Content.Load<Texture2D>("Textures/notes"    ));
+            Textures.Add("keys"     , Content.Load<Texture2D>("Textures/keys"     ));
+            Textures.Add("healthbar", Content.Load<Texture2D>("Textures/healthbar"));
+
+            EngineManager.addEngine(new [] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L} );
+            EngineManager.Start();
         }
 
         protected override void Update(GameTime gameTime) {
@@ -61,7 +63,7 @@ namespace RayKeys {
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            UpdateEvent?.Invoke(gameTime.ElapsedGameTime.TotalSeconds);
+            UpdateEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }
@@ -69,11 +71,12 @@ namespace RayKeys {
         protected override void Draw(GameTime gameTime) {
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
-
-            SpriteBatch.Begin(blendState:BlendState.NonPremultiplied);
+            SpriteBatch.Begin(/*blendState:BlendState.NonPremultiplied*/);
             
-            DrawEvent?.Invoke(gameTime.ElapsedGameTime.TotalSeconds);
+            DrawEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
+
+            string fpst = "FPS: " + Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds);
+            SpriteBatch.DrawString(Font, fpst, new Vector2(1910 - Font.MeasureString(fpst).X, 10), Color.White);
 
             SpriteBatch.End();
             
@@ -81,7 +84,6 @@ namespace RayKeys {
         }
 
         protected override void OnExiting(object sender, EventArgs args) {
-            Music.Stop();
             base.OnExiting(sender, args);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace RayKeys {
     public static class Program {

@@ -51,7 +51,7 @@ namespace RayKeys {
         }
         
         public void PlaySong(string song, float speed = 1f) {
-            media = new Media(_libVLC, "Assets/" + song);
+            media = new Media(_libVLC, "Content/" + song);
             mediaPlayer = new MediaPlayer(media);
             
             mediaPlayer.SetRate(speed);
