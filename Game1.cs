@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RayKeys.Menu;
 
 namespace RayKeys {
     public class Game1 : Game {
@@ -13,8 +14,9 @@ namespace RayKeys {
         public float Scaling = 0;
         public Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
         public Dictionary<string, SoundEffect> Sounds = new Dictionary<string, SoundEffect>();
-        public SpriteFont Font;
+        public SpriteFont[] Fonts = new SpriteFont[7];
         public Keys[][] Controls = new Keys[4][];
+        private MainMenu mainMenu;
 
         public delegate void UpdateEventD(float delta);
         public event UpdateEventD UpdateEvent;
@@ -42,9 +44,10 @@ namespace RayKeys {
             Graphics.PreferredBackBufferWidth = 1920;
             Graphics.PreferredBackBufferHeight = 1080;
             Graphics.SynchronizeWithVerticalRetrace = false;
+            Graphics.IsFullScreen = true;
             IsFixedTimeStep = false;
             Graphics.ApplyChanges();
-
+    
             Scaling = Graphics.PreferredBackBufferHeight / 1080.0f;
 
             base.Initialize();
@@ -53,14 +56,18 @@ namespace RayKeys {
         protected override void LoadContent() {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Font = Content.Load<SpriteFont>("Font");
+            for (int i = 0; i < Fonts.Length; i++) {
+                Fonts[i] = Content.Load<SpriteFont>("Fonts/Font" + i);
+            }
 
-              Sounds.Add("hitsound" , Content.Load<SoundEffect>("Sounds/hitsound" ));
+            Sounds.Add("hitsound" , Content.Load<SoundEffect>("Sounds/hitsound" ));
             Textures.Add("notes"    , Content.Load<Texture2D>("Textures/notes"    ));
             Textures.Add("keys"     , Content.Load<Texture2D>("Textures/keys"     ));
             Textures.Add("healthbar", Content.Load<Texture2D>("Textures/healthbar"));
-            
-            EngineManager.Start("1", 1.2f);
+            Textures.Add("button", Content.Load<Texture2D>("Textures/button"));
+
+            Console.WriteLine("hi");
+            mainMenu = new MainMenu();
         }
 
         protected override void Update(GameTime gameTime) {
@@ -69,6 +76,11 @@ namespace RayKeys {
                 Exit();
 
             UpdateEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
+
+            if (gameTime.TotalGameTime.TotalSeconds > 5 && mainMenu != null) {
+                mainMenu.PlayButtonPressed();
+                mainMenu = null;
+            }
 
             base.Update(gameTime);
         }
@@ -79,9 +91,9 @@ namespace RayKeys {
             SpriteBatch.Begin(/*blendState:BlendState.NonPremultiplied*/);
             
             DrawEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
-
+            
             string fpst = "FPS: " + Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds);
-            SpriteBatch.DrawString(Font, fpst, new Vector2(1910 - Font.MeasureString(fpst).X, 10), Color.White);
+            ThingTools.DrawString(fpst, 10, 10, 6);
 
             SpriteBatch.End();
             

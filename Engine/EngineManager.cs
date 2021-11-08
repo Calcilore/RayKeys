@@ -12,13 +12,16 @@ namespace RayKeys {
 
         public static void Start(string level, float speed = 1f) {
 
+            engines = new List<Engine>();
+            //Music.Stop();
+
             // Read Json
             string fileS = File.ReadAllText("Content/Levels/" + level + "/song.json");
             using JsonDocument doc = JsonDocument.Parse(fileS);
             JsonElement root = doc.RootElement;
             
             // Get BPS
-            bps = (float) (root.GetProperty("bpm").GetDouble() / 60d) * 4;
+            bps = (float) (root.GetProperty("bpm").GetDouble() / 60d);
             Console.WriteLine(bps);
 
             // Get notes

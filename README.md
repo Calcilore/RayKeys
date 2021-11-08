@@ -7,4 +7,4 @@
 ## How to compile:
 - press build (dotnet build)
 
-*Untested on windows*
+*Made for Linux and Windows*
