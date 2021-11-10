@@ -10,7 +10,7 @@ namespace RayKeys.Menu {
         private Button optionsButton;
         private Button[] levelButtons;
         private string t = "The best 6 key Rhythm Game!";
-        private Vector2 camTPos = new Vector2(1920, 0);
+        private Vector2 camTPos = Vector2.Zero;
 
         private Vector2 sm(int x, int y) {
             return new Vector2(RRender.resolution.X * x, RRender.resolution.Y * y);
@@ -38,7 +38,7 @@ namespace RayKeys.Menu {
             DirectoryInfo[] dis = levelF.GetDirectories();
             levelButtons = new Button[dis.Length];
             for (int i = 0; i < dis.Length; i++) {
-                levelButtons[i] = new Button(Align.Center, Align.Top, dis[i].Name, dis[i].Name, smx(1), 100 + (i * 100), 1200, 100, 3, false);
+                levelButtons[i] = new Button(Align.Center, Align.Top, dis[i].Name, EngineManager.GetName(dis[i].Name), smx(1), 100 + (i * 100), 1200, 100, 3, false);
                 levelButtons[i].ClickEvent += SongButtonPressed;
             }
 

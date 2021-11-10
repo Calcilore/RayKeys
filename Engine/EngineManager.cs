@@ -10,6 +10,14 @@ namespace RayKeys {
         private static List<Engine> engines = new List<Engine>();
         private static float bps;
 
+        public static string GetName(string level) {
+            string fileS = File.ReadAllText("Content/Levels/" + level + "/song.json");
+            using JsonDocument doc = JsonDocument.Parse(fileS);
+            JsonElement root = doc.RootElement;
+            
+            return root.GetProperty("name").GetString();
+        }
+        
         public static void Start(string level, float speed = 1f) {
 
             engines = new List<Engine>();
