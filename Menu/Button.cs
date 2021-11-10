@@ -14,15 +14,16 @@ namespace RayKeys.Menu {
         private int sizeX;
         private int sizeY;
         private bool drawFrame;
-        
-        public delegate void ClickEventD();
+
+        public delegate void ClickEventD(Button b);
         public event ClickEventD ClickEvent;
         
         public int x; public Align alh;
         public int y; public Align alv;
         public string text;
+        public string id;
 
-        public Button(Align h, Align v, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
+        public Button(Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
             tex = Game1.Game.Textures["button"];
             
             Game1.Game.DrawEvent += Draw;
@@ -31,6 +32,7 @@ namespace RayKeys.Menu {
             this.fontSize = fontSize;
             this.text = text;
             this.drawFrame = drawFrame;
+            this.id = id;
             alh = h;
             alv = v;
             
@@ -57,15 +59,16 @@ namespace RayKeys.Menu {
                 cColour = pressed ? Color.Gray : Color.LightGray;
 
                 if (!pressed && pressedLastFrame) {
-                    ClickEvent?.Invoke();
+                    ClickEvent?.Invoke(this);
                 }
             }
             else {
                 cColour = Color.White;
             }
             
+            if (drawFrame)
+                RRender.Draw(Align.None, Align.None, tex, new Rectangle(x, y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
             
-            RRender.Draw(Align.None, Align.None, tex, new Rectangle(x, y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
             RRender.DrawString(Align.None, Align.None, Align.Center, Align.Center, text, x + sizeX / 2, y + sizeY / 2, fontSize, cColour);
 
             pressedLastFrame = pressed;
