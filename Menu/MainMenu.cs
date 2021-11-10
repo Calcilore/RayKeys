@@ -7,8 +7,12 @@ namespace RayKeys.Menu {
         private string t = "The best 6 key Rhythm Game!";
 
         public void PlayButtonPressed() {
-            Game1.Game.DrawEvent -= Draw;
-            EngineManager.Start("1", 1.2f);
+            //Game1.Game.DrawEvent -= Draw;
+            //playButton.Delete();
+            //EngineManager.Start("1", 1f);
+
+            Console.WriteLine("Button PRessed!!");
+            ThingTools.cameraPos = new Vector2(1280, 0);
         }
         
         public MainMenu() {

@@ -26,6 +26,10 @@ namespace RayKeys.Menu {
             cColour = Color.White;
         }
 
+        public void Delete() {
+            Game1.Game.DrawEvent -= Draw;
+        }
+
         private void Draw(float delta) {
             MouseState ms = Mouse.GetState();
             bool pressed = ms.LeftButton == ButtonState.Pressed;

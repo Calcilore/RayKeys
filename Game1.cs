@@ -66,7 +66,6 @@ namespace RayKeys {
             Textures.Add("healthbar", Content.Load<Texture2D>("Textures/healthbar"));
             Textures.Add("button", Content.Load<Texture2D>("Textures/button"));
 
-            Console.WriteLine("hi");
             mainMenu = new MainMenu();
         }
 
@@ -76,11 +75,6 @@ namespace RayKeys {
                 Exit();
 
             UpdateEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
-
-            if (gameTime.TotalGameTime.TotalSeconds > 5 && mainMenu != null) {
-                mainMenu.PlayButtonPressed();
-                mainMenu = null;
-            }
 
             base.Update(gameTime);
         }
