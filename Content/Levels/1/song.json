@@ -3,8 +3,8 @@
   "artist": "Camellia",
   "bpm": 170,
   "players": [
-  	{"beatmap": 2, "xpos": 480, "controls": 0},
-  	{"beatmap": 1, "xpos": 1440, "controls": 1}
+  	{"beatmap": 2, "xpos": -480, "controls": 0},
+  	{"beatmap": 1, "xpos": 480, "controls": 1}
   ],
   "beatmaps": [
   	[

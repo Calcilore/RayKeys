@@ -74,7 +74,7 @@
 /processorParam:Quality=Best
 /build:Sounds/hitsound.wav
 
-#begin Textures/Button.png
+#begin Textures/button.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -84,7 +84,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/Button.png
+/build:Textures/button.png
 
 #begin Textures/healthbar.png
 /importer:TextureImporter

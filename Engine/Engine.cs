@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RayKeys.Render;
 
 namespace RayKeys {
     /*
@@ -166,21 +167,21 @@ namespace RayKeys {
         
         private void Draw(float delta) {
             for (int i = 0; i < 6; i++) {
-                ThingTools.DrawToSpriteBatch(keysTexture, xpos+(i-3)*96, 880, i*64, keysHeld[i] ? keysHeldOnHit[i] ? 128 : 64 : 0, 64, 64);
+                RRender.Draw(Align.Center, Align.Bottom, keysTexture, xpos+(i-3)*96, -200, i*64, keysHeld[i] ? keysHeldOnHit[i] ? 128 : 64 : 0, 64, 64);
             }
             
             foreach (Note n in notes) {
                 if (n.dead)
                     continue;
 
-                ThingTools.DrawToSpriteBatch(notesTexture, xpos+(n.lane-3)*96, 880 - (int)((n.time - frameTime) * 800f), n.lane*64, 0, 64, 64);
+                RRender.Draw(Align.Center, Align.Bottom, notesTexture, xpos+(n.lane-3)*96, -200 - (int)((n.time - frameTime) * 800f), n.lane*64, 0, 64, 64);
             }
 
             if (!autoPlay) {
                 healthD = ThingTools.Lerp(healthD, health, 10f * delta);
             
-                ThingTools.DrawToSpriteBatch(healthBarTexture, xpos - 200, 1040 - 10, 0, 40, 400, 40);
-                ThingTools.DrawToSpriteBatch(healthBarTexture, xpos - 200, 1040 - 10, 0, 0, (int) (400 * healthD), 40);
+                RRender.Draw(Align.Center, Align.Bottom, healthBarTexture, xpos - 200, -90, 0, 40, 400, 40);
+                RRender.Draw(Align.Center, Align.Bottom, healthBarTexture, xpos - 200, -90, 0, 0, (int) (400 * healthD), 40);
             }
         } 
     }

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.Menu;
+using RayKeys.Render;
 
 namespace RayKeys {
     public class Game1 : Game {
@@ -17,6 +18,7 @@ namespace RayKeys {
         public SpriteFont[] Fonts = new SpriteFont[7];
         public Keys[][] Controls = new Keys[4][];
         private MainMenu mainMenu;
+        private FPSCounter fpsCounter = new FPSCounter();
 
         public delegate void UpdateEventD(float delta);
         public event UpdateEventD UpdateEvent;
@@ -28,6 +30,7 @@ namespace RayKeys {
             Game = this;
             Graphics = new GraphicsDeviceManager(this);
             AudioManager.Initialize();
+            RRender.resolution = new Point(1920, 1080);
 
             Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
             Controls[1] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
@@ -44,7 +47,7 @@ namespace RayKeys {
             Graphics.PreferredBackBufferWidth = 1920;
             Graphics.PreferredBackBufferHeight = 1080;
             Graphics.SynchronizeWithVerticalRetrace = false;
-            Graphics.IsFullScreen = true;
+            //Graphics.IsFullScreen = true;
             IsFixedTimeStep = false;
             Graphics.ApplyChanges();
     
@@ -67,13 +70,15 @@ namespace RayKeys {
             Textures.Add("button", Content.Load<Texture2D>("Textures/button"));
 
             mainMenu = new MainMenu();
+            //EngineManager.Start("1");
         }
 
         protected override void Update(GameTime gameTime) {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
+            
+            fpsCounter.Update(gameTime);
             UpdateEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
@@ -83,11 +88,12 @@ namespace RayKeys {
             GraphicsDevice.Clear(Color.Black);
 
             SpriteBatch.Begin(/*blendState:BlendState.NonPremultiplied*/);
-            
+
+            Button.cursorType = false;
             DrawEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
-            
-            string fpst = "FPS: " + Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds);
-            ThingTools.DrawString(fpst, 10, 10, 6);
+            Mouse.SetCursor( Button.cursorType ? MouseCursor.Hand : MouseCursor.Arrow);
+
+            fpsCounter.DrawFps();
 
             SpriteBatch.End();
             
