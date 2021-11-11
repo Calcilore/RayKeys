@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.Menu;
+using RayKeys.Options;
 using RayKeys.Render;
 
 namespace RayKeys {
@@ -29,7 +30,8 @@ namespace RayKeys {
         public Game1() {
             Game = this;
             Graphics = new GraphicsDeviceManager(this);
-            AudioManager.Initialize();
+            AudioManager.Initialise();
+            OptionsManager.Initialise();
             RRender.resolution = new Point(1920, 1080);
 
             Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
@@ -44,12 +46,12 @@ namespace RayKeys {
         protected override void Initialize() {
             // TODO: Add your initialization logic here
             
-            Graphics.PreferredBackBufferWidth = 1920;
-            Graphics.PreferredBackBufferHeight = 1080;
-            Graphics.SynchronizeWithVerticalRetrace = false;
+            // Graphics.PreferredBackBufferWidth = 1920;
+            // Graphics.PreferredBackBufferHeight = 1080;
+            // Graphics.SynchronizeWithVerticalRetrace = false;
             //Graphics.IsFullScreen = true;
-            IsFixedTimeStep = false;
-            Graphics.ApplyChanges();
+            //IsFixedTimeStep = false;
+            //Graphics.ApplyChanges();
     
             Scaling = Graphics.PreferredBackBufferHeight / 1080.0f;
 
@@ -74,10 +76,7 @@ namespace RayKeys {
         }
 
         protected override void Update(GameTime gameTime) {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-            
+
             fpsCounter.Update(gameTime);
             UpdateEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
 

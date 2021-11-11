@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using RayKeys.Options;
 using RayKeys.Render;
 
 namespace RayKeys.Menu {
     public class MainMenu {
-        private Button playButton;
-        private Button optionsButton;
-        private Button[] levelButtons;
-        private string t = "The best 6 key Rhythm Game!";
+        private Dictionary<string, Button> buttons = new Dictionary<string, Button>();
+
         private Vector2 camTPos = Vector2.Zero;
 
         private Vector2 sm(int x, int y) {
@@ -24,22 +25,59 @@ namespace RayKeys.Menu {
             return RRender.resolution.Y * y;
         }
         
+        private void addNavigator(int xn, int yn, Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
+            Button a = new Button(h, v, id, text, x, y, sizeX, sizeY, fontSize, drawFrame);
+            a.ClickEvent += NavigatorPressed;
+            a.Arg = new Vector2(smx(xn), smy(yn));
+            buttons.Add(id, a);
+        }
+        
+        private void addOptionButton(string option, string[] values, Align h, Align v, string id, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
+            Option optionO = OptionsManager.GetOption(option);
+            string text = "Invalid Option";
+            if (optionO.OptionType == OptionType.Boolean) {
+                text = (bool) optionO.currentValue ? values[0] : values[1];
+            } else if (optionO.OptionType == OptionType.Switcher) {
+                text = (string) optionO.currentValue;
+            }
+            
+            Button a = new Button(h, v, id, text, x, y, sizeX, sizeY, fontSize, drawFrame);
+            a.ClickEvent += OptionChangerPressed;
+            string[][] sa = new string[2][];
+            sa[0] = new string[] {option};
+            sa[1] = values;
+            a.Arg = sa;
+            buttons.Add(id, a);
+        }
+
         public MainMenu() {
             Game1.Game.DrawEvent += Draw;
 
-            playButton = new Button(Align.Center, Align.Top, "play", "Play", 0, 400);
-            playButton.ClickEvent += PlayButtonPressed;
+            addNavigator(1, 0, Align.Center, Align.Top, "play", "Play", 0, 350);
+            addNavigator(0, 0, Align.Right, Align.Top, "backplay", "Back", 200, 0, 175, 100, 4, false);
+            addNavigator(-1, 0, Align.Center, Align.Top, "options", "Options", 0, 600);
+            addNavigator(0, 0, Align.Left, Align.Top, "backoptions", "Back", -200, 0, 175, 100, 4, false);
 
-            optionsButton = new Button(Align.Center, Align.Top, "options", "Options", 0, 650);
-            optionsButton.ClickEvent += OptionsButtonPressed;
+            
+            // TODO: make the resolutions change the position of buttons when thing do
+            List<string> resolutions = new List<string>();
+            foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes) {
+                resolutions.Add($"{mode.Width}x{mode.Height}");
+            }
+
+            addOptionButton("limitfps"  , new string[] {"Limit FPS", "Unlimited FPS"}, Align.Center, Align.Top, "limitfps"  , smx(-1) - 450, 100, sizeX: 800);
+            addOptionButton("fpslimit"  , new string[] {"30", "60", "75", "120", "144", "165", "240", "1000"}, Align.Center, Align.Top, "fpslimit", smx(-1) + 450, 100, sizeX: 800);
+            addOptionButton("resolution", resolutions.Distinct().ToArray(), Align.Center, Align.Top, "resolution", smx(-1) - 450, 350, sizeX: 800);
+            addOptionButton("vsync"     , new string[] {"VSync", "No VSync"}, Align.Center, Align.Top, "vsync", smx(-1) + 450, 350, sizeX: 800);
 
             // Get The Levels in the folder
             DirectoryInfo levelF = new DirectoryInfo("Content/Levels/");
             DirectoryInfo[] dis = levelF.GetDirectories();
-            levelButtons = new Button[dis.Length];
             for (int i = 0; i < dis.Length; i++) {
-                levelButtons[i] = new Button(Align.Center, Align.Top, dis[i].Name, EngineManager.GetName(dis[i].Name), smx(1), 100 + (i * 100), 1200, 100, 3, false);
-                levelButtons[i].ClickEvent += SongButtonPressed;
+                Button levelB = new Button(Align.Center, Align.Top, "levelselect" + i, EngineManager.GetName(dis[i].Name), smx(1), 100 + (i * 100), 1200, 100, 3, false);
+                levelB.ClickEvent += SongButtonPressed;
+                levelB.Arg = dis[i].Name;
+                buttons.Add("levelselect" + i, levelB);
             }
 
             levelF.GetDirectories();
@@ -47,29 +85,50 @@ namespace RayKeys.Menu {
 
         private void Draw(float delta) {
             RRender.cameraPos = new Vector2(
-                ThingTools.Lerp(RRender.cameraPos.X, camTPos.X, 2f * delta),
-                ThingTools.Lerp(RRender.cameraPos.Y, camTPos.Y, 2f * delta));
+                ThingTools.Lerp(RRender.cameraPos.X, camTPos.X, 10f * delta),
+                ThingTools.Lerp(RRender.cameraPos.Y, camTPos.Y, 10f * delta));
             
             RRender.DrawString(Align.Center, Align.Top, "RayKeys!", 0, 0, 1);
-            RRender.DrawString(Align.Center, Align.Top, t, 0, 164, 5);
+            RRender.DrawString(Align.Center, Align.Top, "The Best 6 Key Rhythm Game!", 0, 164, 5);
         }
         
-        public void PlayButtonPressed(Button b) {
-            camTPos = new Vector2(smx(1), 0);
+        private void NavigatorPressed(string id, object arg) {
+            camTPos = (Vector2) arg;
         }
 
-        public void OptionsButtonPressed(Button b) {
-            camTPos = new Vector2(smx(-1), 0);
+        private void OptionChangerPressed(string id, object arg) {
+            string option = ((string[][]) arg)[0][0];
+            string[] values = ((string[][]) arg)[1];
+            Option cOption = OptionsManager.GetOption(option);
+
+            string valueTo;
+
+            if (cOption.OptionType == OptionType.Boolean) {
+                OptionsManager.SetOption(option, !(bool) cOption.currentValue);
+                valueTo = !(bool) cOption.currentValue ? values[1] : values[0];
+            } else if (cOption.OptionType == OptionType.Switcher) {
+                int cI = -1;
+                for (int i = 0; i < values.Length; i++) {
+                    if ((string) cOption.currentValue == values[i]) {
+                        cI = i;
+                        break;
+                    }
+                }
+                
+                valueTo = values[cI >= values.Length - 1 ? 0 : cI + 1];
+                OptionsManager.SetOption(option, valueTo);
+            } else return;
+
+            buttons[id].text = valueTo;
         }
 
-        public void SongButtonPressed(Button b) {
+        private void SongButtonPressed(string id, object arg) {
             camTPos = Vector2.Zero;
             RRender.cameraPos = Vector2.Zero;
-            foreach (Button bu in levelButtons) { bu.Delete(); }
-            playButton.Delete(); optionsButton.Delete();
+            foreach (Button bu in buttons.Values) { bu.Delete(); }
             Game1.Game.DrawEvent -= Draw;
 
-            EngineManager.Start(b.id);
+            EngineManager.Start((string) arg);
         }
     }
 }

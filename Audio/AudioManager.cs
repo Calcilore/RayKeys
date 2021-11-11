@@ -9,7 +9,7 @@ namespace RayKeys {
         private Media media;
         private MediaPlayer mediaPlayer;
 
-        public static void Initialize() {
+        public static void Initialise() {
             Core.Initialize();
             _libVLC = new LibVLC(false);
         }

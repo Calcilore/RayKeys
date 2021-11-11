@@ -6,7 +6,9 @@ using RayKeys.Render;
 namespace RayKeys.Menu {
     public class Button {
         public static bool cursorType; // False = Arrow, True = Hand
-        
+
+        public object Arg;
+
         private Texture2D tex;
         private Color cColour;
         private bool pressedLastFrame;
@@ -15,7 +17,7 @@ namespace RayKeys.Menu {
         private int sizeY;
         private bool drawFrame;
 
-        public delegate void ClickEventD(Button b);
+        public delegate void ClickEventD(string id, object arg);
         public event ClickEventD ClickEvent;
         
         public int x; public Align alh;
@@ -59,7 +61,7 @@ namespace RayKeys.Menu {
                 cColour = pressed ? Color.Gray : Color.LightGray;
 
                 if (!pressed && pressedLastFrame) {
-                    ClickEvent?.Invoke(this);
+                    ClickEvent?.Invoke(id, Arg);
                 }
             }
             else {
