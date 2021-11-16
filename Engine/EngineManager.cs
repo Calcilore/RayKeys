@@ -5,10 +5,10 @@ using System.Text.Json;
 using Microsoft.Xna.Framework.Input;
 
 namespace RayKeys {
-    public class EngineManager {
+    public class EngineManager : Scene {
         public static AudioManager Music = new AudioManager();
-        private static List<Engine> engines = new List<Engine>();
-        private static float bps;
+        private List<Engine> engines = new List<Engine>();
+        private float bps;
 
         public static string GetName(string level) {
             string fileS = File.ReadAllText("Content/Levels/" + level + "/song.json");
@@ -17,8 +17,14 @@ namespace RayKeys {
             
             return root.GetProperty("name").GetString();
         }
+
+        public EngineManager() { }
+
+        public EngineManager(string level, float speed = 1f) {
+            Start(level, speed);
+        }
         
-        public static void Start(string level, float speed = 1f) {
+        public void Start(string level, float speed = 1f) {
 
             engines = new List<Engine>();
             //Music.Stop();

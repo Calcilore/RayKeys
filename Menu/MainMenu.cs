@@ -8,21 +8,17 @@ using RayKeys.Options;
 using RayKeys.Render;
 
 namespace RayKeys.Menu {
-    public class MainMenu {
+    public class MainMenu : Scene {
         private Dictionary<string, Button> buttons = new Dictionary<string, Button>();
 
         private Vector2 camTPos = Vector2.Zero;
 
-        private Vector2 sm(int x, int y) {
-            return new Vector2(RRender.resolution.X * x, RRender.resolution.Y * y);
-        }
-        
         private int smx(int x) {
-            return RRender.resolution.X * x;
+            return Math.Min(RRender.resolution.X * x, 1920);
         }
         
         private int smy(int y) {
-            return RRender.resolution.Y * y;
+            return Math.Min(RRender.resolution.Y * y, 1080);
         }
         
         private void addNavigator(int xn, int yn, Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
@@ -69,6 +65,8 @@ namespace RayKeys.Menu {
             addOptionButton("fpslimit"  , new string[] {"30", "60", "75", "120", "144", "165", "240", "1000"}, Align.Center, Align.Top, "fpslimit", smx(-1) + 450, 100, sizeX: 800);
             addOptionButton("resolution", resolutions.Distinct().ToArray(), Align.Center, Align.Top, "resolution", smx(-1) - 450, 350, sizeX: 800);
             addOptionButton("vsync"     , new string[] {"VSync", "No VSync"}, Align.Center, Align.Top, "vsync", smx(-1) + 450, 350, sizeX: 800);
+            addOptionButton("fullscreen", new string[] {"Fullscreen", "Windowed"}, Align.Center, Align.Top, "fullscreen", smx(-1) - 450, 600, sizeX: 800);
+            addOptionButton("downscroll", new string[] {"Downscroll", "Upscroll"}, Align.Center, Align.Top, "downscroll", smx(-1) + 450, 600, sizeX: 800);
 
             // Get The Levels in the folder
             DirectoryInfo levelF = new DirectoryInfo("Content/Levels/");
@@ -123,12 +121,8 @@ namespace RayKeys.Menu {
         }
 
         private void SongButtonPressed(string id, object arg) {
-            camTPos = Vector2.Zero;
-            RRender.cameraPos = Vector2.Zero;
-            foreach (Button bu in buttons.Values) { bu.Delete(); }
-            Game1.Game.DrawEvent -= Draw;
-
-            EngineManager.Start((string) arg);
+            Game1.Game.PrepareLoadScene();
+            Game1.Game.LoadScene(new EngineManager((string) arg));
         }
     }
 }

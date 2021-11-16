@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RayKeys.Options;
 using RayKeys.Render;
 
 namespace RayKeys {
@@ -24,6 +25,8 @@ namespace RayKeys {
         private float[] autoPlayKeyTimer = new float[6];
         private int xpos;
         private float speed;
+        private int downscrollMul;
+        private bool downscroll;
 
         private bool[] keysHeld = new bool[6];      // currently held keys
         private bool[] keysHeld2 = new bool[6];     // keys held last frame and keys that were tapped (changes during the frame)
@@ -54,6 +57,9 @@ namespace RayKeys {
             notesTexture = Game1.Game.Textures["notes"];
             keysTexture = Game1.Game.Textures["keys"];
             healthBarTexture = Game1.Game.Textures["healthbar"];
+
+            downscroll = (bool) OptionsManager.GetOption("downscroll").currentValue;
+            downscrollMul = downscroll ? 1 : -1;
 
             // temporary random charting
             for (float i = 3; i < 1000; i += 0.176470589f) {
@@ -166,22 +172,24 @@ namespace RayKeys {
         }
         
         private void Draw(float delta) {
+            Align vAl = downscroll ? Align.Bottom : Align.Top;
+            
             for (int i = 0; i < 6; i++) {
-                RRender.Draw(Align.Center, Align.Bottom, keysTexture, xpos+(i-3)*96, -200, i*64, keysHeld[i] ? keysHeldOnHit[i] ? 128 : 64 : 0, 64, 64);
+                RRender.Draw(Align.Center, vAl, keysTexture, xpos+(i-3)*96, (-200 * downscrollMul), i*64, keysHeld[i] ? keysHeldOnHit[i] ? 128 : 64 : 0, 64, 64);
             }
             
             foreach (Note n in notes) {
                 if (n.dead)
                     continue;
 
-                RRender.Draw(Align.Center, Align.Bottom, notesTexture, xpos+(n.lane-3)*96, -200 - (int)((n.time - frameTime) * 800f), n.lane*64, 0, 64, 64);
+                RRender.Draw(Align.Center, vAl, notesTexture, xpos+(n.lane-3)*96, (-200 * downscrollMul) - (int)((n.time - frameTime) * 800f * downscrollMul), n.lane*64, 0, 64, 64);
             }
 
             if (!autoPlay) {
                 healthD = ThingTools.Lerp(healthD, health, 10f * delta);
             
-                RRender.Draw(Align.Center, Align.Bottom, healthBarTexture, xpos - 200, -90, 0, 40, 400, 40);
-                RRender.Draw(Align.Center, Align.Bottom, healthBarTexture, xpos - 200, -90, 0, 0, (int) (400 * healthD), 40);
+                RRender.Draw(Align.Center, vAl, healthBarTexture, xpos - 200, -90 * downscrollMul, 0, 40, 400, 40);
+                RRender.Draw(Align.Center, vAl, healthBarTexture, xpos - 200, -90 * downscrollMul, 0, 0, (int) (400 * healthD), 40);
             }
         } 
     }

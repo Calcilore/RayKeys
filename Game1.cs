@@ -18,8 +18,12 @@ namespace RayKeys {
         public Dictionary<string, SoundEffect> Sounds = new Dictionary<string, SoundEffect>();
         public SpriteFont[] Fonts = new SpriteFont[7];
         public Keys[][] Controls = new Keys[4][];
-        private MainMenu mainMenu;
+        public Rectangle RenderRectangle { get; private set; }
+
+        private Scene currentScene;
+        //private MainMenu mainMenu;
         private FPSCounter fpsCounter = new FPSCounter();
+        private RenderTarget2D test;
 
         public delegate void UpdateEventD(float delta);
         public event UpdateEventD UpdateEvent;
@@ -30,30 +34,25 @@ namespace RayKeys {
         public Game1() {
             Game = this;
             Graphics = new GraphicsDeviceManager(this);
-            AudioManager.Initialise();
-            OptionsManager.Initialise();
-            RRender.resolution = new Point(1920, 1080);
 
-            Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
-            Controls[1] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
-            Controls[2] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
-            Controls[3] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
-            
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
 
         protected override void Initialize() {
-            // TODO: Add your initialization logic here
-            
-            // Graphics.PreferredBackBufferWidth = 1920;
-            // Graphics.PreferredBackBufferHeight = 1080;
-            // Graphics.SynchronizeWithVerticalRetrace = false;
-            //Graphics.IsFullScreen = true;
-            //IsFixedTimeStep = false;
-            //Graphics.ApplyChanges();
-    
             Scaling = Graphics.PreferredBackBufferHeight / 1080.0f;
+            
+            AudioManager.Initialise();
+            OptionsManager.Initialise();
+
+            RRender.resolution = new Point(1920, 1080);
+
+            test = new RenderTarget2D(GraphicsDevice, 1920, 1080, false, GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24);
+
+            Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
+            Controls[1] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
+            Controls[2] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
+            Controls[3] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
 
             base.Initialize();
         }
@@ -71,7 +70,8 @@ namespace RayKeys {
             Textures.Add("healthbar", Content.Load<Texture2D>("Textures/healthbar"));
             Textures.Add("button", Content.Load<Texture2D>("Textures/button"));
 
-            mainMenu = new MainMenu();
+            PrepareLoadScene();
+            LoadScene(new MainMenu());
             //EngineManager.Start("1");
         }
 
@@ -83,9 +83,26 @@ namespace RayKeys {
             base.Update(gameTime);
         }
 
+        public void PrepareLoadScene() {
+            UpdateEvent = null;
+            DrawEvent = null;
+        }
+
+        public void LoadScene(Scene scene) {
+            RRender.cameraPos = Vector2.Zero;
+            currentScene = scene;
+        }
+
+        public void RedoRenderPos() {
+            Point thing = new Point((int) (1920 * Scaling), (int) (1080 * Scaling));
+            RenderRectangle = new Rectangle((Graphics.PreferredBackBufferWidth - thing.X) / 2,
+                (Graphics.PreferredBackBufferHeight - thing.Y) / 2, thing.X, thing.Y);
+        }
+        
         protected override void Draw(GameTime gameTime) {
             GraphicsDevice.Clear(Color.Black);
 
+            GraphicsDevice.SetRenderTarget(test);
             SpriteBatch.Begin(/*blendState:BlendState.NonPremultiplied*/);
 
             Button.cursorType = false;
@@ -93,7 +110,13 @@ namespace RayKeys {
             Mouse.SetCursor( Button.cursorType ? MouseCursor.Hand : MouseCursor.Arrow);
 
             fpsCounter.DrawFps();
-
+            
+            SpriteBatch.End();
+            SpriteBatch.Begin();
+            
+            GraphicsDevice.SetRenderTarget(null);
+            SpriteBatch.Draw(test, RenderRectangle, new Rectangle(0, 0, 1920, 1080), Color.White);
+            
             SpriteBatch.End();
             
             base.Draw(gameTime);

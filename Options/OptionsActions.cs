@@ -15,14 +15,22 @@ namespace RayKeys.Options {
 
         public static void ResolutionChanged(object v) {
             string[] vs = ((string) v).Split('x');
-            RRender.resolution = new Point(int.Parse(vs[0]), int.Parse(vs[1]));
-            Game1.Game.Graphics.PreferredBackBufferWidth = RRender.resolution.X;
-            Game1.Game.Graphics.PreferredBackBufferHeight = RRender.resolution.Y;
+            Point a = new Point(int.Parse(vs[0]), int.Parse(vs[1]));
+            //RRender.resolution = a;
+            Game1.Game.Graphics.PreferredBackBufferWidth = a.X;
+            Game1.Game.Graphics.PreferredBackBufferHeight = a.Y;
+            Game1.Game.Scaling = Math.Min(a.X / 1920.0f, a.Y / 1080.0f);
             Game1.Game.Graphics.ApplyChanges();
+            Game1.Game.RedoRenderPos();
         }
         
         public static void VSyncChanged(object v) {
             Game1.Game.Graphics.SynchronizeWithVerticalRetrace = (bool)v;
+            Game1.Game.Graphics.ApplyChanges();
+        }
+        
+        public static void FullscreenChanged(object v) {
+            Game1.Game.Graphics.IsFullScreen = (bool)v;
             Game1.Game.Graphics.ApplyChanges();
         }
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.Render;
@@ -52,7 +53,11 @@ namespace RayKeys.Menu {
 
         private void Draw(float delta) {
             MouseState ms = Mouse.GetState();
-            Point pos = ms.Position + RRender.cameraPos.ToPoint();
+
+            // funny window things
+            Point pos = ((ms.Position - Game1.Game.RenderRectangle.Location).ToVector2() / Game1.Game.Scaling).ToPoint();
+            pos += RRender.cameraPos.ToPoint();
+
             bool pressed = ms.LeftButton == ButtonState.Pressed;
             
             if ( pos.X >= x && pos.X <= x + sizeX &&
