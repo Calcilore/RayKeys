@@ -30,7 +30,7 @@ namespace RayKeys.Render {
             Game1.Game.SpriteBatch.Draw(
                 texture, 
                 new Rectangle(AlPosP(h, v, dr.X, dr.Y) - cameraPos.ToPoint(), new Point(dr.Width, dr.Height)),
-                   new Rectangle(sr.X, sr.Y, sr.Width, sr.Height),
+                   sr,
                 color);
         }
         
@@ -38,7 +38,7 @@ namespace RayKeys.Render {
             Game1.Game.SpriteBatch.Draw(
                 texture, 
                 new Rectangle(AlPosP(h, v, dr.X, dr.Y), new Point(dr.Width, dr.Height)),
-                new Rectangle(sr.X, sr.Y, sr.Width, sr.Height),
+                sr,
                 color);
         }
 
@@ -87,15 +87,5 @@ namespace RayKeys.Render {
         
         public static void DrawString(Align h, Align v, Align th, Align tv, string text, int px, int py, int scale) 
         { DrawString(h, v, th, tv, text, px, py, scale, Color.White); }
-        
-        // public static void DrawStringCentered(string text, int px, int py, int scale) {
-        //     DrawStringCentered(text, px, py, scale, Color.White);
-        // }
-        //
-        // public static void DrawStringCentered(string text, int px, int py, int scale, Color color) {
-        //     Vector2 pos = new Vector2(px, py) - Game1.Game.Fonts[scale].MeasureString(text) / 2;
-        //     DrawString(text, (int) pos.X, (int) pos.Y, scale, color);
-        //     //Game1.Game.SpriteBatch.DrawString(Game1.Game.Fonts[scale], text, pos, color);
-        // }
     }
 }

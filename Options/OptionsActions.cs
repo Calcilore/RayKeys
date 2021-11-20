@@ -10,7 +10,9 @@ namespace RayKeys.Options {
         }
 
         public static void FPSLimitChanged(object v) {
-            Game1.Game.TargetElapsedTime = TimeSpan.FromSeconds(1 / float.Parse((string)v));
+            string fpsS = (string) v;
+            float fps = float.Parse(fpsS[..fpsS.IndexOf(" ")]);
+            Game1.Game.TargetElapsedTime = TimeSpan.FromSeconds(1 / fps);
         }
 
         public static void ResolutionChanged(object v) {

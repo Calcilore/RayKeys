@@ -40,6 +40,7 @@ namespace RayKeys.Options {
             AddOption("vsync", OptionType.Boolean, false, root, OptionsActions.VSyncChanged);
             AddOption("fullscreen", OptionType.Boolean, false, root, OptionsActions.FullscreenChanged);
             AddOption("downscroll", OptionType.Boolean, true, root);
+            AddOption("repositiontracks", OptionType.Boolean, false, root);
         }
         
         public static Option GetOption(string id) {

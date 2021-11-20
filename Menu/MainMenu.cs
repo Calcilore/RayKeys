@@ -4,12 +4,19 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using RayKeys.Options;
 using RayKeys.Render;
 
 namespace RayKeys.Menu {
     public class MainMenu : Scene {
         private Dictionary<string, Button> buttons = new Dictionary<string, Button>();
+        private Dictionary<string, int> levelButtons = new Dictionary<string, int>(); // <string id, int yPosition (without scroll)>
+        private Dictionary<string, Dictionary<string, int>> categories = new Dictionary<string, Dictionary<string, int>>();
+        private string currentCategory;
+
+        private Point scrollBounds = Point.Zero; // X is higher, Y is lower (just wanted 2 ints)
+        private int scrollPos = 0;
 
         private Vector2 camTPos = Vector2.Zero;
 
@@ -21,14 +28,16 @@ namespace RayKeys.Menu {
             return Math.Min(RRender.resolution.Y * y, 1080);
         }
         
-        private void addNavigator(int xn, int yn, Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
+        private void addNavigator(int xn, int yn, int spbt, int scbb, Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
             Button a = new Button(h, v, id, text, x, y, sizeX, sizeY, fontSize, drawFrame);
             a.ClickEvent += NavigatorPressed;
-            a.Arg = new Vector2(smx(xn), smy(yn));
+            a.Arg = new Rectangle(smx(xn), smy(yn), spbt, scbb); // rectangle because i need 4 ints in one variable
             buttons.Add(id, a);
+
+            scrollBounds = new Point(spbt, scbb);
         }
         
-        private void addOptionButton(string option, string[] values, Align h, Align v, string id, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
+        private void addOptionButton(string option, string[] values, string category, Align h = Align.Center, Align v = Align.Top, int sizeX = 1000, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
             Option optionO = OptionsManager.GetOption(option);
             string text = "Invalid Option";
             if (optionO.OptionType == OptionType.Boolean) {
@@ -36,37 +45,88 @@ namespace RayKeys.Menu {
             } else if (optionO.OptionType == OptionType.Switcher) {
                 text = (string) optionO.currentValue;
             }
-            
-            Button a = new Button(h, v, id, text, x, y, sizeX, sizeY, fontSize, drawFrame);
+
+            int y = categories[category].Count * 250 + 100;
+
+            Button a = new Button(Align.Center, Align.Top, option, text, smx(-1), y, sizeX, sizeY, fontSize, drawFrame);
             a.ClickEvent += OptionChangerPressed;
             string[][] sa = new string[2][];
             sa[0] = new string[] {option};
             sa[1] = values;
             a.Arg = sa;
-            buttons.Add(id, a);
+            buttons.Add(option, a);
+            
+            // categories
+            categories[category].Add(option, y);
+        }
+
+        private void CreateCategory(string category) {
+            categories.Add(category, new Dictionary<string, int>());
+        }
+
+        private void ChangeCategory(string category) {
+            if (currentCategory != null)
+                foreach (string id in categories[currentCategory].Keys) {
+                    Button button = buttons[id];
+                    button.Hide();
+                }
+            
+            foreach (string id in categories[category].Keys) {
+                Button button = buttons[id];
+                button.Show();
+            }
+
+            currentCategory = category;
+            scrollBounds = new Point(0, categories[category].Count * 250 + 100);
         }
 
         public MainMenu() {
             Game1.Game.DrawEvent += Draw;
 
-            addNavigator(1, 0, Align.Center, Align.Top, "play", "Play", 0, 350);
-            addNavigator(0, 0, Align.Right, Align.Top, "backplay", "Back", 200, 0, 175, 100, 4, false);
-            addNavigator(-1, 0, Align.Center, Align.Top, "options", "Options", 0, 600);
-            addNavigator(0, 0, Align.Left, Align.Top, "backoptions", "Back", -200, 0, 175, 100, 4, false);
-
-            
-            // TODO: make the resolutions change the position of buttons when thing do
+            // Get all of the resolutions and put them into a list
             List<string> resolutions = new List<string>();
             foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes) {
                 resolutions.Add($"{mode.Width}x{mode.Height}");
             }
+            
+            // Create Categories
+            CreateCategory("Graphics");
+            CreateCategory("Gameplay");
 
-            addOptionButton("limitfps"  , new string[] {"Limit FPS", "Unlimited FPS"}, Align.Center, Align.Top, "limitfps"  , smx(-1) - 450, 100, sizeX: 800);
-            addOptionButton("fpslimit"  , new string[] {"30", "60", "75", "120", "144", "165", "240", "1000"}, Align.Center, Align.Top, "fpslimit", smx(-1) + 450, 100, sizeX: 800);
-            addOptionButton("resolution", resolutions.Distinct().ToArray(), Align.Center, Align.Top, "resolution", smx(-1) - 450, 350, sizeX: 800);
-            addOptionButton("vsync"     , new string[] {"VSync", "No VSync"}, Align.Center, Align.Top, "vsync", smx(-1) + 450, 350, sizeX: 800);
-            addOptionButton("fullscreen", new string[] {"Fullscreen", "Windowed"}, Align.Center, Align.Top, "fullscreen", smx(-1) - 450, 600, sizeX: 800);
-            addOptionButton("downscroll", new string[] {"Downscroll", "Upscroll"}, Align.Center, Align.Top, "downscroll", smx(-1) + 450, 600, sizeX: 800);
+            // Create Category Buttons
+            {
+                int sPos = categories.Count * -75 + 75;
+                string[] categoriesKeys = categories.Keys.ToArray();
+                for (int i = 0; i < categories.Count; i++) {
+                    string category = categoriesKeys[i];
+                    string id = "categorybutton:" + category;
+                    Button button = new Button(Align.Left, Align.Center, id, category, smx(-1) + 50, sPos + 150 * i, 300, 100, 5);
+                    button.Arg = category;
+                    button.ClickEvent += CategoryButtonPressed;
+                    buttons.Add(id, button);
+                }
+            }
+
+            // Graphics Category
+            addOptionButton("limitfps"  , new string[] {"Limit FPS", "Unlimited FPS"}, "Graphics");
+            addOptionButton("fpslimit"  , new string[] {"30 FPS", "60 FPS", "75 FPS", "120 FPS", "144 FPS", "165 FPS", "240 FPS", "1000 FPS"}, "Graphics");
+            addOptionButton("resolution", resolutions.Distinct().ToArray(), "Graphics"); // remove dupes from list and convert to array
+            addOptionButton("vsync"     , new string[] {"VSync", "No VSync"}, "Graphics");
+            addOptionButton("fullscreen", new string[] {"Fullscreen", "Windowed"}, "Graphics");
+            
+            // Gameplay Category
+            addOptionButton("downscroll", new string[] {"Downscroll", "Upscroll"}, "Gameplay");
+            addOptionButton("repositiontracks", new string[] {"Reposition Tracks", "Normal Tracks"}, "Gameplay");
+
+            // Hide all categories
+            foreach (Dictionary<string, int> category in categories.Values) {
+                foreach ((string id, int pos) in category) {
+                    Button button = buttons[id];
+                    button.Hide();
+                }
+            }
+            
+            ChangeCategory("Graphics");
 
             // Get The Levels in the folder
             DirectoryInfo levelF = new DirectoryInfo("Content/Levels/");
@@ -76,12 +136,33 @@ namespace RayKeys.Menu {
                 levelB.ClickEvent += SongButtonPressed;
                 levelB.Arg = dis[i].Name;
                 buttons.Add("levelselect" + i, levelB);
+                levelButtons.Add(levelB.Id, levelB.Y);
             }
 
-            levelF.GetDirectories();
+            // Add Navigators
+            addNavigator(1, 0, 0, (dis.Length * 100) + 200, Align.Center, Align.Top, "play", "Play", 0, 350);
+            addNavigator(0, 0, 0, 0, Align.Right, Align.Top, "backplay", "Back", 200, 0, 175, 100, 4, false);
+            addNavigator(-1, 0, 0, categories[currentCategory].Count * 250 + 100, Align.Center, Align.Top, "options", "Options", 0, 600);
+            addNavigator(0, 0, 0, 0, Align.Left, Align.Top, "backoptions", "Back", -200, 0, 175, 100, 4, false);
         }
 
         private void Draw(float delta) {
+            scrollPos -= ThingTools.GetScrollFrame();
+            scrollPos = Math.Min(scrollPos, scrollBounds.Y - 1080); // Do the bottom first so that if it breaks both, it will place down
+            scrollPos = Math.Max(scrollPos, scrollBounds.X);
+
+            foreach ((string key, int value) in levelButtons) {
+                Button button = buttons[key];
+                button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
+            }
+
+            foreach ( Dictionary<string, int> category in categories.Values) {
+                foreach ((string key, int value) in category) {
+                    Button button = buttons[key];
+                    button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
+                }
+            }
+
             RRender.cameraPos = new Vector2(
                 ThingTools.Lerp(RRender.cameraPos.X, camTPos.X, 10f * delta),
                 ThingTools.Lerp(RRender.cameraPos.Y, camTPos.Y, 10f * delta));
@@ -91,7 +172,13 @@ namespace RayKeys.Menu {
         }
         
         private void NavigatorPressed(string id, object arg) {
-            camTPos = (Vector2) arg;
+            Rectangle ar = (Rectangle) arg;
+            camTPos = new Vector2(ar.X, ar.Y);
+            scrollBounds = new Point(ar.Width, ar.Height);
+        }
+        
+        private void CategoryButtonPressed(string id, object arg) {
+            ChangeCategory((string) arg);
         }
 
         private void OptionChangerPressed(string id, object arg) {
@@ -117,7 +204,7 @@ namespace RayKeys.Menu {
                 OptionsManager.SetOption(option, valueTo);
             } else return;
 
-            buttons[id].text = valueTo;
+            buttons[id].Text = valueTo;
         }
 
         private void SongButtonPressed(string id, object arg) {

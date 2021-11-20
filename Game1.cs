@@ -77,8 +77,11 @@ namespace RayKeys {
 
         protected override void Update(GameTime gameTime) {
 
+            float delta = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            
+            ThingTools.ThingToolsUpdate(delta);
             fpsCounter.Update(gameTime);
-            UpdateEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
+            UpdateEvent?.Invoke(delta);
 
             base.Update(gameTime);
         }
@@ -103,11 +106,9 @@ namespace RayKeys {
             GraphicsDevice.Clear(Color.Black);
 
             GraphicsDevice.SetRenderTarget(test);
-            SpriteBatch.Begin(/*blendState:BlendState.NonPremultiplied*/);
+            SpriteBatch.Begin();  
 
-            Button.cursorType = false;
             DrawEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
-            Mouse.SetCursor( Button.cursorType ? MouseCursor.Hand : MouseCursor.Arrow);
 
             fpsCounter.DrawFps();
             

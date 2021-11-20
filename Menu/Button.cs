@@ -6,8 +6,6 @@ using RayKeys.Render;
 
 namespace RayKeys.Menu {
     public class Button {
-        public static bool cursorType; // False = Arrow, True = Hand
-
         public object Arg;
 
         private Texture2D tex;
@@ -21,10 +19,10 @@ namespace RayKeys.Menu {
         public delegate void ClickEventD(string id, object arg);
         public event ClickEventD ClickEvent;
         
-        public int x; public Align alh;
-        public int y; public Align alv;
-        public string text;
-        public string id;
+        public int X; public Align Alh;
+        public int Y; public Align Alv;
+        public string Text;
+        public string Id;
 
         public Button(Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
             tex = Game1.Game.Textures["button"];
@@ -33,22 +31,26 @@ namespace RayKeys.Menu {
             this.sizeX = sizeX;
             this.sizeY = sizeY;
             this.fontSize = fontSize;
-            this.text = text;
+            this.Text = text;
             this.drawFrame = drawFrame;
-            this.id = id;
-            alh = h;
-            alv = v;
+            this.Id = id;
+            Alh = h;
+            Alv = v;
             
             Point alPos = RRender.AlPosP(h, v, x, y);
             alPos = RRender.AlPosP(h, v, alPos.X, alPos.Y, -sizeX, -sizeY);
-            this.x = alPos.X;
-            this.y = alPos.Y;
+            this.X = alPos.X;
+            this.Y = alPos.Y;
 
             cColour = Color.White;
         }
 
-        public void Delete() {
+        public void Hide() {
             Game1.Game.DrawEvent -= Draw;
+        }
+        
+        public void Show() {
+            Game1.Game.DrawEvent += Draw;
         }
 
         private void Draw(float delta) {
@@ -60,13 +62,12 @@ namespace RayKeys.Menu {
 
             bool pressed = ms.LeftButton == ButtonState.Pressed;
             
-            if ( pos.X >= x && pos.X <= x + sizeX &&
-                 pos.Y >= y && pos.Y <= y + sizeY ) {
-                cursorType = true;
+            if ( pos.X >= X && pos.X <= X + sizeX &&
+                 pos.Y >= Y && pos.Y <= Y + sizeY ) {
                 cColour = pressed ? Color.Gray : Color.LightGray;
 
-                if (!pressed && pressedLastFrame) {
-                    ClickEvent?.Invoke(id, Arg);
+                if (!pressed && pressedLastFrame) { 
+                    ClickEvent?.Invoke(Id, Arg);
                 }
             }
             else {
@@ -74,9 +75,9 @@ namespace RayKeys.Menu {
             }
             
             if (drawFrame)
-                RRender.Draw(Align.None, Align.None, tex, new Rectangle(x, y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
+                RRender.Draw(Align.None, Align.None, tex, new Rectangle(X, Y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
             
-            RRender.DrawString(Align.None, Align.None, Align.Center, Align.Center, text, x + sizeX / 2, y + sizeY / 2, fontSize, cColour);
+            RRender.DrawString(Align.None, Align.None, Align.Center, Align.Center, Text, X + sizeX / 2, Y + sizeY / 2, fontSize, cColour);
 
             pressedLastFrame = pressed;
         }
