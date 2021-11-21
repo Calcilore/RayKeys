@@ -50,9 +50,9 @@ namespace RayKeys {
             test = new RenderTarget2D(GraphicsDevice, 1920, 1080, false, GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24);
 
             Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
-            Controls[1] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
-            Controls[2] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
-            Controls[3] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.Y, Keys.U, Keys.I};
+            Controls[1] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.U, Keys.I, Keys.O};
+            Controls[2] = new Keys[] {Keys.Z, Keys.X, Keys.C, Keys.N, Keys.M, Keys.OemComma};
+            Controls[3] = new Keys[] {Keys.D3, Keys.D4, Keys.D5, Keys.D8, Keys.D9, Keys.D0};
 
             base.Initialize();
         }

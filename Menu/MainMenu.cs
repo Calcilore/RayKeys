@@ -16,7 +16,7 @@ namespace RayKeys.Menu {
         private string currentCategory;
 
         private Point scrollBounds = Point.Zero; // X is higher, Y is lower (just wanted 2 ints)
-        private int scrollPos = 0;
+        private int scrollPos = 0; private float scrollPosL = 0f;
 
         private Vector2 camTPos = Vector2.Zero;
 
@@ -147,20 +147,28 @@ namespace RayKeys.Menu {
         }
 
         private void Draw(float delta) {
-            scrollPos -= ThingTools.GetScrollFrame();
             scrollPos = Math.Min(scrollPos, scrollBounds.Y - 1080); // Do the bottom first so that if it breaks both, it will place down
             scrollPos = Math.Max(scrollPos, scrollBounds.X);
+            scrollPos -= ThingTools.GetScrollFrame();
+
+            scrollPosL = ThingTools.Lerp(scrollPosL, scrollPos, 10f * delta);
 
             foreach ((string key, int value) in levelButtons) {
                 Button button = buttons[key];
-                button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
+                //button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
+                button.Y = (int) (value - scrollPosL);
             }
 
             foreach ( Dictionary<string, int> category in categories.Values) {
                 foreach ((string key, int value) in category) {
                     Button button = buttons[key];
-                    button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
+                    //button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
+                    button.Y = (int) (value - scrollPosL);
                 }
+            }
+
+            for (float i = 0; i < 1; i += 0.01f) {
+                RRender.Draw(Align.Left, Align.Center, Game1.Game.Textures["notes"], 0 + (int)(i * 300), (int)ThingTools.Lerp(0, 100, i), 0, 0, 3, 3);
             }
 
             RRender.cameraPos = new Vector2(

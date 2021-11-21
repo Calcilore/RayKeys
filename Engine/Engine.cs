@@ -60,11 +60,6 @@ namespace RayKeys {
 
             downscroll = (bool) OptionsManager.GetOption("downscroll").currentValue;
             downscrollMul = downscroll ? 1 : -1;
-
-            // temporary random charting
-            for (float i = 3; i < 1000; i += 0.176470589f) {
-                notes.Add(new Note(i, (byte)ThingTools.rand.Next(6)));
-            }
         }
 
         public void Start() {
@@ -95,7 +90,7 @@ namespace RayKeys {
                     // make keysheld2 = is key pressed (from keys held last frame)
                     keysHeld2[i] = ks.IsKeyDown(controls[i]) && !keysHeld2[i];
                 }
-                
+
                 for (int i = 0; i < notes.Count;) {
                     Note n = notes[i];
 
@@ -111,8 +106,7 @@ namespace RayKeys {
                     if (np0 <= 0 && npp > 0) { // hitsounds
                         Game1.Game.Sounds["hitsound"].Play();
                     }
-                
-                
+
                     // TODO: make scroll speed and make this use scroll speed
                     if (np0 < -0.3) {  // delete note after it has passed the screen
                         if (!n.dead)

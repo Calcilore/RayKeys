@@ -5,8 +5,8 @@ using RayKeys.Render;
 namespace RayKeys.Options {
     public class OptionsActions {
         public static void LimitFPSChanged(object v) {
-            Console.WriteLine(v);
             Game1.Game.IsFixedTimeStep = (bool) v;
+            Game1.Game.Graphics.ApplyChanges();
         }
 
         public static void FPSLimitChanged(object v) {
