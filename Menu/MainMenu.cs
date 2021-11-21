@@ -155,14 +155,12 @@ namespace RayKeys.Menu {
 
             foreach ((string key, int value) in levelButtons) {
                 Button button = buttons[key];
-                //button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
                 button.Y = (int) (value - scrollPosL);
             }
 
             foreach ( Dictionary<string, int> category in categories.Values) {
                 foreach ((string key, int value) in category) {
                     Button button = buttons[key];
-                    //button.Y = (int)ThingTools.Lerp(button.Y, value - scrollPos, 10f * delta);
                     button.Y = (int) (value - scrollPosL);
                 }
             }
