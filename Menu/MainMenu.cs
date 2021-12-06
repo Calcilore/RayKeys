@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using RayKeys.Misc;
 using RayKeys.Options;
 using RayKeys.Render;
 
@@ -21,11 +21,11 @@ namespace RayKeys.Menu {
         private Vector2 camTPos = Vector2.Zero;
 
         private int smx(int x) {
-            return Math.Min(RRender.resolution.X * x, 1920);
+            return Math.Min(RRender.Resolution.X * x, 1920);
         }
         
         private int smy(int y) {
-            return Math.Min(RRender.resolution.Y * y, 1080);
+            return Math.Min(RRender.Resolution.Y * y, 1080);
         }
         
         private void addNavigator(int xn, int yn, int spbt, int scbb, Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
@@ -140,16 +140,21 @@ namespace RayKeys.Menu {
             }
 
             // Add Navigators
-            addNavigator(1, 0, 0, (dis.Length * 100) + 200, Align.Center, Align.Top, "play", "Play", 0, 350);
+            addNavigator(1, 0, 0, (dis.Length * 100) + 200, Align.Center, Align.Top, "play", "Play", 0, 300);
             addNavigator(0, 0, 0, 0, Align.Right, Align.Top, "backplay", "Back", 200, 0, 175, 100, 4, false);
-            addNavigator(-1, 0, 0, categories[currentCategory].Count * 250 + 100, Align.Center, Align.Top, "options", "Options", 0, 600);
+            addNavigator(-1, 0, 0, categories[currentCategory].Count * 250 + 100, Align.Center, Align.Top, "options", "Options", 0, 525);
             addNavigator(0, 0, 0, 0, Align.Left, Align.Top, "backoptions", "Back", -200, 0, 175, 100, 4, false);
+            
+            // Editor Button
+            Button editorButton = new Button(Align.Center, Align.Top, "editor", "Editor", 0, 750);
+            editorButton.ClickEvent += EditorButtonPressed;
+            buttons.Add("editor", editorButton);
         }
 
         private void Draw(float delta) {
             scrollPos = Math.Min(scrollPos, scrollBounds.Y - 1080); // Do the bottom first so that if it breaks both, it will place down
             scrollPos = Math.Max(scrollPos, scrollBounds.X);
-            scrollPos -= ThingTools.GetScrollFrame();
+            scrollPos -= RMouse.ScrollFrame;
 
             scrollPosL = ThingTools.Lerp(scrollPosL, scrollPos, 10f * delta);
 
@@ -165,13 +170,9 @@ namespace RayKeys.Menu {
                 }
             }
 
-            for (float i = 0; i < 1; i += 0.01f) {
-                RRender.Draw(Align.Left, Align.Center, Game1.Game.Textures["notes"], 0 + (int)(i * 300), (int)ThingTools.Lerp(0, 100, i), 0, 0, 3, 3);
-            }
-
-            RRender.cameraPos = new Vector2(
-                ThingTools.Lerp(RRender.cameraPos.X, camTPos.X, 10f * delta),
-                ThingTools.Lerp(RRender.cameraPos.Y, camTPos.Y, 10f * delta));
+            RRender.CameraPos = new Vector2(
+                ThingTools.Lerp(RRender.CameraPos.X, camTPos.X, 10f * delta),
+                ThingTools.Lerp(RRender.CameraPos.Y, camTPos.Y, 10f * delta));
             
             RRender.DrawString(Align.Center, Align.Top, "RayKeys!", 0, 0, 1);
             RRender.DrawString(Align.Center, Align.Top, "The Best 6 Key Rhythm Game!", 0, 164, 5);
@@ -216,6 +217,11 @@ namespace RayKeys.Menu {
         private void SongButtonPressed(string id, object arg) {
             Game1.Game.PrepareLoadScene();
             Game1.Game.LoadScene(new EngineManager((string) arg));
+        }
+        
+        private void EditorButtonPressed(string id, object arg) {
+            Game1.Game.PrepareLoadScene();
+            Game1.Game.LoadScene(new Editor.Editor());
         }
     }
 }

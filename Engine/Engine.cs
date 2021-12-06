@@ -7,15 +7,16 @@ using RayKeys.Render;
 
 namespace RayKeys {
     /*
-     *     NN
      *        NN
+     *           NN
      *
-     *  NN <-- Notes
+     *     NN <-- Notes
      *
      *
-     *  [] [] [] []  <-- Keys
+     *  [] [] [] [] [] []  <-- Keys
      */
     public class Engine {
+        private Action<Note, float, float> NoteHandler; // it might be more efficient to use this stupid action instead of 1 if statement in a for loop
         private Texture2D keysTexture;
         private Texture2D notesTexture;
         private Texture2D healthBarTexture;
@@ -32,11 +33,6 @@ namespace RayKeys {
         private bool[] keysHeld2 = new bool[6];     // keys held last frame and keys that were tapped (changes during the frame)
         private bool[] keysHeldOnHit = new bool[6]; // when you hit a note the keys change to the 
 
-        private float frameTime    = 0; // progress in seconds, updates every frams
-        private float frameTimePre = 0; // frameTime but last frame
-                   // musicTime    = 0; // progress in seconds, updates about every half second, is tied to the song so will always be accurate
-        private float musicTimePre = 0; // musicTime but last frame
-
         public List<Note> notes = new List<Note>();
         public float health = 1f;
         private float healthD = 0f;
@@ -48,7 +44,10 @@ namespace RayKeys {
             } else {
                 this.controls = Game1.Game.Controls[controls];
             }
-            
+
+            if (autoPlay) NoteHandler = AutoPlayNoteHandling;
+            else          NoteHandler = NoAutoPlayNoteHandling;
+
             this.xpos = xpos;
             this.speed = speed;
             
@@ -66,20 +65,33 @@ namespace RayKeys {
             Game1.Game.UpdateEvent += Update;
         }
 
+        private void NoAutoPlayNoteHandling(Note n, float np0, float npp) {
+            if (Math.Abs(np0) < 0.1 && keysHeld2[n.lane]) { // player hit note
+                n.dead = true;
+                keysHeldOnHit[n.lane] = true;
+
+                health += 0.05f;
+            }
+                
+            if (np0 <= 0 && npp > 0) { // hitsounds
+                Game1.Game.Sounds["hitsound"].Play();
+            }
+        } 
+        
+        private void AutoPlayNoteHandling(Note n, float np0, float npp) {
+            if (!n.dead && np0 < 0.3) {
+                keysHeldOnHit[n.lane] = false;
+            }
+                    
+            if (np0 <= 0 && npp > 0) { // when player should hit note
+                n.dead = true;
+                keysHeldOnHit[n.lane] = true;
+                autoPlayKeyTimer[n.lane] = (float)ThingTools.Rand.NextDouble() * 0.1f + 0.2f;
+            }
+
+        } 
+        
         private void Update(float delta) {
-            frameTime += delta * speed;
-            float musicTime = EngineManager.Music.GetTime()/* * speed*/;
-            
-            // if music time changes, then set frametime to musictime (sync to song)
-            if (Math.Abs(musicTime - musicTimePre) > 0.05) {
-                frameTime = musicTime;
-            }
-
-            // for time for audio to start
-            if (musicTime == 0f) {
-                frameTime = 0f;
-            }
-
             if (!autoPlay) {
                 KeyboardState ks = Keyboard.GetState();
                 for (int i = 0; i < 6; i++) {
@@ -90,34 +102,6 @@ namespace RayKeys {
                     // make keysheld2 = is key pressed (from keys held last frame)
                     keysHeld2[i] = ks.IsKeyDown(controls[i]) && !keysHeld2[i];
                 }
-
-                for (int i = 0; i < notes.Count;) {
-                    Note n = notes[i];
-
-                    float np0 = n.time - frameTime;    // current pos of note (in seconds away from passing keys)
-                    float npp = n.time - frameTimePre; // pos of note last frame
-                    if (Math.Abs(np0) < 0.1 && keysHeld2[n.lane]) { // player hit note
-                        n.dead = true;
-                        keysHeldOnHit[n.lane] = true;
-
-                        health += 0.05f;
-                    }
-                
-                    if (np0 <= 0 && npp > 0) { // hitsounds
-                        Game1.Game.Sounds["hitsound"].Play();
-                    }
-
-                    // TODO: make scroll speed and make this use scroll speed
-                    if (np0 < -0.3) {  // delete note after it has passed the screen
-                        if (!n.dead)
-                            health -= 0.1f;
-                    
-                        notes.RemoveAt(i);
-                        continue;
-                    }
-            
-                    i++;
-                }
             } 
             else {
                 for (int i = 0; i < 6; i++) {
@@ -126,41 +110,34 @@ namespace RayKeys {
                     keysHeld[i] = keysHeldOnHit[i];
                     keysHeld2[i] = true;
                 }
-                
-                for (int i = 0; i < notes.Count;) {
-                    Note n = notes[i];
-
-                    float np0 = n.time - frameTime;    // current pos of note (in seconds away from passing keys)
-                    float npp = n.time - frameTimePre; // pos of note last frame
-
-                    if (!n.dead && np0 < 0.3) {
-                        keysHeldOnHit[n.lane] = false;
-                    }
-                    
-                    if (np0 <= 0 && npp > 0) { // when player should hit note
-                        n.dead = true;
-                        keysHeldOnHit[n.lane] = true;
-                        autoPlayKeyTimer[n.lane] = (float)ThingTools.rand.NextDouble() * 0.1f + 0.2f;
-                    }
-
-                    // TODO: make scroll speed and make this use scroll speed
-                    if (np0 < -0.3) {  // delete note after it has passed the screen
-                        notes.RemoveAt(i);
-                        continue;
-                    }
+            }
             
-                    i++;
+            for (int i = 0; i < notes.Count;) {
+                Note n = notes[i];
+
+                float np0 = n.time - AudioManager.FrameTime;     // current pos of note (in seconds away from passing keys)
+                float npp = n.time - AudioManager.LastFrameTime; // pos of note last frame
+
+                NoteHandler.Invoke(n, np0, npp);
+                
+                // TODO: make scroll speed and make this use scroll speed
+                if (np0 < -0.3) {  // delete note after it has passed the screen
+                    if (!n.dead)
+                        health -= 0.1f;
+                    
+                    notes.RemoveAt(i);
+                    continue;
                 }
+            
+                i++;
             }
 
             // cap health at 1
             health = Math.Min(1f, health);
-            if (health < 0) {
-                
+            if (health < 0 && !autoPlay) {
+                // TODO: make death work
             }
-
-            musicTimePre = musicTime;
-            frameTimePre = frameTime;
+            
             // make keysheld2 = is key held last frame
             keysHeld2 = (bool[]) keysHeld.Clone();
         }
@@ -171,12 +148,12 @@ namespace RayKeys {
             for (int i = 0; i < 6; i++) {
                 RRender.Draw(Align.Center, vAl, keysTexture, xpos+(i-3)*96, (-200 * downscrollMul), i*64, keysHeld[i] ? keysHeldOnHit[i] ? 128 : 64 : 0, 64, 64);
             }
-            
+
             foreach (Note n in notes) {
                 if (n.dead)
                     continue;
 
-                RRender.Draw(Align.Center, vAl, notesTexture, xpos+(n.lane-3)*96, (-200 * downscrollMul) - (int)((n.time - frameTime) * 800f * downscrollMul), n.lane*64, 0, 64, 64);
+                RRender.Draw(Align.Center, vAl, notesTexture, xpos+(n.lane-3)*96, (-200 * downscrollMul) - (int)((n.time - AudioManager.FrameTime) * 800f * downscrollMul), n.lane*64, 0, 64, 64);
             }
 
             if (!autoPlay) {

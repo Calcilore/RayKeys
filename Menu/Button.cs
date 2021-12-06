@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RayKeys.Misc;
 using RayKeys.Render;
 
 namespace RayKeys.Menu {
@@ -10,7 +11,6 @@ namespace RayKeys.Menu {
 
         private Texture2D tex;
         private Color cColour;
-        private bool pressedLastFrame;
         private int fontSize;
         private int sizeX;
         private int sizeY;
@@ -54,19 +54,13 @@ namespace RayKeys.Menu {
         }
 
         private void Draw(float delta) {
-            MouseState ms = Mouse.GetState();
-
-            // funny window things
-            Point pos = ((ms.Position - Game1.Game.RenderRectangle.Location).ToVector2() / Game1.Game.Scaling).ToPoint();
-            pos += RRender.cameraPos.ToPoint();
-
-            bool pressed = ms.LeftButton == ButtonState.Pressed;
+            bool pressed = RMouse.LeftButton;
             
-            if ( pos.X >= X && pos.X <= X + sizeX &&
-                 pos.Y >= Y && pos.Y <= Y + sizeY ) {
+            if ( RMouse.X >= X && RMouse.X <= X + sizeX &&
+                 RMouse.Y >= Y && RMouse.Y <= Y + sizeY ) {
                 cColour = pressed ? Color.Gray : Color.LightGray;
 
-                if (!pressed && pressedLastFrame) { 
+                if (!pressed && RMouse.LastLeftButton) { 
                     ClickEvent?.Invoke(Id, Arg);
                 }
             }
@@ -78,8 +72,6 @@ namespace RayKeys.Menu {
                 RRender.Draw(Align.None, Align.None, tex, new Rectangle(X, Y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
             
             RRender.DrawString(Align.None, Align.None, Align.Center, Align.Center, Text, X + sizeX / 2, Y + sizeY / 2, fontSize, cColour);
-
-            pressedLastFrame = pressed;
         }
     }
 }

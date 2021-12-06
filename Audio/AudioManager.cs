@@ -1,61 +1,89 @@
 using System;
-using System.Threading;
 using LibVLCSharp.Shared;
 
 namespace RayKeys {
-    public class AudioManager {
+    public static class AudioManager {
         private static LibVLC _libVLC;
 
-        private Media media;
-        private MediaPlayer mediaPlayer;
+        public static Media Media;
+        public static MediaPlayer MediaPlayer;
 
+        public static float bpm;
+        public static float bps;
+        
+        public static float FrameTime     = 0f; // progress in seconds, updates every frame
+        public static float LastFrameTime = 0f; // frameTime but last frame
+        public static float MusicTime     = 0f; // progress in seconds, updates about every half second, is tied to the song so will always be accurate
+        public static float LastMusicTime = 0f; // musicTime but last frame
+        
         public static void Initialise() {
             Core.Initialize();
             _libVLC = new LibVLC(false);
-        }
-        
-        public float GetTime() {
-            return mediaPlayer.Time / 1000f;
-        }
-        
-        public float GetSpeed() {
-            return mediaPlayer.Rate;
-        }
-        
-        public int GetVolume() {
-            return mediaPlayer.Volume;
-        }
-        
-        public void SetVolume(int volume) {
-            mediaPlayer.Volume = volume;
+            MediaPlayer = new MediaPlayer(_libVLC);
         }
 
-        public bool IsFinished() {
-            return mediaPlayer.IsPlaying;
-        }
-
-        public void Stop() {
-            mediaPlayer.Stop();
-        }
-
-        public void Seek(float time) {
-            mediaPlayer.Time = (long) (time * 1000);
-        }
-
-        public void Replay() {
-            Thread t = new Thread(() => {
-                mediaPlayer.Stop();
-                mediaPlayer.Play();
-            });
-            t.Start();
-        }
-        
-        public void PlaySong(string song, float speed = 1f) {
-            media = new Media(_libVLC, "Content/" + song);
-            mediaPlayer = new MediaPlayer(media);
+        public static void Update(float delta) {
+            LastMusicTime = MusicTime;
+            LastFrameTime = FrameTime;
             
-            mediaPlayer.SetRate(speed);
-            mediaPlayer.Play();
+            FrameTime += delta * MediaPlayer.Rate;
+            MusicTime = MediaPlayer.Time / 1000f;
+
+            // if music time changes, then set frametime to musictime (sync to song)
+            if (Math.Abs(MusicTime - LastMusicTime) > 0.05) {
+                FrameTime = MusicTime;
+            }
+
+            // for time for audio to start
+            if (MusicTime == 0f) {
+                FrameTime = 0f;
+            }
+        }
+
+        public static float GetBeatTime() {
+            return FrameTime * bps;
+        }
+
+        public static float GetSpeed() {
+            return MediaPlayer.Rate;
+        }
+        
+        public static int GetVolume() {
+            return MediaPlayer.Volume;
+        }
+        
+        public static void SetVolume(int volume) {
+            MediaPlayer.Volume = volume;
+        }
+
+        public static bool IsPlaying() {
+            return MediaPlayer.IsPlaying;
+        }
+
+        public static void Play() {
+            MediaPlayer.Play();
+        }
+        
+        public static void Stop() {
+            MediaPlayer.Stop();
+        }
+
+        public static void Seek(float time) {
+            MediaPlayer.Time = (long) (time * 1000);
+        }
+
+        public static void SetPause(bool pause) {
+               MediaPlayer.SetPause(pause);
+        }
+
+        public static void LoadSong(string song, float bpm, float speed = 1f) {
+            AudioManager.bpm = bpm;
+            AudioManager.bps = bpm / 60;
+            
+            Media = new Media(_libVLC, "Content/" + song);
+            MediaPlayer.Media = Media;
+
+            MediaPlayer.SetRate(speed);
         }
     }
 }

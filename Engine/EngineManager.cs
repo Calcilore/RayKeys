@@ -7,7 +7,6 @@ using RayKeys.Options;
 
 namespace RayKeys {
     public class EngineManager : Scene {
-        public static AudioManager Music = new AudioManager();
         private List<Engine> engines = new List<Engine>();
         private float bps;
         
@@ -37,7 +36,6 @@ namespace RayKeys {
             
             // Get BPS
             bps = (float) (root.GetProperty("bpm").GetDouble() / 60d);
-            Console.WriteLine(bps);
 
             // Get notes
             JsonElement beatmaps = root.GetProperty("beatmaps");
@@ -77,14 +75,14 @@ namespace RayKeys {
                 else {
                     if (controls[i] == 0) continue;
                     xpos = (int)((i - recenterLen) * 608f);
-                    Console.WriteLine($"Engine {i}: ({i} - {recenterLen}) * 608 = {xpos}");
                 }
 
                 engines.Add(new Engine(controls[i], xpos, speed));
                 engines[^1].notes = notes[playersJ[i].GetProperty("beatmap").GetInt32() - 1].ToArray().ToList();
             }
 
-            Music.PlaySong("Levels/" + level + "/song.ogg", speed); 
+            AudioManager.LoadSong("Levels/" + level + "/song.ogg", bps * 60, speed); 
+            AudioManager.Play();
 
             foreach (Engine engine in engines) {
                 engine.Start();

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.Menu;
+using RayKeys.Misc;
 using RayKeys.Options;
 using RayKeys.Render;
 
@@ -45,8 +46,6 @@ namespace RayKeys {
             AudioManager.Initialise();
             OptionsManager.Initialise();
 
-            RRender.resolution = new Point(1920, 1080);
-
             test = new RenderTarget2D(GraphicsDevice, 1920, 1080, false, GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24);
 
             Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
@@ -59,6 +58,8 @@ namespace RayKeys {
 
         protected override void LoadContent() {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            RRender.Initialise();
 
             for (int i = 0; i < Fonts.Length; i++) {
                 Fonts[i] = Content.Load<SpriteFont>("Fonts/Font" + i);
@@ -69,6 +70,7 @@ namespace RayKeys {
             Textures.Add("keys"     , Content.Load<Texture2D>("Textures/keys"     ));
             Textures.Add("healthbar", Content.Load<Texture2D>("Textures/healthbar"));
             Textures.Add("button", Content.Load<Texture2D>("Textures/button"));
+            Textures.Add("trackeditorbg", Content.Load<Texture2D>("Textures/trackeditorbg"));
 
             PrepareLoadScene();
             LoadScene(new MainMenu());
@@ -79,7 +81,9 @@ namespace RayKeys {
 
             float delta = (float) gameTime.ElapsedGameTime.TotalSeconds;
             
-            ThingTools.ThingToolsUpdate(delta);
+            RKeyboard.Update();
+            RMouse.Update();
+            AudioManager.Update(delta);
             fpsCounter.Update(gameTime);
             UpdateEvent?.Invoke(delta);
 
@@ -92,7 +96,7 @@ namespace RayKeys {
         }
 
         public void LoadScene(Scene scene) {
-            RRender.cameraPos = Vector2.Zero;
+            RRender.CameraPos = Vector2.Zero;
             currentScene = scene;
         }
 

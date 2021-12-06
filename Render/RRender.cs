@@ -1,17 +1,26 @@
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace RayKeys.Render {
     public class RRender {
-        public static Vector2 cameraPos;
-        public static Point resolution;
+        public static Vector2 CameraPos;
+        public static Point Resolution;
+
+        public static Texture2D BlankTexture;
+
+        public static void Initialise() {
+            Resolution = new Point(1920, 1080);
+            BlankTexture = new Texture2D(Game1.Game.SpriteBatch.GraphicsDevice, 1, 1);
+            BlankTexture.SetData(new [] {Color.White});
+        }
         
         public static Texture2D LoadPNG(string location) {
             return Texture2D.FromFile(Game1.Game.GraphicsDevice, "Content/" + location);
         }
 
         public static Point AlPosP(Align h, Align v, int x, int y) {
-            return new Point(x + (int) h * resolution.X / 2, y + (int)v * resolution.Y / 2);
+            return new Point(x + (int) h * Resolution.X / 2, y + (int)v * Resolution.Y / 2);
         }
         
         public static Point AlPosP(Align h, Align v, int x, int y, int rx, int ry) {
@@ -19,7 +28,7 @@ namespace RayKeys.Render {
         }
         
         public static Vector2 AlPosV(Align h, Align v, float x, float y) {
-            return new Vector2(x - (float)(int) h * resolution.X / 2, y - (float)(int)v * resolution.Y / 2);
+            return new Vector2(x - (float)(int) h * Resolution.X / 2, y - (float)(int)v * Resolution.Y / 2);
         }
         
         public static Vector2 AlPosV(Align h, Align v, float x, float y, float rx, float ry) {
@@ -29,7 +38,7 @@ namespace RayKeys.Render {
         public static void Draw(Align h, Align v, Texture2D texture, Rectangle dr, Rectangle sr, Color color) {
             Game1.Game.SpriteBatch.Draw(
                 texture, 
-                new Rectangle(AlPosP(h, v, dr.X, dr.Y) - cameraPos.ToPoint(), new Point(dr.Width, dr.Height)),
+                new Rectangle(AlPosP(h, v, dr.X, dr.Y) - CameraPos.ToPoint(), new Point(dr.Width, dr.Height)),
                    sr,
                 color);
         }
@@ -45,21 +54,25 @@ namespace RayKeys.Render {
         public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sourceX, int sourceY, int sizeX, int sizeY, Color color) {
             Draw(h, v, texture, new Rectangle(x, y, sizeX, sizeY), new Rectangle(sourceX, sourceY, sizeX, sizeY), color);
         }
+        
+        public static void DrawBlank(Align h, Align v, int x, int y, int sizeX, int sizeY, Color color) {
+            Draw(h, v, BlankTexture, new Rectangle(x, y, sizeX, sizeY), new Rectangle(0, 0, 1, 1), color);
+        }
 
         public static void DrawString(Align h, Align v, Align th, Align tv, string text, int px, int py, int scale, Color color) {
             // Align pos
-            Vector2 pos = new Vector2(px + (int) h * resolution.X / 2, py + (int) v * resolution.Y / 2);
+            Vector2 pos = new Vector2(px + (int) h * Resolution.X / 2, py + (int) v * Resolution.Y / 2);
             // Center Text
             Vector2 ts = Game1.Game.Fonts[scale].MeasureString(text);
             pos = AlPosV(th, tv, pos.X, pos.Y, ts.X, ts.Y);
-            pos -= cameraPos;
+            pos -= CameraPos;
 
             Game1.Game.SpriteBatch.DrawString(Game1.Game.Fonts[scale], text, pos, color);
         }
         
         public static void DrawStringNoCam(Align h, Align v, Align th, Align tv, string text, int px, int py, int scale, Color color) {
             // Align pos
-            Vector2 pos = new Vector2(px + (int) h * resolution.X / 2, py + (int) v * resolution.Y / 2);
+            Vector2 pos = new Vector2(px + (int) h * Resolution.X / 2, py + (int) v * Resolution.Y / 2);
             // Center Text
             Vector2 ts = Game1.Game.Fonts[scale].MeasureString(text);
             pos = AlPosV(th, tv, pos.X, pos.Y, ts.X, ts.Y);

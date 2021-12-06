@@ -29,4 +29,7 @@
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
         <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.16" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Editor\Simple" />
+    </ItemGroup>
 </Project>
