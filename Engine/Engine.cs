@@ -37,7 +37,7 @@ namespace RayKeys {
         public float health = 1f;
         private float healthD = 0f;
         
-        public Engine(int controls, int xpos = 960, float speed = 1f) {
+        public Engine(int controls, int xpos = 0, float speed = 1f) {
             controls--;
             if (controls == -1) {
                 autoPlay = true;

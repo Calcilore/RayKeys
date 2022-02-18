@@ -84,6 +84,28 @@ namespace RayKeys.Render {
             DrawString(h, v, h, v, text, px, py, scale, color);
         }
         
+        public static void DrawTile(Align h, Align v, Texture2D texture, int x, int y, int sourceX, int sourceY, int sizeX, int sizeY, int tileX, int tileY, Color color) {
+            for (int i = 0; i < tileX; i++) {
+                int ytp = y;
+                for (int j = 0; j < tileY; j++) {
+                    Draw(h, v, texture, new Rectangle(x, ytp, sizeX, sizeY), new Rectangle(sourceX, sourceY, sizeX, sizeY), color);
+                    ytp += sizeY;
+                }
+                x += sizeX;
+            }
+        }
+        
+        public static void DrawTileUp(Align h, Align v, Texture2D texture, int x, int y, int sourceX, int sourceY, int sizeX, int sizeY, int tileX, int tileY, Color color) {
+            for (int i = 0; i < tileX; i++) {
+                int ytp = y;
+                for (int j = 0; j < tileY; j++) {
+                    Draw(h, v, texture, new Rectangle(x, ytp, sizeX, sizeY), new Rectangle(sourceX, sourceY, sizeX, sizeY), color);
+                    ytp -= sizeY;
+                }
+                x += sizeX;
+            }
+        }
+        
         // ---------------
         // |  No Colour  |
         // |   Aliases   |

@@ -71,7 +71,7 @@ namespace RayKeys {
                 int xpos;
                 if (!recenterTracks)
                      xpos = playersJ[i].TryGetProperty("xpos", out JsonElement xposJ) ? 
-                        xposJ.GetInt32() : 960;
+                        xposJ.GetInt32() : 0;
                 else {
                     if (controls[i] == 0) continue;
                     xpos = (int)((i - recenterLen) * 608f);
