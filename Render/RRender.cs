@@ -14,10 +14,6 @@ namespace RayKeys.Render {
             BlankTexture = new Texture2D(Game1.Game.SpriteBatch.GraphicsDevice, 1, 1);
             BlankTexture.SetData(new [] {Color.White});
         }
-        
-        public static Texture2D LoadPNG(string location) {
-            return Texture2D.FromFile(Game1.Game.GraphicsDevice, "Content/" + location);
-        }
 
         public static Point AlPosP(Align h, Align v, int x, int y) {
             return new Point(x + (int) h * Resolution.X / 2, y + (int)v * Resolution.Y / 2);
@@ -34,29 +30,36 @@ namespace RayKeys.Render {
         public static Vector2 AlPosV(Align h, Align v, float x, float y, float rx, float ry) {
             return new Vector2(x - (float)(int) h * rx / 2, y - (float)(int)v * ry / 2);
         }
-        
-        public static void Draw(Align h, Align v, Texture2D texture, Rectangle dr, Rectangle sr, Color color) {
+
+        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int sourceX, int sourceY, int sourceXSize, int sourceYSize, Color color) {
             Game1.Game.SpriteBatch.Draw(
-                texture, 
-                new Rectangle(AlPosP(h, v, dr.X, dr.Y) - CameraPos.ToPoint(), new Point(dr.Width, dr.Height)),
-                   sr,
+                texture,
+                new Rectangle(AlPosP(h, v, x, y) - CameraPos.ToPoint(), new Point(sizeX, sizeY)),
+                new Rectangle(sourceX, sourceY, sourceXSize, sourceYSize),
                 color);
         }
         
-        public static void DrawNoCam(Align h, Align v, Texture2D texture, Rectangle dr, Rectangle sr, Color color) {
+        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, Color color) {
             Game1.Game.SpriteBatch.Draw(
                 texture, 
-                new Rectangle(AlPosP(h, v, dr.X, dr.Y), new Point(dr.Width, dr.Height)),
-                sr,
+                new Rectangle(AlPosP(h, v, x, y) - CameraPos.ToPoint(), new Point(sizeX, sizeY)),
                 color);
+        }
+        
+        public static void Draw(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY, Color color) {
+            Texture2D tex = Stuffs.GetTexture(texture);
+            
+            Draw(h, v, tex, x, y, sizeX, sizeY, 0, 0, tex.Width, tex.Height, color);
         }
 
-        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sourceX, int sourceY, int sizeX, int sizeY, Color color) {
-            Draw(h, v, texture, new Rectangle(x, y, sizeX, sizeY), new Rectangle(sourceX, sourceY, sizeX, sizeY), color);
+        public static void Draw(Align h, Align v, Textures texture, int x, int y, Color color) {
+            Texture2D tex = Stuffs.GetTexture(texture);
+            
+            Draw(h, v, tex, x, y, tex.Width, tex.Height, color);
         }
         
         public static void DrawBlank(Align h, Align v, int x, int y, int sizeX, int sizeY, Color color) {
-            Draw(h, v, BlankTexture, new Rectangle(x, y, sizeX, sizeY), new Rectangle(0, 0, 1, 1), color);
+            Draw(h, v, BlankTexture, x, y, sizeX, sizeY, 0, 0, 1, 1, color);
         }
 
         public static void DrawString(Align h, Align v, Align th, Align tv, string text, int px, int py, int scale, Color color) {
@@ -84,22 +87,26 @@ namespace RayKeys.Render {
             DrawString(h, v, h, v, text, px, py, scale, color);
         }
         
-        public static void DrawTile(Align h, Align v, Texture2D texture, int x, int y, int sourceX, int sourceY, int sizeX, int sizeY, int tileX, int tileY, Color color) {
+        public static void DrawTile(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color color) {
+            Texture2D tex = Stuffs.GetTexture(texture);
+            
             for (int i = 0; i < tileX; i++) {
                 int ytp = y;
                 for (int j = 0; j < tileY; j++) {
-                    Draw(h, v, texture, new Rectangle(x, ytp, sizeX, sizeY), new Rectangle(sourceX, sourceY, sizeX, sizeY), color);
+                    Draw(h, v, tex, x, ytp, sizeX, sizeY, color);
                     ytp += sizeY;
                 }
                 x += sizeX;
             }
         }
         
-        public static void DrawTileUp(Align h, Align v, Texture2D texture, int x, int y, int sourceX, int sourceY, int sizeX, int sizeY, int tileX, int tileY, Color color) {
+        public static void DrawTileUp(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color color) {
+            Texture2D tex = Stuffs.GetTexture(texture);
+            
             for (int i = 0; i < tileX; i++) {
                 int ytp = y;
                 for (int j = 0; j < tileY; j++) {
-                    Draw(h, v, texture, new Rectangle(x, ytp, sizeX, sizeY), new Rectangle(sourceX, sourceY, sizeX, sizeY), color);
+                    Draw(h, v, tex, x, ytp, sizeX, sizeY, color);
                     ytp -= sizeY;
                 }
                 x += sizeX;
@@ -110,12 +117,9 @@ namespace RayKeys.Render {
         // |  No Colour  |
         // |   Aliases   |
         // ---------------
-        
-        public static void Draw(Align h, Align v, Texture2D texture, Rectangle dr, Rectangle sr) 
-        { Draw(h, v, texture, dr, sr, Color.White); }
-        
-        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sourceX, int sourceY, int sizeX, int sizeY) 
-        { Draw(h, v, texture, x, y, sourceX, sourceY, sizeX, sizeY, Color.White); }
+
+        public static void Draw(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY) 
+        { Draw(h, v, texture, x, y, sizeX, sizeY, Color.White); }
         
         public static void DrawString(Align h, Align v, string text, int px, int py, int scale) 
         { DrawString(h, v, h, v, text, px, py, scale, Color.White); }

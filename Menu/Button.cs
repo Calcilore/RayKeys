@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
 using RayKeys.Misc;
 using RayKeys.Render;
 
@@ -9,7 +6,6 @@ namespace RayKeys.Menu {
     public class Button {
         public object Arg;
 
-        private Texture2D tex;
         private Color cColour;
         private int fontSize;
         private int sizeX;
@@ -25,8 +21,6 @@ namespace RayKeys.Menu {
         public string Id;
 
         public Button(Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
-            tex = Game1.Game.Textures["button"];
-            
             Game1.Game.DrawEvent += Draw;
             this.sizeX = sizeX;
             this.sizeY = sizeY;
@@ -69,7 +63,8 @@ namespace RayKeys.Menu {
             }
             
             if (drawFrame)
-                RRender.Draw(Align.None, Align.None, tex, new Rectangle(X, Y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
+                RRender.Draw(Align.None, Align.None, Textures.Button, X, Y, sizeX, sizeY);
+                //RRender.Draw(Align.None, Align.None, tex, new Rectangle(X, Y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
             
             RRender.DrawString(Align.None, Align.None, Align.Center, Align.Center, Text, X + sizeX / 2, Y + sizeY / 2, fontSize, cColour);
         }

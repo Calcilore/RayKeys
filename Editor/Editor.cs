@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
 using RayKeys.Render;
 
 namespace RayKeys.Editor {
     public class Editor : Scene {
-        private Texture2D keysTexture;
-        private Texture2D notesTexture;
-        private Texture2D background;
         private const int XStart = 670;
         private const int XLen = 580;
         
@@ -30,10 +26,6 @@ namespace RayKeys.Editor {
             Game1.Game.DrawEvent += Draw;
             Game1.Game.UpdateEvent += Update;
 
-            notesTexture = Game1.Game.Textures["notes"];
-            keysTexture = Game1.Game.Textures["keys"];
-            background = Game1.Game.Textures["trackeditorbg"];
-            
             AudioManager.LoadSong("Levels/1/song.ogg", 340);
             AudioManager.Play();
             AudioManager.SetPause(true);
@@ -123,7 +115,7 @@ namespace RayKeys.Editor {
             //int r96p = (int) ThingTools.FloorN(scrollPos, 96);
 
             // background
-            RRender.DrawTileUp(Align.Center, Align.Top, background, -288, 888, 0, 0, 96, 96, 6, backgroundSize, Color.White);
+            RRender.DrawTileUp(Align.Center, Align.Top, Textures.TrackEditorBG, -288, 888, 96, 96, 6, backgroundSize, Color.White);
 
             { // Numbers to show where you are placing your notes and how the zoom is affecting it
                 for (int i = 0; i < backgroundSize; i++) {
@@ -139,8 +131,8 @@ namespace RayKeys.Editor {
             foreach (Note n in csNotes) {
                 // if (n.dead)     // This if does nothing rn, might uncomment later when i add more features
                 //     continue;
-            
-                RRender.Draw(Align.Center, Align.Bottom, notesTexture, (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2, n.lane*64, 0, 64, 64);
+                
+                RRender.Draw(Align.Center, Align.Bottom, Stuffs.GetTexture((int)Textures.Note1 + n.lane), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2, 64, 64, Color.White);
                 //RRender.DrawString(Align.Center, Align.Bottom, Align.Center, Align.Center, n.lane.ToString(), (n.lane-3)*96 + 16, (int) ((n.time + 1) * -96) + 16 + sp, 4);
                 //RRender.DrawString(Align.Center, Align.Bottom, Align.Center, Align.Center, n.time.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2 + sp, 4);
             }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.Options;
@@ -17,9 +18,6 @@ namespace RayKeys {
      */
     public class Engine {
         private Action<Note, float, float> NoteHandler; // it might be more efficient to use this stupid action instead of 1 if statement in a for loop
-        private Texture2D keysTexture;
-        private Texture2D notesTexture;
-        private Texture2D healthBarTexture;
 
         private Keys[] controls;
         private bool autoPlay;
@@ -53,10 +51,6 @@ namespace RayKeys {
             
             Game1.Game.DrawEvent += Draw;
 
-            notesTexture = Game1.Game.Textures["notes"];
-            keysTexture = Game1.Game.Textures["keys"];
-            healthBarTexture = Game1.Game.Textures["healthbar"];
-
             downscroll = (bool) OptionsManager.GetOption("downscroll").currentValue;
             downscrollMul = downscroll ? 1 : -1;
         }
@@ -74,7 +68,7 @@ namespace RayKeys {
             }
                 
             if (np0 <= 0 && npp > 0) { // hitsounds
-                Game1.Game.Sounds["hitsound"].Play();
+                Stuffs.GetSound(Sounds.Hitsound).Play();
             }
         } 
         
@@ -146,21 +140,21 @@ namespace RayKeys {
             Align vAl = downscroll ? Align.Bottom : Align.Top;
             
             for (int i = 0; i < 6; i++) {
-                RRender.Draw(Align.Center, vAl, keysTexture, xpos+(i-3)*96, (-200 * downscrollMul), i*64, keysHeld[i] ? keysHeldOnHit[i] ? 128 : 64 : 0, 64, 64);
+                RRender.Draw(Align.Center, vAl, Stuffs.GetTexture((int)Textures.Keys1 + i + (keysHeld[i] ? keysHeldOnHit[i] ? 12 : 6 : 0)), xpos+(i-3)*96, (-200 * downscrollMul), 64, 64, Color.White);
             }
 
             foreach (Note n in notes) {
                 if (n.dead)
                     continue;
 
-                RRender.Draw(Align.Center, vAl, notesTexture, xpos+(n.lane-3)*96, (-200 * downscrollMul) - (int)((n.time - AudioManager.FrameTime) * 800f * downscrollMul), n.lane*64, 0, 64, 64);
+                RRender.Draw(Align.Center, vAl, Stuffs.GetTexture((int)Textures.Note1 + n.lane) , xpos+(n.lane-3)*96, (-200 * downscrollMul) - (int)((n.time - AudioManager.FrameTime) * 800f * downscrollMul), 64, 64, Color.White);
             }
 
             if (!autoPlay) {
                 healthD = ThingTools.Lerp(healthD, health, 10f * delta);
             
-                RRender.Draw(Align.Center, vAl, healthBarTexture, xpos - 200, -90 * downscrollMul, 0, 40, 400, 40);
-                RRender.Draw(Align.Center, vAl, healthBarTexture, xpos - 200, -90 * downscrollMul, 0, 0, (int) (400 * healthD), 40);
+                RRender.Draw(Align.Center, vAl, Textures.HealthBarBackground, xpos - 200, -90 * downscrollMul, 400, 40);
+                RRender.Draw(Align.Center, vAl, Textures.HealthBar, xpos - 200, -90 * downscrollMul, (int) (400 * healthD), 40);
             }
         } 
     }
