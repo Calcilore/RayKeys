@@ -15,6 +15,7 @@ namespace RayKeys.Editor {
         private int barPos;
         
         // Sections
+        private int currentSection;
         private List<List<Note>> notes = new List<List<Note>>();
         private List<Note> csNotes = new List<Note>();
 
@@ -30,6 +31,7 @@ namespace RayKeys.Editor {
             AudioManager.Play();
             AudioManager.SetPause(true);
             
+            notes.Add(new List<Note>());
             ChangeZoom(true);
         }
         
@@ -97,11 +99,18 @@ namespace RayKeys.Editor {
             else if (RKeyboard.IsKeyPressed(Keys.OemOpenBrackets) && zoom > 1) {
                 ChangeZoom(false);
             }
+            
+            if (RKeyboard.IsKeyPressed(Keys.Right) && currentSection < 16) {
+                ChangeSection(currentSection + 1);
+            }
+            else if (RKeyboard.IsKeyPressed(Keys.Left) && currentSection > 0) {
+                ChangeSection(currentSection - 1);
+            }
         }
 
         private void ChangeZoom(bool up) {
             zoom += up ? 1 : -1;
-            Console.WriteLine(zoom);
+            Console.WriteLine("Changing Zoom to: " + zoom);
 
             backgroundSize = zoom * 16;
 
@@ -109,6 +118,17 @@ namespace RayKeys.Editor {
             for (int i = 0; i < csNotes.Count; i++) {
                 csNotes[i].time *= mul;
             }
+        }
+        
+        private void ChangeSection(int section) {
+            Console.WriteLine($"Changing Section to: {currentSection} from {section}");
+            
+            notes[currentSection] = csNotes;
+            currentSection = section;
+
+            if (currentSection >= notes.Count) notes.Add(new List<Note>());
+            
+            csNotes = notes[currentSection];
         }
 
         private void Draw(float delta) {
@@ -137,7 +157,7 @@ namespace RayKeys.Editor {
                 //RRender.DrawString(Align.Center, Align.Bottom, Align.Center, Align.Center, n.time.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2 + sp, 4);
             }
             
-            RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}", 5, -5, 5, Color.White); 
+            RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection}", 5, -5, 5, Color.White); 
         }
     }
 }
