@@ -1,72 +1,76 @@
-﻿using Microsoft.Xna.Framework;
+using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
 using RayKeys.Render;
 
 namespace RayKeys.Menu {
-    public class Button {
-        public object Arg;
-
+    public class Button : MenuItem {
         private Color cColour;
         private int fontSize;
         private int sizeX;
         private int sizeY;
-        private bool drawFrame;
 
-        public delegate void ClickEventD(string id, object arg);
+        public delegate void ClickEventD(int id, params object[] args);
         public event ClickEventD ClickEvent;
-        
-        public int X; public Align Alh;
-        public int Y; public Align Alv;
-        public string Text;
-        public string Id;
 
-        public Button(Align h, Align v, string id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 2, bool drawFrame = true) {
+        public object[] args;
+        public Align Alh;
+        public Align Alv;
+        public Align AlhT;
+        public Align AlvT;
+        public string Text;
+
+        private Vector2 tPos;
+        private Vector2 tPosFoc;
+        private Vector2 pos;
+
+        private bool isSubbed;
+
+        public Button(Menu parent, Align h, Align v, Align hT, Align vT, int id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
             Game1.Game.DrawEvent += Draw;
+            isSubbed = true;
+
+            this.parent = parent;
             this.sizeX = sizeX;
             this.sizeY = sizeY;
             this.fontSize = fontSize;
             this.Text = text;
-            this.drawFrame = drawFrame;
             this.Id = id;
             Alh = h;
             Alv = v;
+            AlhT = hT;
+            AlvT = vT;
+
+            tPos.X = x - sizeX / 2; // idk why it needs this
+            tPos.Y = y;
             
-            Point alPos = RRender.AlPosP(h, v, x, y);
-            alPos = RRender.AlPosP(h, v, alPos.X, alPos.Y, -sizeX, -sizeY);
-            this.X = alPos.X;
-            this.Y = alPos.Y;
+            tPosFoc = tPos + new Vector2(hT == Align.Right ? -64 : 64, 0);
+            pos = tPos;
 
             cColour = Color.White;
         }
 
         public void Hide() {
-            Game1.Game.DrawEvent -= Draw;
+            if (isSubbed) Game1.Game.DrawEvent -= Draw;
+            isSubbed = false;
         }
         
         public void Show() {
-            Game1.Game.DrawEvent += Draw;
+            if (!isSubbed) Game1.Game.DrawEvent += Draw;
+            isSubbed = true;
         }
 
         private void Draw(float delta) {
-            bool pressed = RMouse.LeftButton;
+            bool isFocused = parent.CurrentId == Id;
             
-            if ( RMouse.X >= X && RMouse.X <= X + sizeX &&
-                 RMouse.Y >= Y && RMouse.Y <= Y + sizeY ) {
-                cColour = pressed ? Color.Gray : Color.LightGray;
+            if (RKeyboard.IsKeyPressed(Keys.Enter) && isFocused) {
+                ClickEvent?.Invoke(Id, args);
+            }
 
-                if (!pressed && RMouse.LastLeftButton) { 
-                    ClickEvent?.Invoke(Id, Arg);
-                }
-            }
-            else {
-                cColour = Color.White;
-            }
-            
-            if (drawFrame)
-                RRender.Draw(Align.None, Align.None, Textures.Button, X, Y, sizeX, sizeY);
-                //RRender.Draw(Align.None, Align.None, tex, new Rectangle(X, Y, sizeX, sizeY), new Rectangle(0, 0, 600, 200), cColour);
-            
-            RRender.DrawString(Align.None, Align.None, Align.Center, Align.Center, Text, X + sizeX / 2, Y + sizeY / 2, fontSize, cColour);
+            pos.X = ThingTools.Lerp(pos.X, isFocused ? tPosFoc.X : tPos.X, 10 * delta);
+
+            RRender.DrawString(Alh, Alv, AlhT, AlvT, Text, (int)pos.X + sizeX / 2, (int)pos.Y + sizeY / 2, fontSize, cColour);
         }
     }
 }

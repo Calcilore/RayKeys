@@ -4,11 +4,11 @@ using System.IO;
 using System.Text.Json;
 
 namespace RayKeys.Options {
-    public class OptionsManager {
+    public static class OptionsManager {
         private static Dictionary<string, Option> Options = new Dictionary<string, Option>();
         private static JsonDocument doc;
 
-        public static JsonElement GetJson() {
+        private static JsonElement GetJson() {
             Directory.CreateDirectory("Save");
             string fileS = File.Exists("Save/save.json") ? File.ReadAllText("Save/save.json") : "{}";
             doc = JsonDocument.Parse(fileS);

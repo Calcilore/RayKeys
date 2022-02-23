@@ -24,7 +24,7 @@ namespace RayKeys {
             Start(level, speed);
         }
 
-        public void Start(string level, float speed = 1f) {
+        public void Start(string level, float speed = 1f, int forceXPos = -1) {
 
             engines = new List<Engine>();
             //Music.Stop();
@@ -77,8 +77,16 @@ namespace RayKeys {
                     xpos = (int)((i - recenterLen) * 608f);
                 }
 
+                if (forceXPos != -1) {
+                    if (controls[i] == 0) continue;
+                    xpos = forceXPos;
+                    controls[i] = 0;
+                }
+
                 engines.Add(new Engine(controls[i], xpos, speed));
                 engines[^1].notes = notes[playersJ[i].GetProperty("beatmap").GetInt32() - 1].ToArray().ToList();
+                
+                if (forceXPos != -1) break;
             }
 
             AudioManager.LoadSong("Levels/" + level + "/song.ogg", bps * 60, speed); 
