@@ -15,14 +15,11 @@ namespace RayKeys {
         public readonly GraphicsDeviceManager Graphics;
         public SpriteBatch SpriteBatch;
         public float Scaling;
-        // public Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
-        // public Dictionary<string, SoundEffect> Sounds = new Dictionary<string, SoundEffect>();
         public SpriteFont[] Fonts = new SpriteFont[7];
         public Keys[][] Controls = new Keys[4][];
         public Rectangle RenderRectangle { get; private set; }
 
         private Scene currentScene;
-        //private MainMenu mainMenu;
         private FPSCounter fpsCounter = new FPSCounter();
         private RenderTarget2D test;
 
@@ -60,12 +57,6 @@ namespace RayKeys {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
             RRender.Initialise();
-            
-            // Textures.Add("notes"    , Content.Load<Texture2D>("Textures/notes"    ));
-            // Textures.Add("keys"     , Content.Load<Texture2D>("Textures/keys"     ));
-            // Textures.Add("healthbar", Content.Load<Texture2D>("Textures/healthbar"));
-            // Textures.Add("button", Content.Load<Texture2D>("Textures/button"));
-            // Textures.Add("trackeditorbg", Content.Load<Texture2D>("Textures/trackeditorbg"));
 
             for (int i = 0; i < Fonts.Length; i++) {
                 Fonts[i] = Content.Load<SpriteFont>("Fonts/Font" + i);
@@ -73,12 +64,8 @@ namespace RayKeys {
 
             Stuffs.Init(Content);
 
-            //Sounds.Add("hitsound" , Content.Load<SoundEffect>("Sounds/hitsound" ));
-            
-
             PrepareLoadScene();
             LoadScene(new MainMenu());
-            //EngineManager.Start("1");
         }
 
         protected override void Update(GameTime gameTime) {
