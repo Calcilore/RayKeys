@@ -64,7 +64,7 @@ namespace RayKeys.Editor {
             if (!AudioManager.IsPlaying()) {
                 scrollPosR = Math.Clamp(
                         scrollPosR + (RMouse.ScrollFrame == 0 ? 0 : RMouse.ScrollFrame > 0 ? 96 : -96) *
-                        (RKeyboard.IsKeyHeld(Keys.LeftShift) ? 4 : 1), -714, backgroundSize * 96 - 540);
+                        (RKeyboard.IsKeyHeld(Keys.LeftShift) ? 4 : 1), 0, backgroundSize * 96);
                 scrollPos = ThingTools.Lerp(scrollPos, scrollPosR, 10f * delta);
                 
                 if (RMouse.LeftButtonPressed && RMouse.X > XStart && RMouse.X < XStart + XLen)
@@ -72,7 +72,13 @@ namespace RayKeys.Editor {
             }
             else {
                 // if music is playing, scroll to position in song, overrides user input
-                scrollPosR = (int) (AudioManager.GetBeatTime() * 96);
+                scrollPosR = (int) ((AudioManager.GetBeatTime() - currentSection * 16) * 96);
+                if (scrollPosR > 16 * 96) {
+                    scrollPosR = 0;
+                    ChangeSection(currentSection + 1);
+                }
+
+                scrollPosR *= zoom;
                 scrollPos = scrollPosR;
                 
                 barPos = -scrollPosR - 96;
@@ -89,7 +95,7 @@ namespace RayKeys.Editor {
                 else {
                     AudioManager.SetPause(false);
                     // making it start at 0 seconds causes it to lagspike, so i made it seek to a minimum of 1 millisecond
-                    AudioManager.Seek(Math.Max(0.001f, scrollPos / 96 / AudioManager.bps));
+                    AudioManager.Seek(Math.Max(0.001f, (scrollPos / 96 / zoom + currentSection * 16) / AudioManager.bps));
                 }
             }
 
@@ -145,7 +151,7 @@ namespace RayKeys.Editor {
             }
             
             // the play line thingo
-            RRender.DrawBlank(Align.Left, Align.Bottom, 0, barPos, 1920, 4, Color.White);
+            RRender.DrawBlank(Align.Left, Align.Bottom, 0, (int) RRender.CameraPos.Y - 96, 1920, 4, new Color(255, 255, 255, 0));
             
             // the notes
             foreach (Note n in csNotes) {
@@ -157,7 +163,7 @@ namespace RayKeys.Editor {
                 //RRender.DrawString(Align.Center, Align.Bottom, Align.Center, Align.Center, n.time.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2 + sp, 4);
             }
             
-            RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection}", 5, -5, 5, Color.White); 
+            RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection + 1}", 5, -5, 5, Color.White); 
         }
     }
 }
