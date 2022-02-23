@@ -159,8 +159,8 @@ namespace RayKeys.Editor {
                 //     continue;
                 
                 RRender.Draw(Align.Center, Align.Bottom, Stuffs.GetTexture((int)Textures.Note1 + n.lane), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2, 64, 64, Color.White);
-                //RRender.DrawString(Align.Center, Align.Bottom, Align.Center, Align.Center, n.lane.ToString(), (n.lane-3)*96 + 16, (int) ((n.time + 1) * -96) + 16 + sp, 4);
-                //RRender.DrawString(Align.Center, Align.Bottom, Align.Center, Align.Center, n.time.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2 + sp, 4);
+                //RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Bottom, n.lane.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96 - 96*1.5f), 4); // Debugs
+                //RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Top   , n.time.ToString(), (n.lane-3)*96 + 64, (int) (n.time * -96 - 96*1.5f), 4);
             }
             
             RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection + 1}", 5, -5, 5, Color.White); 
