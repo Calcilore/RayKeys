@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using RayKeys.Render;
 
 namespace RayKeys.Options {
-    public class OptionsActions {
+    public static class OptionsActions {
         public static void LimitFPSChanged(object v) {
             Game1.Game.IsFixedTimeStep = (bool) v;
             Game1.Game.Graphics.ApplyChanges();
