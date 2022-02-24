@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
@@ -13,6 +14,10 @@ namespace RayKeys.Editor {
         private float scrollPos;
         private int scrollPosR;
         private int barPos;
+
+        private string infoText;
+        private float infoTextTimer;
+        private const float infoTextTimerMax = 2f;
         
         // Sections
         private int currentSection;
@@ -27,7 +32,7 @@ namespace RayKeys.Editor {
             Game1.Game.DrawEvent += Draw;
             Game1.Game.UpdateEvent += Update;
 
-            AudioManager.LoadSong("Levels/1/song.ogg", 340);
+            AudioManager.LoadSong("Levels/1/song.ogg", 170*2);
             AudioManager.Play();
             AudioManager.SetPause(true);
             
@@ -65,6 +70,20 @@ namespace RayKeys.Editor {
                 scrollPosR = Math.Clamp(
                         scrollPosR + (RMouse.ScrollFrame == 0 ? 0 : RMouse.ScrollFrame > 0 ? 96 : -96) *
                         (RKeyboard.IsKeyHeld(Keys.LeftShift) ? 4 : 1), 0, backgroundSize * 96);
+
+                // Scroll to change section
+                // scrollPosR = Math.Clamp(
+                //     scrollPosR + (RMouse.ScrollFrame == 0 ? 0 : RMouse.ScrollFrame > 0 ? 96 : -96) *
+                //     (RKeyboard.IsKeyHeld(Keys.LeftShift) ? 4 : 1), -1, backgroundSize * 96 + 1);
+                //
+                // if (scrollPosR > backgroundSize * 96) {
+                //     scrollPosR = 0;
+                //     ChangeSection(currentSection + 1);
+                // } else if (scrollPosR < 0) {
+                //     scrollPosR = backgroundSize * 96 * zoom;
+                //     ChangeSection(currentSection - 1);
+                // }
+
                 scrollPos = ThingTools.Lerp(scrollPos, scrollPosR, 10f * delta);
                 
                 if (RMouse.LeftButtonPressed && RMouse.X > XStart && RMouse.X < XStart + XLen)
@@ -106,11 +125,38 @@ namespace RayKeys.Editor {
                 ChangeZoom(false);
             }
             
-            if (RKeyboard.IsKeyPressed(Keys.Right) && currentSection < 16) {
+            if (RKeyboard.IsKeyPressed(Keys.Right)) {
                 ChangeSection(currentSection + 1);
             }
-            else if (RKeyboard.IsKeyPressed(Keys.Left) && currentSection > 0) {
+            else if (RKeyboard.IsKeyPressed(Keys.Left)) {
                 ChangeSection(currentSection - 1);
+            }
+
+            if (RKeyboard.IsKeyPressed(Keys.S) && RKeyboard.IsKeyHeld(Keys.LeftControl)) {
+                Dictionary<string, object> thing = new Dictionary<string, object>();
+                
+                thing.Add("name", "First Town Of This Journey");
+                thing.Add("artist", "Camellia");
+                thing.Add("bpm", 170);
+                thing.Add("players", new List<Dictionary<string, int>>() {new Dictionary<string, int>() {{"beatmap", 1}, {"controls", 1}}});
+
+                List<Dictionary<string, float>> dick = new List<Dictionary<string, float>>();
+                float sAdd = 0;
+                foreach (List<Note> section in notes) {
+                    foreach (Note note in section) {
+                        dick.Add(new Dictionary<string, float>() {{"lane", note.lane}, {"time", (note.time + sAdd)/2}});
+                    }
+
+                    sAdd += 16;
+                }
+                
+                thing.Add("beatmaps", new List<List<Dictionary<string, float>>>() {dick});
+                
+                string json = JsonSerializer.Serialize(thing);
+                Console.WriteLine(json);
+
+                infoText = "Level Saved...";
+                infoTextTimer = infoTextTimerMax;
             }
         }
 
@@ -127,6 +173,8 @@ namespace RayKeys.Editor {
         }
         
         private void ChangeSection(int section) {
+            if (section < 0) return;
+
             Console.WriteLine($"Changing Section to: {currentSection} from {section}");
             
             notes[currentSection] = csNotes;
@@ -151,7 +199,7 @@ namespace RayKeys.Editor {
             }
             
             // the play line thingo
-            RRender.DrawBlank(Align.Left, Align.Bottom, 0, (int) RRender.CameraPos.Y - 96, 1920, 4, new Color(255, 255, 255, 0));
+            RRender.DrawBlank(Align.Left, Align.Bottom, 0, (int) RRender.CameraPos.Y - 96, 1920, 4, Color.White * 0.5f);
             
             // the notes
             foreach (Note n in csNotes) {
@@ -159,11 +207,17 @@ namespace RayKeys.Editor {
                 //     continue;
                 
                 RRender.Draw(Align.Center, Align.Bottom, Stuffs.GetTexture((int)Textures.Note1 + n.lane), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2, 64, 64, Color.White);
-                //RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Bottom, n.lane.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96 - 96*1.5f), 4); // Debugs
-                //RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Top   , n.time.ToString(), (n.lane-3)*96 + 64, (int) (n.time * -96 - 96*1.5f), 4);
+                RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Bottom, n.lane.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96 - 96*1.5f), 4); // Debugs
+                RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Top   , n.time.ToString(), (n.lane-3)*96 + 64, (int) (n.time * -96 - 96*1.5f), 4);
             }
             
-            RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection + 1}", 5, -5, 5, Color.White); 
+            RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection + 1}", 5, -5, 5, Color.White);
+
+            if (infoTextTimer > 0) {
+                RRender.DrawStringNoCam(Align.Left, Align.Top, Align.Left, Align.Top, infoText, 5, 5, 4, Color.White);
+                
+                infoTextTimer -= delta;
+            }
         }
     }
 }

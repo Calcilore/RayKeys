@@ -70,7 +70,7 @@ namespace RayKeys.Menu {
             
             // get random one for main page
             string randomLevel = dis[ThingTools.Rand.Next(dis.Length)].Name;
-            new EngineManager().Start(randomLevel, 1, -300);
+            new EngineManager().Start(randomLevel, 0, 1, -300);
         }
         
         private void Draw(float delta) {

@@ -21,10 +21,10 @@ namespace RayKeys {
         public EngineManager() { }
 
         public EngineManager(string level, float speed = 1f) {
-            Start(level, speed);
+            Start(level, speed:speed);
         }
 
-        public void Start(string level, float speed = 1f, int forceXPos = -1) {
+        public void Start(string level, float countdownTimer = 3f, float speed = 1f, int forceXPos = -1) {
 
             engines = new List<Engine>();
             //Music.Stop();
@@ -44,7 +44,7 @@ namespace RayKeys {
             for (int i = 0; i < notes.Length; i++) {
                 notes[i] = new List<Note>();
                 for (int j = 0; j < beatmaps[i].GetArrayLength(); j++) {
-                    notes[i].Add(new Note((float) beatmaps[i][j].GetProperty("time").GetDouble() / bps + 3, beatmaps[i][j].GetProperty("lane").GetByte()));
+                    notes[i].Add(new Note((float) beatmaps[i][j].GetProperty("time").GetDouble() / bps, beatmaps[i][j].GetProperty("lane").GetByte()));
                 }
             }
             
@@ -83,7 +83,7 @@ namespace RayKeys {
                     controls[i] = 0;
                 }
 
-                engines.Add(new Engine(controls[i], xpos, speed));
+                engines.Add(new Engine(controls[i], xpos, countdownTimer, speed));
                 engines[^1].notes = notes[playersJ[i].GetProperty("beatmap").GetInt32() - 1].ToArray().ToList();
                 
                 if (forceXPos != -1) break;
@@ -91,6 +91,7 @@ namespace RayKeys {
 
             AudioManager.LoadSong("Levels/" + level + "/song.ogg", bps * 60, speed); 
             AudioManager.Play();
+            AudioManager.SetPause(true);
 
             foreach (Engine engine in engines) {
                 engine.Start();

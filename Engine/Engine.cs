@@ -26,6 +26,7 @@ namespace RayKeys {
         private float speed;
         private int downscrollMul;
         private bool downscroll;
+        private float countdownTimer;
 
         private bool[] keysHeld = new bool[6];      // currently held keys
         private bool[] keysHeld2 = new bool[6];     // keys held last frame and keys that were tapped (changes during the frame)
@@ -35,7 +36,7 @@ namespace RayKeys {
         public float health = 1f;
         private float healthD = 0f;
         
-        public Engine(int controls, int xpos = 0, float speed = 1f) {
+        public Engine(int controls, int xpos = 0, float countdownTimer = 3f, float speed = 1f) {
             controls--;
             if (controls == -1) {
                 autoPlay = true;
@@ -48,6 +49,7 @@ namespace RayKeys {
 
             this.xpos = xpos;
             this.speed = speed;
+            this.countdownTimer = countdownTimer + .001f;
             
             Game1.Game.DrawEvent += Draw;
 
@@ -67,7 +69,7 @@ namespace RayKeys {
                 health += 0.05f;
             }
                 
-            if (np0 <= 0 && npp > 0) { // hitsounds
+            if (np0 < 0 && npp >= 0) { // hitsounds
                 Stuffs.GetSound(Sounds.Hitsound).Play();
             }
         } 
@@ -77,13 +79,20 @@ namespace RayKeys {
                 keysHeldOnHit[n.lane] = false;
             }
                     
-            if (np0 <= 0 && npp > 0) { // when player should hit note
+            if (np0 <= 0 && !n.dead) { // when player should hit note
                 n.dead = true;
                 keysHeldOnHit[n.lane] = true;
                 autoPlayKeyTimer[n.lane] = (float)ThingTools.Rand.NextDouble() * 0.1f + 0.2f;
             }
+        }
 
-        } 
+        private bool CountdownCompareThing(float a, float b) {
+            return (int)(a - b) != (int)a;
+        }
+        
+        private float GetFrameTime() {
+            return countdownTimer > 0 ? -countdownTimer : AudioManager.FrameTime;
+        }
         
         private void Update(float delta) {
             if (!autoPlay) {
@@ -106,6 +115,20 @@ namespace RayKeys {
                 }
             }
             
+            // Countdown (let controls exist beforehand)
+            if (countdownTimer > 0) {
+                if (CountdownCompareThing(countdownTimer, delta))
+                    Stuffs.GetSound(Sounds.Hitsound).Play();
+
+                if (countdownTimer - delta < 0) {
+                    AudioManager.Seek(0.001f);
+                    AudioManager.SetPause(false);
+                }
+                
+                countdownTimer -= delta;
+                return;
+            }
+
             for (int i = 0; i < notes.Count;) {
                 Note n = notes[i];
 
@@ -138,6 +161,7 @@ namespace RayKeys {
         
         private void Draw(float delta) {
             Align vAl = downscroll ? Align.Bottom : Align.Top;
+            float frameTime = GetFrameTime();
             
             for (int i = 0; i < 6; i++) {
                 RRender.Draw(Align.Center, vAl, Stuffs.GetTexture((int)Textures.Keys1 + i + (keysHeld[i] ? keysHeldOnHit[i] ? 12 : 6 : 0)), xpos+(i-3)*96, (-200 * downscrollMul), 64, 64, Color.White);
@@ -147,7 +171,7 @@ namespace RayKeys {
                 if (n.dead)
                     continue;
 
-                RRender.Draw(Align.Center, vAl, Stuffs.GetTexture((int)Textures.Note1 + n.lane) , xpos+(n.lane-3)*96, (-200 * downscrollMul) - (int)((n.time - AudioManager.FrameTime) * 800f * downscrollMul), 64, 64, Color.White);
+                RRender.Draw(Align.Center, vAl, Stuffs.GetTexture((int)Textures.Note1 + n.lane) , xpos+(n.lane-3)*96, (-200 * downscrollMul) - (int)((n.time - frameTime) * 800f * downscrollMul), 64, 64, Color.White);
             }
 
             if (!autoPlay) {
