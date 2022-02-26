@@ -34,7 +34,10 @@ namespace RayKeys {
 
         public List<Note> notes = new List<Note>();
         public float health = 1f;
-        private float healthD = 0f;
+        private float healthD = 0f; // Health Display (health with ease)
+
+        private bool shouldBePaused; // music
+        private bool isPaused;
         
         public Engine(int controls, int xpos = 0, float countdownTimer = 3f, float speed = 1f) {
             controls--;
@@ -55,10 +58,23 @@ namespace RayKeys {
 
             downscroll = (bool) OptionsManager.GetOption("downscroll").currentValue;
             downscrollMul = downscroll ? 1 : -1;
+            
+            AudioManager.SetPause(true);
+            shouldBePaused = true;
         }
 
         public void Start() {
             Game1.Game.UpdateEvent += Update;
+        }
+
+        public void Pause() {
+            AudioManager.SetPause(true);
+            this.isPaused = true;
+        }
+
+        public void UnPause() {
+            AudioManager.SetPause(shouldBePaused);
+            this.isPaused = false;
         }
 
         private void NoAutoPlayNoteHandling(Note n, float np0, float npp) {
@@ -95,6 +111,22 @@ namespace RayKeys {
         }
         
         private void Update(float delta) {
+            if (isPaused) return;
+
+            // Countdown (let controls exist beforehand)
+            if (countdownTimer > 0) {
+                if (CountdownCompareThing(countdownTimer, delta))
+                    Stuffs.GetSound(Sounds.Hitsound).Play();
+
+                if (countdownTimer - delta < 0) {
+                    AudioManager.Seek(0.001f);
+                    AudioManager.SetPause(false);
+                    shouldBePaused = false;
+                }
+                
+                countdownTimer -= delta;
+            }
+            
             if (!autoPlay) {
                 KeyboardState ks = Keyboard.GetState();
                 for (int i = 0; i < 6; i++) {
@@ -114,26 +146,19 @@ namespace RayKeys {
                     keysHeld2[i] = true;
                 }
             }
-            
-            // Countdown (let controls exist beforehand)
-            if (countdownTimer > 0) {
-                if (CountdownCompareThing(countdownTimer, delta))
-                    Stuffs.GetSound(Sounds.Hitsound).Play();
 
-                if (countdownTimer - delta < 0) {
-                    AudioManager.Seek(0.001f);
-                    AudioManager.SetPause(false);
-                }
-                
-                countdownTimer -= delta;
-                return;
-            }
-
+            float frameTime = GetFrameTime();
             for (int i = 0; i < notes.Count;) {
                 Note n = notes[i];
 
-                float np0 = n.time - AudioManager.FrameTime;     // current pos of note (in seconds away from passing keys)
-                float npp = n.time - AudioManager.LastFrameTime; // pos of note last frame
+                // IMPORTANT: npp is incorrect during countdown
+                // IMPORTANT: npp is incorrect during countdown
+                // IMPORTANT: npp is incorrect during countdown
+                // IMPORTANT: npp is incorrect during countdown
+                // IMPORTANT: npp is incorrect during countdown
+                // IMPORTANT: npp is incorrect during countdown
+                float np0 = n.time - frameTime;                  // current pos of note (in seconds away from passing keys)
+                float npp = n.time - AudioManager.LastFrameTime; // pos of note last frame 
 
                 NoteHandler.Invoke(n, np0, npp);
                 
@@ -178,7 +203,7 @@ namespace RayKeys {
                 healthD = ThingTools.Lerp(healthD, health, 10f * delta);
             
                 RRender.Draw(Align.Center, vAl, Textures.HealthBarBackground, xpos - 200, -90 * downscrollMul, 400, 40);
-                RRender.Draw(Align.Center, vAl, Textures.HealthBar, xpos - 200, -90 * downscrollMul, (int) (400 * healthD), 40);
+                RRender.Draw(Align.Left, vAl, Textures.HealthBar, xpos + 760, -90 * downscrollMul, (int) (400 * healthD), 40);
             }
         } 
     }

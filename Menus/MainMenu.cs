@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using RayKeys.Options;
 using RayKeys.Render;
 
-namespace RayKeys.Menu {
+namespace RayKeys.Menus {
     public class MainMenu : Scene {
         private Menu menu;
         
@@ -24,7 +24,7 @@ namespace RayKeys.Menu {
             menu.AddPage(0, 0);     // 0 main page
             menu.AddPage(1920, 0);  // 1 level select
             menu.AddPage(-1920, 0); // 2 options
-            menu.AddPage(0, -1080);  // 3 are you sure you want to exit?
+            menu.AddPage(0, -1080); // 3 are you sure you want to exit?
             menu.AddPage(-1920, 0); // 4 suboptions (Graphics)
             menu.AddPage(-1920, 0); // 5 suboptions (Gameplay)
 
@@ -171,7 +171,7 @@ namespace RayKeys.Menu {
 
         private void SongButtonPressed(int Id, params object[] args) {
             Game1.Game.PrepareLoadScene();
-            Game1.Game.LoadScene(new EngineManager((string) args[0]));
+            Game1.Game.LoadScene(new PlayScene((string) args[0], 1));
         }
     }
 }

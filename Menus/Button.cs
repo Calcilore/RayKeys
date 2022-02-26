@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
 using RayKeys.Render;
 
-namespace RayKeys.Menu {
+namespace RayKeys.Menus {
     public class Button : MenuItem {
         private Color cColour;
         private int fontSize;
@@ -26,8 +26,10 @@ namespace RayKeys.Menu {
         private Vector2 pos;
 
         private bool isSubbed;
+        private bool isFocused;
 
         public Button(Menu parent, Align h, Align v, Align hT, Align vT, int id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
+            Game1.Game.UpdateEvent += Update;
             Game1.Game.DrawEvent += Draw;
             isSubbed = true;
 
@@ -51,23 +53,25 @@ namespace RayKeys.Menu {
             cColour = Color.White;
         }
 
-        public void Hide() {
+        public override void Hide() {
             if (isSubbed) Game1.Game.DrawEvent -= Draw;
             isSubbed = false;
         }
         
-        public void Show() {
+        public override void Show() {
             if (!isSubbed) Game1.Game.DrawEvent += Draw;
             isSubbed = true;
         }
 
-        private void Draw(float delta) {
-            bool isFocused = parent.CurrentId == Id;
+        private void Update(float delta) {
+            isFocused = parent.CurrentId == Id;
             
             if (RKeyboard.IsKeyPressed(Keys.Enter) && isFocused) {
                 ClickEvent?.Invoke(Id, args);
             }
-
+        }
+        
+        private void Draw(float delta) {
             pos.X = ThingTools.Lerp(pos.X, isFocused ? tPosFoc.X : tPos.X, 10 * delta);
 
             RRender.DrawString(Alh, Alv, AlhT, AlvT, Text, (int)pos.X + sizeX / 2, (int)pos.Y + sizeY / 2, fontSize, cColour);

@@ -1,7 +1,4 @@
 using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using RayKeys.Render;
 
 namespace RayKeys {
     public static class ThingTools {
@@ -30,6 +27,5 @@ namespace RayKeys {
         public static float RoundN(float n, int di) {
             return (float) (Math.Round(n / di) * di);
         }
-
     }
 }

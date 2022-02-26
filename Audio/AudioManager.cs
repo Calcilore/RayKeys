@@ -25,7 +25,7 @@ namespace RayKeys {
         public static void Update(float delta) {
             LastMusicTime = MusicTime;
             LastFrameTime = FrameTime;
-            
+
             FrameTime += delta * MediaPlayer.Rate;
             MusicTime = MediaPlayer.Time / 1000f;
 
@@ -33,10 +33,10 @@ namespace RayKeys {
             if (Math.Abs(MusicTime - LastMusicTime) > 0.05) {
                 FrameTime = MusicTime;
             }
-
-            // for time for audio to start
-            if (MusicTime == 0f) {
-                FrameTime = 0f;
+            
+            // If it is paused
+            if (!MediaPlayer.IsPlaying) {
+                FrameTime -= delta * MediaPlayer.Rate;
             }
         }
 

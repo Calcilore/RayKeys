@@ -2,7 +2,7 @@
 using RayKeys.Misc;
 using RayKeys.Render;
 
-namespace RayKeys.Menu {
+namespace RayKeys.Menus {
     public class ClickButton {
         public object Arg;
 

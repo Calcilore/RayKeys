@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +5,7 @@ using System.Text.Json;
 using RayKeys.Options;
 
 namespace RayKeys {
-    public class EngineManager : Scene {
+    public class EngineManager {
         private List<Engine> engines = new List<Engine>();
         private float bps;
         
@@ -95,6 +94,18 @@ namespace RayKeys {
 
             foreach (Engine engine in engines) {
                 engine.Start();
+            }
+        }
+
+        public void Pause() {
+            foreach (Engine engine in engines) {
+                engine.Pause();
+            }
+        }
+        
+        public void UnPause() {
+            foreach (Engine engine in engines) {
+                engine.UnPause();
             }
         }
     }

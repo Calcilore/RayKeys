@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
 using RayKeys.Render;
 
-namespace RayKeys.Menu {
+namespace RayKeys.Menus {
     public class Menu {
         public delegate void EscapeEventD();
         public event EscapeEventD EscapeEvent;
@@ -24,6 +24,16 @@ namespace RayKeys.Menu {
         private List<int> history = new List<int>();
         
         private int currentI;
+
+        public Button GetButton(int id) {
+            foreach (Page page in pages) {
+                foreach (MenuItem button in page.Items) {
+                    if (button.Id == id) return (Button)button;
+                }
+            }
+
+            return null;
+        }
 
         public void ChangePageNoHistory(int pageId) {
             tPos = pages[pageId].pos.ToVector2();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using RayKeys.Menus;
 using RayKeys.Misc;
 using RayKeys.Render;
 
@@ -14,6 +15,10 @@ namespace RayKeys.Editor {
         private float scrollPos;
         private int scrollPosR;
         private int barPos;
+
+        private PauseMenu menu;
+        private bool shouldBePaused; // music
+        private bool isPaused;
 
         private string infoText;
         private float infoTextTimer;
@@ -35,9 +40,16 @@ namespace RayKeys.Editor {
             AudioManager.LoadSong("Levels/1/song.ogg", 170*2);
             AudioManager.Play();
             AudioManager.SetPause(true);
+            shouldBePaused = true;
             
             notes.Add(new List<Note>());
             ChangeZoom(true);
+
+            menu = new PauseMenu(-50);
+            menu.PauseEvent += OnPause;
+            menu.UnPauseEvent += OnUnPause;
+            
+            menu.AddFunctionCallButton(ExitButton, "Exit");
         }
         
         private void DoTheNoteShit() {
@@ -64,6 +76,8 @@ namespace RayKeys.Editor {
         }
 
         private void Update(float delta) {
+            if (isPaused) return;
+            
             RRender.CameraPos.Y = -scrollPos;
 
             if (!AudioManager.IsPlaying()) {
@@ -106,6 +120,7 @@ namespace RayKeys.Editor {
             if (RKeyboard.IsKeyPressed(Keys.Space)) {
                 if (AudioManager.IsPlaying()) {
                     AudioManager.SetPause(true);
+                    shouldBePaused = true;
                     scrollPos = ThingTools.RoundN(scrollPos, 96);
                     scrollPosR = (int) scrollPos;
 
@@ -113,6 +128,7 @@ namespace RayKeys.Editor {
                 }
                 else {
                     AudioManager.SetPause(false);
+                    shouldBePaused = false;
                     // making it start at 0 seconds causes it to lagspike, so i made it seek to a minimum of 1 millisecond
                     AudioManager.Seek(Math.Max(0.001f, (scrollPos / 96 / zoom + currentSection * 16) / AudioManager.bps));
                 }
@@ -218,6 +234,21 @@ namespace RayKeys.Editor {
                 
                 infoTextTimer -= delta;
             }
+        }
+
+        private void ExitButton() {
+            Game1.Game.PrepareLoadScene();
+            Game1.Game.LoadScene(new MainMenu());
+        }
+
+        private void OnPause() {
+            isPaused = true;
+            AudioManager.SetPause(true);
+        }
+
+        private void OnUnPause() {
+            isPaused = false;
+            AudioManager.SetPause(shouldBePaused);
         }
     }
 }

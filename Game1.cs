@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using RayKeys.Menu;
+using RayKeys.Menus;
 using RayKeys.Misc;
 using RayKeys.Options;
 using RayKeys.Render;
