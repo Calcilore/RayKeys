@@ -1,5 +1,3 @@
-using System;
-
 namespace RayKeys.Menus {
     public abstract class MenuItem {
         public Menu parent;

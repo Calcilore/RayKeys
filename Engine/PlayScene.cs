@@ -1,6 +1,4 @@
-using System;
 using RayKeys.Menus;
-using RayKeys.Render;
 
 namespace RayKeys {
     public class PlayScene : Scene {

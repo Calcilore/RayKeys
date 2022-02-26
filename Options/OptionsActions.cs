@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using RayKeys.Render;
 
 namespace RayKeys.Options {
     public static class OptionsActions {
