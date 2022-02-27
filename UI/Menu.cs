@@ -5,13 +5,14 @@ using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
 using RayKeys.Render;
 
-namespace RayKeys.Menus {
+namespace RayKeys.UI {
     public class Menu {
         public delegate void EscapeEventD();
         public event EscapeEventD EscapeEvent;
         
         public delegate void ChangeSelectionEventD(int beforeId, int afterId);
         public event ChangeSelectionEventD ChangeSelectionEvent;
+        public event ChangeSelectionEventD ChangePageEvent;
         
         public List<Page> pages;
 
@@ -38,6 +39,8 @@ namespace RayKeys.Menus {
         public void ChangePageNoHistory(int pageId) {
             tPos = pages[pageId].pos.ToVector2();
             //Console.WriteLine(pageId);
+            
+            ChangePageEvent?.Invoke(CurrentPage, pageId);
 
             CurrentPage = pageId;
             ChangeSelection(0);
@@ -70,8 +73,10 @@ namespace RayKeys.Menus {
         private void Update(float delta) {
             CurrentId = setCurrentId;
 
-            RRender.CameraPos.X = ThingTools.Lerp(RRender.CameraPos.X, tPos.X, 10 * delta);
-            RRender.CameraPos.Y = ThingTools.Lerp(RRender.CameraPos.Y, tPos.Y, 10 * delta);
+            if (!pages[CurrentPage].followCamera) {
+                RRender.CameraPos.X = ThingTools.Lerp(RRender.CameraPos.X, tPos.X, 10 * delta);
+                RRender.CameraPos.Y = ThingTools.Lerp(RRender.CameraPos.Y, tPos.Y, 10 * delta);    
+            }
 
             if (RKeyboard.IsKeyPressed(Keys.Escape)) {
                 if (history.Count == 0) {
@@ -100,14 +105,14 @@ namespace RayKeys.Menus {
             ChangeSelectionEvent?.Invoke(CurrentId, setCurrentId);
         }
 
-        public void AddPage(int x, int y) {
-            pages.Add(new Page(x, y));
+        public void AddPage(int x, int y, bool followCamera = false) {
+            pages.Add(new Page(x, y, followCamera));
         }
 
         public Button AddButton(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
             x += pages[page].pos.X; y += pages[page].pos.Y;
             
-            Button button = new Button(this, h, v, hT, vT, currentI, text, x, y, sizeX, sizeY, fontSize);
+            Button button = new Button(this, pages[page].followCamera, h, v, hT, vT, currentI, text, x, y, sizeX, sizeY, fontSize);
             currentI++;
 
             pages[page].Items.Add(button);
@@ -136,6 +141,16 @@ namespace RayKeys.Menus {
             button.args = new object[] {func};
 
             return button;
+        }
+
+        public InputField AddInputField(int page, Align h, Align v, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
+            x += pages[page].pos.X; y += pages[page].pos.Y;
+            
+            InputField inputField = new InputField(this, pages[page].followCamera, h, v, currentI, label, x, y, sizeX, sizeY, fontSize);
+            currentI++;
+
+            pages[page].Items.Add(inputField);
+            return inputField;
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using RayKeys.Render;
 
-namespace RayKeys.Menus {
+namespace RayKeys.UI {
     public class PauseMenu {
         public Menu menu;
         public delegate void Event();
@@ -14,12 +14,11 @@ namespace RayKeys.Menus {
             OBYPos = startPos;
 
             menu = new Menu();
-            menu.ChangeSelectionEvent += OnSwitch;
+            menu.ChangePageEvent += OnPageSwitch;
             menu.EscapeEvent += OnEscape;
             
-            // Make page 1 the game so escape will go to pause menu
-            menu.AddPage(0, 0); // 0 the game
-            menu.AddPage(0, 0); // 1 pause menu
+            menu.AddPage(0, 0, true); // 0 the game
+            menu.AddPage(0, 0, true); // 1 pause menu
 
             menu.AddPageChangeButton(0, 1, Align.Left, Align.Top, Align.Left, Align.Top, "", 0, 0).Hide();
 
@@ -43,20 +42,22 @@ namespace RayKeys.Menus {
             return b;
         }
 
-        private void OnSwitch(int before, int after) {
-            if (after == 0) {
-                if (before == 0) return;
+        private void OnPageSwitch(int before, int after) {
+            switch (after) {
+                case 0:
+                    if (before != 1) break;
+                    
+                    Console.WriteLine("Unpause");
+                    menu.pages[1].HideItems();
+                    UnPauseEvent?.Invoke();
+                    break;
                 
-                Console.WriteLine("Unpause");
-                menu.pages[1].HideItems();
-                UnPauseEvent?.Invoke();
-                return;
+                case 1:
+                    Console.WriteLine("Pause");
+                    menu.pages[1].ShowItems();
+                    PauseEvent?.Invoke();
+                    break;
             }
-            
-            if (before != 0) return;
-            Console.WriteLine("Pause");
-            menu.pages[1].ShowItems();
-            PauseEvent?.Invoke();
         }
 
         private void OnEscape() {

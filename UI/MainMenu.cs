@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using RayKeys.Options;
 using RayKeys.Render;
 
-namespace RayKeys.Menus {
+namespace RayKeys.UI {
     public class MainMenu : Scene {
         private Menu menu;
         
@@ -32,6 +32,7 @@ namespace RayKeys.Menus {
             menu.AddPageChangeButton(0, 2, Align.Right, Align.Top, Align.Right, Align.Center, "Options", -16, 400);
             menu.AddFunctionCallButton(0, Editor, Align.Right, Align.Top, Align.Right, Align.Center, "Editor", -16, 500);
             menu.AddPageChangeButton(0, 3, Align.Right, Align.Top, Align.Right, Align.Center, "Exit", -16, 600);
+            //menu.AddInputField(0, Align.Right, Align.Top, "Test", -16, 700);
 
             // Are you sure you want to exit?
             menu.AddPageChangeNoHistoryButton(3, 0, Align.Right, Align.Top, Align.Right, Align.Center, "Cancel", -16, 400);

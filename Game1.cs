@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using RayKeys.Menus;
+using RayKeys.UI;
 using RayKeys.Misc;
 using RayKeys.Options;
 using RayKeys.Render;

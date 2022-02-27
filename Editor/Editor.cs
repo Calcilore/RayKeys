@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using RayKeys.Menus;
+using RayKeys.UI;
 using RayKeys.Misc;
 using RayKeys.Render;
 
@@ -16,7 +16,8 @@ namespace RayKeys.Editor {
         private int scrollPosR;
         private int barPos;
 
-        private PauseMenu menu;
+        private PauseMenu pauseMenu;
+        private Menu menu;
         private bool shouldBePaused; // music
         private bool isPaused;
 
@@ -45,11 +46,17 @@ namespace RayKeys.Editor {
             notes.Add(new List<Note>());
             ChangeZoom(true);
 
-            menu = new PauseMenu(-50);
-            menu.PauseEvent += OnPause;
-            menu.UnPauseEvent += OnUnPause;
+            pauseMenu = new PauseMenu(-50);
+            ((Button) pauseMenu.menu.pages[0].Items[0]).args = new object[] {2, true};
+            pauseMenu.PauseEvent += OnPause;
+            pauseMenu.UnPauseEvent += OnUnPause;
             
-            menu.AddFunctionCallButton(ExitButton, "Exit");
+            pauseMenu.AddFunctionCallButton(ExitButton, "Exit");
+
+            menu = pauseMenu.menu;
+            menu.AddPage(0, 0);
+            menu.AddButton(2, Align.Right, Align.Center, Align.Right, Align.Center, "Resume", 16, 0);
+            
         }
         
         private void DoTheNoteShit() {
@@ -223,8 +230,8 @@ namespace RayKeys.Editor {
                 //     continue;
                 
                 RRender.Draw(Align.Center, Align.Bottom, Stuffs.GetTexture((int)Textures.Note1 + n.lane), (n.lane-3)*96 + 16, (int) (n.time * -96) + 16 - 96*2, 64, 64, Color.White);
-                RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Bottom, n.lane.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96 - 96*1.5f), 4); // Debugs
-                RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Top   , n.time.ToString(), (n.lane-3)*96 + 64, (int) (n.time * -96 - 96*1.5f), 4);
+                // RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Bottom, n.lane.ToString(), (n.lane-3)*96 + 16, (int) (n.time * -96 - 96*1.5f), 4); // Debugs
+                // RRender.DrawString(Align.Center, Align.Bottom, Align.Left, Align.Top   , n.time.ToString(), (n.lane-3)*96 + 64, (int) (n.time * -96 - 96*1.5f), 4);
             }
             
             RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection + 1}", 5, -5, 5, Color.White);

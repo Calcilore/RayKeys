@@ -1,6 +1,6 @@
 using RayKeys.Options;
 
-namespace RayKeys.Menus {
+namespace RayKeys.UI {
     public class OptionButton {
         public Button button;
         public object[] values;

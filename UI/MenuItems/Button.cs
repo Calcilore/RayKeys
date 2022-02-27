@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
 using RayKeys.Render;
 
-namespace RayKeys.Menus {
+namespace RayKeys.UI {
     public class Button : MenuItem {
         private Color cColour;
         private int fontSize;
@@ -18,7 +18,7 @@ namespace RayKeys.Menus {
         public Align Alv;
         public Align AlhT;
         public Align AlvT;
-        public string Text;
+        public string Label;
 
         private Vector2 tPos;
         private Vector2 tPosFoc;
@@ -27,16 +27,17 @@ namespace RayKeys.Menus {
         private bool isSubbed;
         private bool isFocused;
 
-        public Button(Menu parent, Align h, Align v, Align hT, Align vT, int id, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
+        public Button(Menu parent, bool followCamera, Align h, Align v, Align hT, Align vT, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
             Game1.Game.UpdateEvent += Update;
             Game1.Game.DrawEvent += Draw;
             isSubbed = true;
 
             this.parent = parent;
+            this.followCamera = followCamera;
             this.sizeX = sizeX;
             this.sizeY = sizeY;
             this.fontSize = fontSize;
-            this.Text = text;
+            this.Label = label;
             this.Id = id;
             Alh = h;
             Alv = v;
@@ -72,8 +73,10 @@ namespace RayKeys.Menus {
         
         private void Draw(float delta) {
             pos.X = ThingTools.Lerp(pos.X, isFocused ? tPosFoc.X : tPos.X, 10 * delta);
-
-            RRender.DrawString(Alh, Alv, AlhT, AlvT, Text, (int)pos.X + sizeX / 2, (int)pos.Y + sizeY / 2, fontSize, cColour);
+            Vector2 finalPos = pos;
+            if (followCamera) finalPos += RRender.CameraPos;
+            
+            RRender.DrawString(Alh, Alv, AlhT, AlvT, Label, (int)finalPos.X + sizeX / 2, (int)finalPos.Y + sizeY / 2, fontSize, cColour);
         }
     }
 }
