@@ -1,5 +1,6 @@
 using System;
 using LibVLCSharp.Shared;
+using RayKeys.Misc;
 
 namespace RayKeys {
     public static class AudioManager {
@@ -17,6 +18,7 @@ namespace RayKeys {
         public static float LastMusicTime = 0f; // musicTime but last frame
         
         public static void Initialise() {
+            Logger.Info("Initialising Audio Manager");
             Core.Initialize();
             _libVLC = new LibVLC(false);
             MediaPlayer = new MediaPlayer(_libVLC);
@@ -77,6 +79,8 @@ namespace RayKeys {
         }
 
         public static void LoadSong(string song, float bpm, float speed = 1f) {
+            Logger.Info("Loading Song: " + song);
+            
             AudioManager.bpm = bpm;
             AudioManager.bps = bpm / 60;
             

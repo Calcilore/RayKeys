@@ -27,12 +27,14 @@ namespace RayKeys {
         public delegate void DrawEventD(float delta);
         public event DrawEventD DrawEvent;
 
-        public Game1() {
+        public Game1(LogLevel logLevel) {
             Game = this;
             Graphics = new GraphicsDeviceManager(this);
 
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            
+            Logger.Init(logLevel);
         }
 
         protected override void Initialize() {

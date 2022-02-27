@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using RayKeys.Misc;
 
 namespace RayKeys.Options {
     public static class OptionsManager {
@@ -16,6 +17,8 @@ namespace RayKeys.Options {
         }
         
         private static void AddOption(string id, OptionType optionType, object value, JsonElement configJ, Action<object> changedFunc = null) {
+            Logger.Info("Initialising " + id);
+            
             Option o = new Option(id, optionType, value, changedFunc);
             if (configJ.TryGetProperty(id, out configJ)) {
                 string gS = configJ.GetString();
@@ -32,6 +35,7 @@ namespace RayKeys.Options {
         }
         
         public static void Initialise() {
+            Logger.Info("Initialising Options...");
             JsonElement root = GetJson();
 
             AddOption("limitfps", OptionType.Boolean, false, root, OptionsActions.LimitFPSChanged);
@@ -41,6 +45,8 @@ namespace RayKeys.Options {
             AddOption("fullscreen", OptionType.Boolean, false, root, OptionsActions.FullscreenChanged);
             AddOption("downscroll", OptionType.Boolean, true, root);
             AddOption("repositiontracks", OptionType.Boolean, false, root);
+            
+            Logger.Info("Initialising All Options!");
         }
         
         public static Option GetOption(string id) {

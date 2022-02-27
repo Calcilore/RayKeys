@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using RayKeys.Misc;
 using RayKeys.Options;
 using RayKeys.Render;
 
@@ -14,6 +15,8 @@ namespace RayKeys.UI {
         private int currentOptionCatagory = -1;
 
         public MainMenu() {
+            Logger.Info("Loading Main Menu");
+            
             Game1.Game.DrawEvent += Draw;
             
             menu = new Menu();
@@ -37,8 +40,8 @@ namespace RayKeys.UI {
             // Are you sure you want to exit?
             menu.AddPageChangeNoHistoryButton(3, 0, Align.Right, Align.Top, Align.Right, Align.Center, "Cancel", -16, 400);
             menu.AddFunctionCallButton(3, Exit, Align.Right, Align.Top, Align.Right, Align.Center, "Exit", -16, 500);
-            
-            // Options
+
+            Logger.Info("Getting Resolutions");
             List<string> resolutions = new List<string>();
             foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes) {
                 resolutions.Add($"{mode.Width}x{mode.Height}");
@@ -58,6 +61,7 @@ namespace RayKeys.UI {
             AddBooleanOptionButton("repositiontracks", 1, "Reposition Tracks");
 
             // Get The Levels in the folder
+            Logger.Info("Getting Levels");
             DirectoryInfo levelF = new DirectoryInfo("Content/Levels/");
             DirectoryInfo[] dis = levelF.GetDirectories();
 
@@ -68,6 +72,7 @@ namespace RayKeys.UI {
                 button.args = new object[] {dis[i].Name};
             }
             
+            Logger.Info("Starting Random level");
             // get random one for main page
             string randomLevel = dis[ThingTools.Rand.Next(dis.Length)].Name;
             new EngineManager().Start(randomLevel, 0, 1, -300);
@@ -134,6 +139,7 @@ namespace RayKeys.UI {
 
             object valueTo = optionB.values[cI >= optionB.values.Length - 1 ? 0 : cI + 1];
             OptionsManager.SetOption(optionB.optionName, valueTo);
+            Logger.Info($"Changing Option {optionB.optionName} to {valueTo}");
 
             optionB.valueText = option.currentValue.ToString();
         }

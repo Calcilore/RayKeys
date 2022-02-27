@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using RayKeys.Misc;
 using RayKeys.Options;
 
 namespace RayKeys {
@@ -25,6 +26,8 @@ namespace RayKeys {
 
         public void Start(string level, float countdownTimer = 3f, float speed = 1f, int forceXPos = -1) {
 
+            Logger.Info("Starting Engine Manager");
+            
             engines = new List<Engine>();
             //Music.Stop();
 

@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using RayKeys.Misc;
 
 namespace RayKeys.Render {
     public static class Stuffs {
@@ -25,18 +26,24 @@ namespace RayKeys.Render {
         }
         
         private static void AddSound(ContentManager content, ref int i, string sound) {
+            Logger.Info("Loading Sound " + (Textures)i);
+            
             sounds[i] = content.Load<SoundEffect>("Sounds/" + sound);
             
             i++;
         }
         
         private static void AddTex(ContentManager content, ref int i, string tex) {
+            Logger.Info("Loading Texture " + (Textures)i);
+            
             textures[i] = content.Load<Texture2D>("Textures/" + tex);;
             
             i++;
         }
 
         private static void AddTexSht(ContentManager content, ref int i, string tex, int sourceX, int sourceY, int sizeX, int sizeY) {
+            Logger.Info("Loading Sprite Sheet " + (Textures)i);
+            
             Texture2D texture = content.Load<Texture2D>("Textures/" + tex);
 
             Rectangle newBounds = new Rectangle(sourceX, sourceY, sizeX, sizeY);
@@ -52,6 +59,8 @@ namespace RayKeys.Render {
         }
         
         public static void Init(ContentManager content) {
+            Logger.Info("Loading Textures");
+            
             int i = 0;
             
             textures = new Texture2D[29];
@@ -90,6 +99,7 @@ namespace RayKeys.Render {
             AddTexSht(content, ref i, "trackeditorbg", 0, 0, 96, 96);
             AddTexSht(content, ref i, "trackeditorbg", 96, 0, 96, 96);
 
+            Logger.Info("Loading Sounds");
             i = 0;
 
             sounds = new SoundEffect[1];

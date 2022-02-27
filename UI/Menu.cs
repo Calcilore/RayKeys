@@ -99,6 +99,7 @@ namespace RayKeys.UI {
         }
 
         private void ChangeSelection(int selection) {
+            Logger.Debug($"Changing Selection to {selection} from {CurrentSelection}");
             CurrentSelection = selection;
             setCurrentId = pages[CurrentPage].Items[CurrentSelection].Id;
             

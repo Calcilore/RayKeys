@@ -1,3 +1,4 @@
+using RayKeys.Misc;
 using RayKeys.UI;
 
 namespace RayKeys {
@@ -13,6 +14,8 @@ namespace RayKeys {
         }
 
         private void ConstructorThing(string level, float speed) {
+            Logger.Info("Starting Play Scene");
+            
             this.level = level;
             this.speed = speed;
 

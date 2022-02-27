@@ -35,6 +35,8 @@ namespace RayKeys.Editor {
         private int backgroundSize;
 
         public Editor() {
+            Logger.Info("Loading Editor");
+            
             Game1.Game.DrawEvent += Draw;
             Game1.Game.UpdateEvent += Update;
 
@@ -78,6 +80,7 @@ namespace RayKeys.Editor {
             }
 
             if (cPos < -1) return;
+            Logger.Debug($"Placing note at lane {cLane} and time {cPos}");
             Note na = new Note(cPos, cLane);
             csNotes.Add(na); 
         }
@@ -156,6 +159,8 @@ namespace RayKeys.Editor {
             }
 
             if (RKeyboard.IsKeyPressed(Keys.S) && RKeyboard.IsKeyHeld(Keys.LeftControl)) {
+                Logger.Info("Saving Level");
+                
                 Dictionary<string, object> thing = new Dictionary<string, object>();
                 
                 thing.Add("name", "First Town Of This Journey");
@@ -185,7 +190,7 @@ namespace RayKeys.Editor {
 
         private void ChangeZoom(bool up) {
             zoom += up ? 1 : -1;
-            Console.WriteLine("Changing Zoom to: " + zoom);
+            Logger.Info("Changing Zoom to: " + zoom);
 
             backgroundSize = zoom * 16;
 
@@ -198,7 +203,7 @@ namespace RayKeys.Editor {
         private void ChangeSection(int section) {
             if (section < 0) return;
 
-            Console.WriteLine($"Changing Section to: {currentSection} from {section}");
+            Logger.Info($"Changing Section to: {currentSection} from {section}");
             
             notes[currentSection] = csNotes;
             currentSection = section;
