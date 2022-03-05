@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RayKeys.Misc {
@@ -22,6 +23,15 @@ namespace RayKeys.Misc {
                 writeTask = streamWriter.WriteAsync(typeText);
                 typeText = "";
             }
+        }
+
+        public static void WaitFlush() {
+            while (!writeTask.IsCompleted) {
+                Thread.Sleep(50);
+            }
+
+            streamWriter.Write(typeText);
+            typeText = "";
         }
 
         public static void Init(LogLevel logLevel) {

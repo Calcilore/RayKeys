@@ -39,9 +39,18 @@ namespace RayKeys {
                 }
             }
 
-            using (var game = new Game1(logLevel)) {
-                game.Run();
+            try {
+                using (var game = new Game1(logLevel)) {
+                    game.Run();
+                }
             }
+            catch (Exception e) {
+                Logger.Error(e.ToString());
+                Logger.WaitFlush();
+                throw;
+            }
+            
+            Logger.WaitFlush();
 
             // Stop all threads
             Environment.Exit(0);
