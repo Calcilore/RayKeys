@@ -1,17 +1,26 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace RayKeys.Misc {
     public static class Logger {
         public static LogLevel LoggingLevel;
         private static FileStream logFile;
         private static StreamWriter streamWriter;
+        private static Task writeTask;
+        private static string typeText;
         
         public static void Log(string log, LogLevel level) {
-            if (LoggingLevel >= level) {
-                log = $"[{DateTime.Now.ToLongTimeString()}] [{level}]: {log}";
-                Console.WriteLine(log);
-                streamWriter.WriteLineAsync(log);
+            if (LoggingLevel < level) return;
+            
+            log = $"[{DateTime.Now.ToLongTimeString()}] [{level}]: {log}\n";
+            Console.Write(log);
+            
+            typeText += log;
+
+            if (writeTask.IsCompleted) {
+                writeTask = streamWriter.WriteAsync(typeText);
+                typeText = "";
             }
         }
 
@@ -31,6 +40,8 @@ namespace RayKeys.Misc {
             logFile = File.Create(logFileName);
             streamWriter = new StreamWriter(logFile);
             streamWriter.AutoFlush = true;
+            writeTask = Task.CompletedTask;
+            typeText = "";
             Logger.Info($"Logging to: {logFileName}");
         }
         
