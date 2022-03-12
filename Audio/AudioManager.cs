@@ -82,7 +82,7 @@ namespace RayKeys {
             Logger.Info("Loading Song: " + song);
             
             AudioManager.bpm = bpm;
-            AudioManager.bps = bpm / 60;
+            AudioManager.bps = bpm / Engine.BeatMultiplier;
             
             Media = new Media(_libVLC, "Content/" + song);
             MediaPlayer.Media = Media;

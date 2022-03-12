@@ -16,8 +16,7 @@ namespace RayKeys.Editor {
         
         private float scrollPos;
         private int scrollPosR;
-        private int barPos;
-        
+
         private bool sectionScroll;
         private int sectionScrollAdd;
 
@@ -51,7 +50,7 @@ namespace RayKeys.Editor {
             Game1.Game.DrawEvent += Draw;
             Game1.Game.UpdateEvent += Update;
 
-            AudioManager.LoadSong("Levels/1/song.ogg", 100*2);
+            AudioManager.LoadSong("Levels/1/song.ogg", 100);
             AudioManager.Play();
             AudioManager.SetPause(true);
             shouldBePaused = true;
@@ -141,8 +140,6 @@ namespace RayKeys.Editor {
 
                 scrollPosR *= zoom;
                 scrollPos = scrollPosR;
-                
-                barPos = -scrollPosR - 96;
             }
 
             if (RKeyboard.IsKeyPressed(Keys.Space)) {
@@ -172,35 +169,25 @@ namespace RayKeys.Editor {
             else if (RKeyboard.IsKeyPressed(Keys.Left) || RKeyboard.IsKeyPressed(Keys.A)) {
                 ChangeSection(currentSection - 1);
             }
+            
+            if (RKeyboard.IsKeyPressed(Keys.R)) {
+                scrollPosR = 0;
+            }
 
             if (RKeyboard.IsKeyPressed(Keys.S) && RKeyboard.IsKeyHeld(Keys.LeftControl)) {
                 Logger.Info("Saving Level");
-                
-                Dictionary<string, object> thing = new Dictionary<string, object>();
-                
-                thing.Add("name", levelName);
-                thing.Add("songName", songName);
-                thing.Add("artist", artist);
-                thing.Add("bpm", bpm / 2);
-                thing.Add("players", new List<Dictionary<string, int>>() {new Dictionary<string, int>() {{"beatmap", 1}, {"controls", 1}}});
 
-                List<Dictionary<string, float>> dick = new List<Dictionary<string, float>>();
-                float sAdd = 0;
-                foreach (List<Note> section in sections) {
-                    foreach (Note note in section) {
-                        dick.Add(new Dictionary<string, float>() {{"lane", note.lane}, {"time", (note.time + sAdd)/2}});
-                    }
-
-                    sAdd += 16;
-                }
+                JsonFileThing jf = new JsonFileThing() {
+                    name = levelName,
+                    songName = songName,
+                    artist = artist,
+                    bpm = bpm,
+                    bps = AudioManager.bps,
+                    players = new List<Player>() {new Player() {beatmap = 1, controls = 1}},
+                    beatmaps = new List<List<List<Note>>>() { sections }
+                };
                 
-                thing.Add("beatmaps", new List<List<Dictionary<string, float>>>() {dick});
-                
-                string json = JsonSerializer.Serialize(thing);
-                
-                Logger.Info($"Saving Level to: Content/Levels/{levelName}/song.json");
-                Directory.CreateDirectory($"Content/Levels/{levelName}/");
-                File.WriteAllText($"Content/Levels/{levelName}/song.json", json);
+                SongJsonManager.SaveJson(levelName, jf);
 
                 infoText = "Level Saved...";
                 infoTextTimer = infoTextTimerMax;
@@ -264,7 +251,9 @@ namespace RayKeys.Editor {
             
             RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection + 1}", 5, -5, 5, Color.White);
             
-            RRender.DrawStringNoCam(Align.Left, Align.Top, Align.Left, Align.Top, "Space: Play / Pause\nClick: Place / Remove\nArrow Keys / A & D: Change Section\n[ & ]: Change Zoom\nCtrl+S: Save", 5, 5, 5, Color.White);
+            RRender.DrawStringNoCam(Align.Left, Align.Top, Align.Left, Align.Top, 
+                "Space: Play / Pause\nClick: Place / Remove\nArrow Keys / A & D: Change Section\n[ & ]: Change Zoom\nR: Goto start of section\nCtrl+S: Save"
+                , 5, 5, 5, Color.White);
 
             if (infoTextTimer > 0) {
                 RRender.DrawStringNoCam(Align.Right, Align.Top, Align.Right, Align.Top, infoText, -5, 5, 4, Color.White);
@@ -302,10 +291,9 @@ namespace RayKeys.Editor {
         
         private void OnBPMChange(string text) {
             if (!float.TryParse(text, out bpm)) return;
-            bpm *= 2;
-
+   
             AudioManager.bpm = bpm;
-            AudioManager.bps = bpm / 60f;
+            AudioManager.bps = bpm / Engine.BeatMultiplier;
         }
     }
 }

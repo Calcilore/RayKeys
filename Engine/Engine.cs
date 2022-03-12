@@ -16,6 +16,8 @@ namespace RayKeys {
      *  [] [] [] [] [] []  <-- Keys
      */
     public class Engine {
+        public static float BeatMultiplier = 30f;
+        
         private Action<Note, float, float> NoteHandler; // it might be more efficient to use this stupid action instead of 1 if statement in a for loop
 
         private Keys[] controls;

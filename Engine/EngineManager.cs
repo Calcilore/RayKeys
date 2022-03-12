@@ -29,69 +29,42 @@ namespace RayKeys {
             Logger.Info("Starting Engine Manager");
             
             engines = new List<Engine>();
-            //Music.Stop();
 
-            // Read Json
-            string fileS = File.ReadAllText("Content/Levels/" + level + "/song.json");
-            using JsonDocument doc = JsonDocument.Parse(fileS);
-            JsonElement root = doc.RootElement;
+            JsonFileThing rawLevel = SongJsonManager.LoadJson(level);
+            bps = rawLevel.bps;
             
-            // Get BPS
-            bps = (float) (root.GetProperty("bpm").GetDouble() / 60d);
-
-            // Get notes
-            JsonElement beatmaps = root.GetProperty("beatmaps");
-            List<Note>[] notes = new List<Note>[beatmaps.GetArrayLength()];
-
-            for (int i = 0; i < notes.Length; i++) {
-                notes[i] = new List<Note>();
-                for (int j = 0; j < beatmaps[i].GetArrayLength(); j++) {
-                    notes[i].Add(new Note((float) beatmaps[i][j].GetProperty("time").GetDouble() / bps, beatmaps[i][j].GetProperty("lane").GetByte()));
-                }
-            }
-            
-            // Get which engine for which beatmap
-            JsonElement playersJ = root.GetProperty("players");
-
             // add notes to engines
-            bool recenterTracks = (bool) OptionsManager.GetOption("repositiontracks").currentValue;
-            float recenterLen = playersJ.GetArrayLength() - 1;
-            int[] controls = new int[playersJ.GetArrayLength()];
 
-            for (int i = 0; i < playersJ.GetArrayLength(); i++) {
-                controls[i] = playersJ[i].TryGetProperty("controls", out JsonElement contJ) ? contJ.GetInt32() : 1;
-                if (controls[i] == 0)
-                    recenterLen--;
-            }
-            
-            recenterLen /= 2;
-            if (recenterLen == 0) {
-                recenterLen = 1;
-            }
+            for (int i = 0; i < rawLevel.players.Count; i++) {
+                Player rawLevelPlayer = rawLevel.players[i];
 
-            for (int i = 0; i < playersJ.GetArrayLength(); i++) {
-                int xpos;
-                if (!recenterTracks)
-                     xpos = playersJ[i].TryGetProperty("xpos", out JsonElement xposJ) ? 
-                        xposJ.GetInt32() : 0;
-                else {
-                    if (controls[i] == 0) continue;
-                    xpos = (int)((i - recenterLen) * 608f);
-                }
+                // 960 = 1920 / 2
+                int xpos = 960 / rawLevel.players.Count * (i*2+1) - 960;
 
                 if (forceXPos != -1) {
-                    if (controls[i] == 0) continue;
+                    if (rawLevelPlayer.controls == 0) continue;
                     xpos = forceXPos;
-                    controls[i] = 0;
+                    rawLevelPlayer.controls = 0;
                 }
 
-                engines.Add(new Engine(controls[i], xpos, countdownTimer, speed));
-                engines[^1].notes = notes[playersJ[i].GetProperty("beatmap").GetInt32() - 1].ToArray().ToList();
+                engines.Add(new Engine(rawLevelPlayer.controls, xpos, countdownTimer, speed));
+                List<Note> notes = new List<Note>();
                 
+                float sAdd = 0;
+                foreach (List<Note> section in rawLevel.beatmaps[rawLevelPlayer.beatmap]) {
+                    foreach (Note note in section) {
+                        notes.Add(new Note((note.time + sAdd) / rawLevel.bps, note.lane));
+                    }
+                    
+                    sAdd += 16;
+                }
+
+                engines[^1].notes = notes;
+
                 if (forceXPos != -1) break;
             }
 
-            AudioManager.LoadSong("Levels/" + level + "/song.ogg", bps * 60, speed); 
+            AudioManager.LoadSong("Levels/" + level + "/song.ogg", bps / Engine.BeatMultiplier, speed); 
             AudioManager.Play();
             AudioManager.SetPause(true);
 

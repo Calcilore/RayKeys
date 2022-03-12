@@ -14,7 +14,7 @@ namespace RayKeys {
         public SpriteBatch SpriteBatch;
         public float Scaling;
         public SpriteFont[] Fonts = new SpriteFont[7];
-        public Keys[][] Controls = new Keys[4][];
+        public Keys[][] Controls = new Keys[3][];
         public Rectangle RenderRectangle { get; private set; }
 
         private Scene currentScene;
@@ -48,7 +48,6 @@ namespace RayKeys {
             Controls[0] = new Keys[] {Keys.S, Keys.D, Keys.F, Keys.J, Keys.K, Keys.L};
             Controls[1] = new Keys[] {Keys.W, Keys.E, Keys.R, Keys.U, Keys.I, Keys.O};
             Controls[2] = new Keys[] {Keys.Z, Keys.X, Keys.C, Keys.N, Keys.M, Keys.OemComma};
-            Controls[3] = new Keys[] {Keys.D3, Keys.D4, Keys.D5, Keys.D8, Keys.D9, Keys.D0};
 
             base.Initialize();
         }
