@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -33,6 +34,14 @@ namespace RayKeys.Editor {
         // Zoom
         private int zoom;
         private int backgroundSize;
+        
+        // Song Stats
+        private string file;
+        
+        private float bpm = 100;
+        private string levelName = "";
+        private string songName = "";
+        private string artist = "";
 
         public Editor() {
             Logger.Info("Loading Editor");
@@ -40,7 +49,7 @@ namespace RayKeys.Editor {
             Game1.Game.DrawEvent += Draw;
             Game1.Game.UpdateEvent += Update;
 
-            AudioManager.LoadSong("Levels/1/song.ogg", 170*2);
+            AudioManager.LoadSong("Levels/1/song.ogg", 100*2);
             AudioManager.Play();
             AudioManager.SetPause(true);
             shouldBePaused = true;
@@ -56,9 +65,12 @@ namespace RayKeys.Editor {
             pauseMenu.AddFunctionCallButton(ExitButton, "Exit");
 
             menu = pauseMenu.menu;
-            menu.AddPage(0, 0);
-            menu.AddButton(2, Align.Right, Align.Center, Align.Right, Align.Center, "Resume", 16, 0);
-            
+            menu.AddPage(0, 0, true);
+            menu.AddFunctionCallInputField(2, OnLevelNameChange, Align.Right, Align.Top,  "Level Name", -16, 0);
+            menu.AddFunctionCallInputField(2, OnSongNameChange, Align.Right, Align.Top,  "Song Name", -16, 150);
+            menu.AddFunctionCallInputField(2, OnArtistNameChange, Align.Right, Align.Top,  "Artist", -16, 300);
+            menu.AddFunctionCallInputField(2, OnBPMChange, Align.Right, Align.Top,  "BPM", -16, 450);
+            ((InputField) menu.pages[^1].Items[^1]).Text = "100";
         }
         
         private void DoTheNoteShit() {
@@ -163,9 +175,10 @@ namespace RayKeys.Editor {
                 
                 Dictionary<string, object> thing = new Dictionary<string, object>();
                 
-                thing.Add("name", "First Town Of This Journey");
-                thing.Add("artist", "Camellia");
-                thing.Add("bpm", 170);
+                thing.Add("name", levelName);
+                thing.Add("songName", songName);
+                thing.Add("artist", artist);
+                thing.Add("bpm", bpm / 2);
                 thing.Add("players", new List<Dictionary<string, int>>() {new Dictionary<string, int>() {{"beatmap", 1}, {"controls", 1}}});
 
                 List<Dictionary<string, float>> dick = new List<Dictionary<string, float>>();
@@ -181,7 +194,8 @@ namespace RayKeys.Editor {
                 thing.Add("beatmaps", new List<List<Dictionary<string, float>>>() {dick});
                 
                 string json = JsonSerializer.Serialize(thing);
-                Console.WriteLine(json);
+                Directory.CreateDirectory($"Content/Levels/{levelName}/");
+                File.WriteAllText($"Content/Levels/{levelName}/song.json", json);
 
                 infoText = "Level Saved...";
                 infoTextTimer = infoTextTimerMax;
@@ -261,6 +275,26 @@ namespace RayKeys.Editor {
         private void OnUnPause() {
             isPaused = false;
             AudioManager.SetPause(shouldBePaused);
+        }
+
+        private void OnLevelNameChange(string text) {
+            levelName = text;
+        }
+        
+        private void OnSongNameChange(string text) {
+            songName = text;
+        }
+        
+        private void OnArtistNameChange(string text) {
+            artist = text;
+        }
+        
+        private void OnBPMChange(string text) {
+            if (!float.TryParse(text, out bpm)) return;
+            bpm *= 2;
+
+            AudioManager.bpm = bpm;
+            AudioManager.bps = bpm / 60f;
         }
     }
 }

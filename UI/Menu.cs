@@ -59,9 +59,14 @@ namespace RayKeys.UI {
             else      ChangePageNoHistory(pageId);
         }
 
-        private void FunctionCallEventListener(int id, params object[] args) {
+        private void FunctionCallButtonEventListener(int id, params object[] args) {
             Action action = (Action) args[0];
             action.Invoke();
+        }
+        
+        private void FunctionCallIFEventListener(int id, string text, params object[] args) {
+            Action<string> action = (Action<string>) args[0];
+            action.Invoke(text);
         }
         
         public Menu() {
@@ -138,13 +143,13 @@ namespace RayKeys.UI {
         
         public Button AddFunctionCallButton(int page, Action func, Align h, Align v, Align hT, Align vT, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
             Button button = AddButton(page, h, v, hT, vT, text, x, y, sizeX, sizeY, fontSize);
-            button.ClickEvent += FunctionCallEventListener;
+            button.ClickEvent += FunctionCallButtonEventListener;
             button.args = new object[] {func};
 
             return button;
         }
 
-        public InputField AddInputField(int page, Align h, Align v, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
+        public InputField AddInputField(int page, Align h, Align v, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
             x += pages[page].pos.X; y += pages[page].pos.Y;
             
             InputField inputField = new InputField(this, pages[page].followCamera, h, v, currentI, label, x, y, sizeX, sizeY, fontSize);
@@ -152,6 +157,14 @@ namespace RayKeys.UI {
 
             pages[page].Items.Add(inputField);
             return inputField;
+        }
+
+        public InputField AddFunctionCallInputField(int page, Action<string> func, Align h, Align v, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
+            InputField inp = AddInputField(page, h, v, label, x, y, sizeX, sizeY, fontSize);
+            inp.EnterEvent += FunctionCallIFEventListener;
+            inp.args = new object[] {func};
+
+            return inp;
         }
     }
 }

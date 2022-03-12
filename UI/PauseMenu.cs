@@ -1,4 +1,5 @@
 using System;
+using RayKeys.Misc;
 using RayKeys.Render;
 
 namespace RayKeys.UI {
@@ -43,20 +44,20 @@ namespace RayKeys.UI {
         }
 
         private void OnPageSwitch(int before, int after) {
-            switch (after) {
-                case 0:
-                    if (before != 1) break;
+            if (after == 0) {
+                if (before == 0) return;
                     
-                    Console.WriteLine("Unpause");
-                    menu.pages[1].HideItems();
-                    UnPauseEvent?.Invoke();
-                    break;
-                
-                case 1:
-                    Console.WriteLine("Pause");
+                Logger.Debug("Unpause");
+                menu.pages[1].HideItems();
+                UnPauseEvent?.Invoke();
+            }
+            else {
+                if (after == 1) {
                     menu.pages[1].ShowItems();
-                    PauseEvent?.Invoke();
-                    break;
+                }
+                
+                Logger.Debug("Pause");
+                PauseEvent?.Invoke();
             }
         }
 

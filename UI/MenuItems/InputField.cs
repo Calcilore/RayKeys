@@ -31,7 +31,7 @@ namespace RayKeys.UI {
         private bool isSubbed;
         private bool isFocused;
 
-        public InputField(Menu parent, bool followCamera, Align h, Align v, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
+        public InputField(Menu parent, bool followCamera, Align h, Align v, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
             Game1.Game.UpdateEvent += Update;
             Game1.Game.DrawEvent += Draw;
             Game1.Game.Window.TextInput += TextInput;
@@ -120,7 +120,6 @@ namespace RayKeys.UI {
         }
         
         private void TextInput(object a, TextInputEventArgs arg) {
-            Console.WriteLine(arg.Key);
             if (isFocused) {
                 if (arg.Character != '	' && (char.IsLetterOrDigit(arg.Character) || char.IsPunctuation(arg.Character) || char.IsSymbol(arg.Character) || char.IsWhiteSpace(arg.Character))) {
                     Text = Text.Insert(cursorPos, arg.Character.ToString());
@@ -172,9 +171,9 @@ namespace RayKeys.UI {
             if (followCamera) finalPos += RRender.CameraPos.ToPoint();
             
             RRender.DrawString(Alh, Alv, Align.Left, Alv, Label, finalPos.X, finalPos.Y, fontSize);
-            RRender.DrawString(Alh, Alv, Align.Left, Alv, Text, finalPos.X, finalPos.Y + 75, fontSize);
-            RRender.DrawBlank(Alh, Alv, finalPos.X, finalPos.Y + 150, sizeX, 6, Color.White);
-            if (isFocused && cursorTimer > 0) RRender.DrawBlank(Alh, Alv, finalPos.X + (int)Game1.Game.Fonts[fontSize].MeasureString(Text.Substring(0, cursorPos)).X, finalPos.Y + 130, 40, 6, Color.White);
+            RRender.DrawString(Alh, Alv, Align.Left, Alv, Text, finalPos.X, finalPos.Y + 50, fontSize);
+            RRender.DrawBlank(Alh, Alv, finalPos.X, finalPos.Y + 100, sizeX, 6, Color.White);
+            if (isFocused && cursorTimer > 0) RRender.DrawBlank(Alh, Alv, finalPos.X + (int)Game1.Game.Fonts[fontSize].MeasureString(Text.Substring(0, cursorPos)).X, finalPos.Y + 90, 40, 6, Color.White);
         }
 
         private void SetCursorPos(int value) {
