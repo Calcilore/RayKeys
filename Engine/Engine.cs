@@ -37,6 +37,10 @@ namespace RayKeys {
 
         private bool shouldBePaused; // music
         private bool isPaused;
+
+        private string rating = "";
+        private float ratingTimer = 0f;
+        private const float ratingTimerMax = 1f;
         
         public Engine(int controls, int xpos = 0, float countdownTimer = 3f, float speed = 1f) {
             controls--;
@@ -77,6 +81,32 @@ namespace RayKeys {
         }
 
         private void NoAutoPlayNoteHandling(Note n, float np0, float npp) {
+            if (keysHeld2[n.lane]) {
+                float time = Math.Abs(np0);
+
+                if (time < 0.15) { // if hit note
+                    // rating non-specific things
+                    n.dead = true;
+                    keysHeldOnHit[n.lane] = true;
+
+                    ratingTimer = ratingTimerMax;
+                    
+                    if (time < 0.03) { // rating specific things
+                        rating = "Gaming";
+                        health += 0.06f;
+                    } else if (time < 0.06) {
+                        rating = "Good";
+                        health += 0.04f;
+                    } else if (time < 0.1) {
+                        rating = "Ok";
+                        health += 0.02f;
+                    } else {
+                        rating = "Bad";
+                        health += 0.01f;
+                    }
+                }
+            }
+            
             if (Math.Abs(np0) < 0.1 && keysHeld2[n.lane]) { // player hit note
                 n.dead = true;
                 keysHeldOnHit[n.lane] = true;
@@ -203,6 +233,11 @@ namespace RayKeys {
             
                 RRender.Draw(Align.Center, vAl, Textures.HealthBarBackground, xpos - 200, -90 * downscrollMul, 400, 40);
                 RRender.Draw(Align.Left, vAl, Textures.HealthBar, xpos + 760, -90 * downscrollMul, (int) (400 * healthD), 40);
+
+                if (ratingTimer > 0f) {
+                    RRender.DrawString(Align.Center, vAl, Align.Center, vAl, rating, xpos, -10 * downscrollMul, 4);
+                    ratingTimer -= delta;
+                }
             }
         } 
     }
