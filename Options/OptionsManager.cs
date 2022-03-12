@@ -39,7 +39,7 @@ namespace RayKeys.Options {
             JsonElement root = GetJson();
 
             AddOption("limitfps", OptionType.Boolean, false, root, OptionsActions.LimitFPSChanged);
-            AddOption("fpslimit", OptionType.Switcher, "60", root, OptionsActions.FPSLimitChanged);
+            AddOption("fpslimit", OptionType.Switcher, "60 FPS", root, OptionsActions.FPSLimitChanged);
             AddOption("resolution", OptionType.Switcher, "1920x1080", root, OptionsActions.ResolutionChanged);
             AddOption("vsync", OptionType.Boolean, false, root, OptionsActions.VSyncChanged);
             AddOption("fullscreen", OptionType.Boolean, false, root, OptionsActions.FullscreenChanged);
