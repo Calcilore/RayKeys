@@ -20,7 +20,7 @@ namespace RayKeys.UI {
         public string Label;
         
         public string Text = "";
-        private int cursorPos;
+        public int cursorPos;
         private float cursorTimer = 0f;
         private float cursorTimerMax = 0.4f;
 
@@ -102,7 +102,7 @@ namespace RayKeys.UI {
                             if (RKeyboard.IsKeyHeld(Keys.LeftControl)) {
                                 // Paste
                                 string clipboard = RKeyboard.GetClipboard();
-                                Console.WriteLine(clipboard);
+                                Logger.Debug("Clipboard Is: " + clipboard);
 
                                 if (clipboard != null) {
                                     Text = Text.Insert(cursorPos, clipboard);
@@ -120,45 +120,46 @@ namespace RayKeys.UI {
         }
         
         private void TextInput(object a, TextInputEventArgs arg) {
-            if (isFocused) {
-                if (arg.Character != '	' && (char.IsLetterOrDigit(arg.Character) || char.IsPunctuation(arg.Character) || char.IsSymbol(arg.Character) || char.IsWhiteSpace(arg.Character))) {
-                    Text = Text.Insert(cursorPos, arg.Character.ToString());
-                    AddCursorPos(1);
-                }
-                else {
-                    switch (arg.Key) {
-                        case Keys.Back:
-                            if (cursorPos <= 0) break;
+            if (!isFocused) return;
+            if (arg.Key == Keys.Enter) return;
+                
+            if (arg.Character != '	' && (char.IsLetterOrDigit(arg.Character) || char.IsPunctuation(arg.Character) || char.IsSymbol(arg.Character) || char.IsWhiteSpace(arg.Character))) {
+                Text = Text.Insert(cursorPos, arg.Character.ToString());
+                AddCursorPos(1);
+            }
+            else {
+                switch (arg.Key) {
+                    case Keys.Back:
+                        if (cursorPos <= 0) break;
 
-                            if (RKeyboard.IsKeyHeld(Keys.LeftControl)) {
-                                int spaceIndex = Text.LastIndexOf(' ', cursorPos - 1);
-                                if (spaceIndex == -1) spaceIndex = 0;
+                        if (RKeyboard.IsKeyHeld(Keys.LeftControl)) {
+                            int spaceIndex = Text.LastIndexOf(' ', cursorPos - 1);
+                            if (spaceIndex == -1) spaceIndex = 0;
 
-                                Text = Text[..spaceIndex] + Text[cursorPos..];
-                                AddCursorPos(spaceIndex - cursorPos);
-                            }
-                            else {
-                                Text = Text.Remove(cursorPos - 1, 1);
-                                AddCursorPos(-1);
-                            }
-                            break;
+                            Text = Text[..spaceIndex] + Text[cursorPos..];
+                            AddCursorPos(spaceIndex - cursorPos);
+                        }
+                        else {
+                            Text = Text.Remove(cursorPos - 1, 1);
+                            AddCursorPos(-1);
+                        }
+                        break;
                         
-                        case Keys.Delete:
-                            if (cursorPos >= Text.Length) break;
+                    case Keys.Delete:
+                        if (cursorPos >= Text.Length) break;
                             
-                            if (RKeyboard.IsKeyHeld(Keys.LeftControl)) {
-                                int spaceIndex = Text.IndexOf(' ', cursorPos) + 1;
-                                if (spaceIndex == 0) {
-                                    spaceIndex = Text.Length;
-                                }
+                        if (RKeyboard.IsKeyHeld(Keys.LeftControl)) {
+                            int spaceIndex = Text.IndexOf(' ', cursorPos) + 1;
+                            if (spaceIndex == 0) {
+                                spaceIndex = Text.Length;
+                            }
 
-                                Text = Text[..cursorPos] + Text[spaceIndex..];
-                            }
-                            else {
-                                Text = Text.Remove(cursorPos, 1);
-                            }
-                            break;
-                    }
+                            Text = Text[..cursorPos] + Text[spaceIndex..];
+                        }
+                        else {
+                            Text = Text.Remove(cursorPos, 1);
+                        }
+                        break;
                 }
             }
         }

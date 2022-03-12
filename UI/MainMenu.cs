@@ -29,6 +29,7 @@ namespace RayKeys.UI {
             menu.AddPage(0, -1080); // 3 are you sure you want to exit?
             menu.AddPage(-1920, 0); // 4 suboptions (Graphics)
             menu.AddPage(-1920, 0); // 5 suboptions (Gameplay)
+            menu.AddPage(-1920, 0); // 6 suboptions (Editor)
 
             // Main Page
             menu.AddPageChangeButton(0, 1, Align.Right, Align.Top, Align.Right, Align.Center, "Play", -16, 300);
@@ -47,8 +48,9 @@ namespace RayKeys.UI {
                 resolutions.Add($"{mode.Width}x{mode.Height}");
             }
             
-            AddOptionCategory("Graphics", -50, 4);
-            AddOptionCategory("Gameplay", 50, 5);
+            AddOptionCategory("Graphics", -100, 4);
+            AddOptionCategory("Gameplay", 0, 5);
+            AddOptionCategory("Editor", 100, 6);
             
             AddBooleanOptionButton("limitfps", 0, "Do Limit FPS");
             AddSwitcherOptionButton("fpslimit", 0, "FPS Limit", new object[]{"30 FPS", "60 FPS", "75 FPS", "120 FPS", "144 FPS", "165 FPS", "240 FPS", "1000 FPS"});
@@ -59,6 +61,9 @@ namespace RayKeys.UI {
             OBYPos = 100;
             AddBooleanOptionButton("downscroll", 1, "Downscroll");
             AddBooleanOptionButton("repositiontracks", 1, "Reposition Tracks");
+            
+            OBYPos = 100;
+            AddBooleanOptionButton("sectionScrolling", 2, "Section Scrolling");
 
             // Get The Levels in the folder
             Logger.Info("Getting Levels");

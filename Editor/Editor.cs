@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.UI;
 using RayKeys.Misc;
+using RayKeys.Options;
 using RayKeys.Render;
 
 namespace RayKeys.Editor {
@@ -16,6 +17,9 @@ namespace RayKeys.Editor {
         private float scrollPos;
         private int scrollPosR;
         private int barPos;
+        
+        private bool sectionScroll;
+        private int sectionScrollAdd;
 
         private PauseMenu pauseMenu;
         private Menu menu;
@@ -28,7 +32,7 @@ namespace RayKeys.Editor {
         
         // Sections
         private int currentSection;
-        private List<List<Note>> notes = new List<List<Note>>();
+        private List<List<Note>> sections = new List<List<Note>>(); // list of sections, each section is a list of notes
         private List<Note> csNotes = new List<Note>();
 
         // Zoom
@@ -36,8 +40,6 @@ namespace RayKeys.Editor {
         private int backgroundSize;
         
         // Song Stats
-        private string file;
-        
         private float bpm = 100;
         private string levelName = "";
         private string songName = "";
@@ -53,9 +55,12 @@ namespace RayKeys.Editor {
             AudioManager.Play();
             AudioManager.SetPause(true);
             shouldBePaused = true;
+
+            sectionScroll = (bool) OptionsManager.GetOption("sectionScrolling").currentValue;
+            sectionScrollAdd = sectionScroll ? 1 : 0;
             
-            notes.Add(new List<Note>());
-            ChangeZoom(true);
+            sections.Add(new List<Note>());
+            ChangeZoom(1);
 
             pauseMenu = new PauseMenu(-50);
             ((Button) pauseMenu.menu.pages[0].Items[0]).args = new object[] {2, true};
@@ -71,6 +76,7 @@ namespace RayKeys.Editor {
             menu.AddFunctionCallInputField(2, OnArtistNameChange, Align.Right, Align.Top,  "Artist", -16, 300);
             menu.AddFunctionCallInputField(2, OnBPMChange, Align.Right, Align.Top,  "BPM", -16, 450);
             ((InputField) menu.pages[^1].Items[^1]).Text = "100";
+            ((InputField) menu.pages[^1].Items[^1]).cursorPos = 3;
         }
         
         private void DoTheNoteShit() {
@@ -82,10 +88,11 @@ namespace RayKeys.Editor {
 
             if (cPosU < 0) cPos--; // idk why
              
-            Console.WriteLine($"{RMouse.Y} {cPosU} {cPos}");
+            Logger.Debug($"Note Clicked At: Mouse: {RMouse.Y}, CPosU: {cPosU}, CPos: {cPos}");
             
             foreach (Note note in csNotes) {
                 if (Math.Abs(cPosU - note.time - 0.5f) <= 0.5f && note.lane == cLane) {
+                    Logger.Debug($"Removing note at lane {note.lane} and time {note.time}");
                     csNotes.Remove(note);
                     return;
                 }
@@ -99,26 +106,25 @@ namespace RayKeys.Editor {
 
         private void Update(float delta) {
             if (isPaused) return;
-            
+
             RRender.CameraPos.Y = -scrollPos;
 
             if (!AudioManager.IsPlaying()) {
+                // Scrolling
                 scrollPosR = Math.Clamp(
-                        scrollPosR + (RMouse.ScrollFrame == 0 ? 0 : RMouse.ScrollFrame > 0 ? 96 : -96) *
-                        (RKeyboard.IsKeyHeld(Keys.LeftShift) ? 4 : 1), 0, backgroundSize * 96);
-
+                    scrollPosR + (RMouse.ScrollFrame == 0 ? 0 : RMouse.ScrollFrame > 0 ? 96 : -96) *
+                    (RKeyboard.IsKeyHeld(Keys.LeftShift) ? 4 : 1), -sectionScrollAdd, backgroundSize * 96 + sectionScrollAdd);
+                
                 // Scroll to change section
-                // scrollPosR = Math.Clamp(
-                //     scrollPosR + (RMouse.ScrollFrame == 0 ? 0 : RMouse.ScrollFrame > 0 ? 96 : -96) *
-                //     (RKeyboard.IsKeyHeld(Keys.LeftShift) ? 4 : 1), -1, backgroundSize * 96 + 1);
-                //
-                // if (scrollPosR > backgroundSize * 96) {
-                //     scrollPosR = 0;
-                //     ChangeSection(currentSection + 1);
-                // } else if (scrollPosR < 0) {
-                //     scrollPosR = backgroundSize * 96 * zoom;
-                //     ChangeSection(currentSection - 1);
-                // }
+                if (sectionScroll) {
+                    if (scrollPosR > backgroundSize * 96) {
+                        scrollPosR = 0;
+                        ChangeSection(currentSection + 1);
+                    } else if (scrollPosR < 0 && currentSection > 0) {
+                        scrollPosR = backgroundSize * 96 * zoom;
+                        ChangeSection(currentSection - 1);
+                    }
+                }
 
                 scrollPos = ThingTools.Lerp(scrollPos, scrollPosR, 10f * delta);
                 
@@ -143,10 +149,7 @@ namespace RayKeys.Editor {
                 if (AudioManager.IsPlaying()) {
                     AudioManager.SetPause(true);
                     shouldBePaused = true;
-                    scrollPos = ThingTools.RoundN(scrollPos, 96);
-                    scrollPosR = (int) scrollPos;
-
-                    Console.WriteLine($"{scrollPos}, {scrollPosR}");
+                    scrollPosR = (int) ThingTools.RoundN(scrollPos, 96);
                 }
                 else {
                     AudioManager.SetPause(false);
@@ -157,16 +160,16 @@ namespace RayKeys.Editor {
             }
 
             if (RKeyboard.IsKeyPressed(Keys.OemCloseBrackets) && zoom < 8) {
-                ChangeZoom(true);
+                ChangeZoom(zoom + 1);
             }
             else if (RKeyboard.IsKeyPressed(Keys.OemOpenBrackets) && zoom > 1) {
-                ChangeZoom(false);
+                ChangeZoom(zoom - 1);
             }
             
-            if (RKeyboard.IsKeyPressed(Keys.Right)) {
+            if (RKeyboard.IsKeyPressed(Keys.Right) || RKeyboard.IsKeyPressed(Keys.D)) {
                 ChangeSection(currentSection + 1);
             }
-            else if (RKeyboard.IsKeyPressed(Keys.Left)) {
+            else if (RKeyboard.IsKeyPressed(Keys.Left) || RKeyboard.IsKeyPressed(Keys.A)) {
                 ChangeSection(currentSection - 1);
             }
 
@@ -183,7 +186,7 @@ namespace RayKeys.Editor {
 
                 List<Dictionary<string, float>> dick = new List<Dictionary<string, float>>();
                 float sAdd = 0;
-                foreach (List<Note> section in notes) {
+                foreach (List<Note> section in sections) {
                     foreach (Note note in section) {
                         dick.Add(new Dictionary<string, float>() {{"lane", note.lane}, {"time", (note.time + sAdd)/2}});
                     }
@@ -194,6 +197,8 @@ namespace RayKeys.Editor {
                 thing.Add("beatmaps", new List<List<Dictionary<string, float>>>() {dick});
                 
                 string json = JsonSerializer.Serialize(thing);
+                
+                Logger.Info($"Saving Level to: Content/Levels/{levelName}/song.json");
                 Directory.CreateDirectory($"Content/Levels/{levelName}/");
                 File.WriteAllText($"Content/Levels/{levelName}/song.json", json);
 
@@ -202,29 +207,33 @@ namespace RayKeys.Editor {
             }
         }
 
-        private void ChangeZoom(bool up) {
-            zoom += up ? 1 : -1;
-            Logger.Info("Changing Zoom to: " + zoom);
+        private void ChangeZoom(int set) {
+            Logger.Info($"Changing Zoom to: {set} from {zoom}");
 
-            backgroundSize = zoom * 16;
-
-            float mul = up ? 2f : 0.5f;
-            for (int i = 0; i < csNotes.Count; i++) {
-                csNotes[i].time *= mul;
+            backgroundSize = set * 16;
+            
+            foreach (Note t in csNotes) {
+                t.time = t.time / zoom * set;
             }
+
+            zoom = set;
         }
         
         private void ChangeSection(int section) {
             if (section < 0) return;
 
-            Logger.Info($"Changing Section to: {currentSection} from {section}");
-            
-            notes[currentSection] = csNotes;
+            Logger.Info($"Changing Section to: {section} from {currentSection}");
+
+            int zoomBackup = zoom;
+            ChangeZoom(1);
+            sections[currentSection] = csNotes;
             currentSection = section;
 
-            if (currentSection >= notes.Count) notes.Add(new List<Note>());
+            if (currentSection >= sections.Count) sections.Add(new List<Note>());
             
-            csNotes = notes[currentSection];
+            csNotes = sections[currentSection];
+            
+            ChangeZoom(zoomBackup);
         }
 
         private void Draw(float delta) {
@@ -235,7 +244,7 @@ namespace RayKeys.Editor {
 
             { // Numbers to show where you are placing your notes and how the zoom is affecting it
                 for (int i = 0; i < backgroundSize; i++) {
-                    string numText = ThingTools.Floor((i + 0f) / (float)Math.Pow(2, zoom - 1) + 1, 2).ToString();
+                    string numText = ThingTools.Floor(i / (float)zoom + 1, 2).ToString();
                     RRender.DrawString(Align.Center, Align.Bottom, Align.Right, Align.Center, numText, -300, i * -96 - 144, 5, Color.White);
                 }
             }
@@ -254,9 +263,11 @@ namespace RayKeys.Editor {
             }
             
             RRender.DrawStringNoCam(Align.Left, Align.Bottom, Align.Left, Align.Bottom, $"Zoom: {zoom}\nSection: {currentSection + 1}", 5, -5, 5, Color.White);
+            
+            RRender.DrawStringNoCam(Align.Left, Align.Top, Align.Left, Align.Top, "Space: Play / Pause\nClick: Place / Remove\nArrow Keys / A & D: Change Section\n[ & ]: Change Zoom\nCtrl+S: Save", 5, 5, 5, Color.White);
 
             if (infoTextTimer > 0) {
-                RRender.DrawStringNoCam(Align.Left, Align.Top, Align.Left, Align.Top, infoText, 5, 5, 4, Color.White);
+                RRender.DrawStringNoCam(Align.Right, Align.Top, Align.Right, Align.Top, infoText, -5, 5, 4, Color.White);
                 
                 infoTextTimer -= delta;
             }
