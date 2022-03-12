@@ -57,9 +57,11 @@ namespace RayKeys.Render {
             
             i++;
         }
-        
-        public static void Init(ContentManager content) {
+
+        public static void Init() {
             Logger.Info("Loading Textures");
+
+            ContentManager content = Game1.Game.Content;
             
             int i = 0;
             
