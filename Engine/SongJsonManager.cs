@@ -9,7 +9,7 @@ namespace RayKeys {
 
             // Read Json
             string fileS = File.ReadAllText("Content/Levels/" + path + "/song.json");
-            using JsonDocument doc = JsonDocument.Parse(fileS);
+            using JsonDocument doc = JsonDocument.Parse(fileS, ThingTools.jsonDOptions);
             JsonElement root = doc.RootElement;
             
             // Get BPS
@@ -76,7 +76,7 @@ namespace RayKeys {
             json.Add("players", players);
             json.Add("beatmaps", beatmaps);
             
-            string jsonS = JsonSerializer.Serialize(json);
+            string jsonS = JsonSerializer.Serialize(json, ThingTools.jsonSOptions);
             File.WriteAllText("Content/Levels/" + path + "/song.json", jsonS);
         }
     }

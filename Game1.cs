@@ -42,6 +42,7 @@ namespace RayKeys {
             
             AudioManager.Initialise();
             OptionsManager.Initialise();
+            ThingTools.Init();
 
             test = new RenderTarget2D(GraphicsDevice, 1920, 1080, false, GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24);
 

@@ -9,14 +9,6 @@ namespace RayKeys {
     public class EngineManager {
         private List<Engine> engines = new List<Engine>();
         private float bps;
-        
-        public static string GetName(string level) {
-            string fileS = File.ReadAllText("Content/Levels/" + level + "/song.json");
-            using JsonDocument doc = JsonDocument.Parse(fileS);
-            JsonElement root = doc.RootElement;
-            
-            return root.GetProperty("name").GetString();
-        }
 
         public EngineManager() { }
 

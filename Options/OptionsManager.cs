@@ -63,7 +63,7 @@ namespace RayKeys.Options {
                 thing.Add(op.Key, op.Value.currentValue.ToString());
             }
             
-            string json = JsonSerializer.Serialize(thing);
+            string json = JsonSerializer.Serialize(thing, ThingTools.jsonSOptions);
             File.WriteAllText("Save/save.json", json);
         }
     }

@@ -1,9 +1,25 @@
 using System;
+using System.Text.Json;
 
 namespace RayKeys {
     public static class ThingTools {
         public static Random Rand = new Random();
+        public static JsonSerializerOptions jsonSOptions;
+        public static JsonDocumentOptions jsonDOptions;
 
+        public static void Init() {
+            jsonSOptions = new JsonSerializerOptions {
+                WriteIndented = true,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
+            };
+
+            jsonDOptions = new JsonDocumentOptions {
+                CommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
+            };
+        }
+        
         public static float Lerp(float firstFloat, float secondFloat, float by) {
             // line comment first line to enable second line
             return firstFloat + (secondFloat - firstFloat) * by; /*

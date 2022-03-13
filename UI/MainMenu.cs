@@ -72,7 +72,7 @@ namespace RayKeys.UI {
 
             // Add to songs to the play menu
             for (int i = 0; i < dis.Length; i++) {
-                Button button = menu.AddButton(1, Align.Left, Align.Top, Align.Left, Align.Center, EngineManager.GetName(dis[i].Name), 16, 100 + i * 100);
+                Button button = menu.AddButton(1, Align.Left, Align.Top, Align.Left, Align.Center, SongJsonManager.LoadJson(dis[i].Name).name, 16, 100 + i * 100);
                 button.ClickEvent += SongButtonPressed;
                 button.args = new object[] {dis[i].Name};
             }
