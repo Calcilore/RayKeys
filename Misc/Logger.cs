@@ -1,7 +1,7 @@
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
+using MonoGame.Framework.Utilities.Deflate;
 
 namespace RayKeys.Misc {
     public static class Logger {
@@ -34,17 +34,37 @@ namespace RayKeys.Misc {
 
         public static void Init(LogLevel logLevel) {
             LoggingLevel = logLevel;
-            
+
             if (!Directory.Exists("Logs")) Directory.CreateDirectory("Logs");
             
+            if (File.Exists("Logs/latest.log")) {
+                using FileStream originalFileStream = File.Open("Logs/latest.log", FileMode.Open);
+                string gzFileLoc = new StreamReader(originalFileStream).ReadLine();
+
+                try {
+                    gzFileLoc = "Logs" + gzFileLoc[gzFileLoc.LastIndexOf('/')..] + ".gz";
+                }
+                catch (Exception) {
+                    gzFileLoc = "Logs/Unknown-" + ThingTools.Rand.Next() + ".log.gz";
+                }
+
+                originalFileStream.Seek(0, SeekOrigin.Begin);
+
+                using FileStream compressedFileStream = File.Create(gzFileLoc);
+                using GZipStream compressor = new GZipStream(compressedFileStream, CompressionMode.Compress);
+                originalFileStream.CopyTo(compressor);
+                
+                File.Delete("Logs/latest.log");
+            }
+
             string logFileName = $"Logs/{DateTime.Now:yyyy-MM-dd}-";
 
             int i;
-            for (i = 1; File.Exists(logFileName + i + ".log"); i++) { }
+            for (i = 1; File.Exists(logFileName + i + ".log.gz"); i++) { }
 
             logFileName += i + ".log";
             
-            logFile = File.Create(logFileName);
+            logFile = File.Create("Logs/latest.log");
             streamWriter = new StreamWriter(logFile);
             streamWriter.AutoFlush = true;
             writeTask = Task.CompletedTask;
