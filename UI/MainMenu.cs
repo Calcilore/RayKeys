@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using RayKeys.Misc;
 using RayKeys.Options;
@@ -32,16 +33,24 @@ namespace RayKeys.UI {
             menu.AddPage(-1920, 0); // 6 suboptions (Editor)
 
             // Main Page
+            menu.AddLabel(0, Align.Right, Align.Top, Align.Center, Align.Top, "RayKeys!", -450, 0, 1);
+            menu.AddLabel(0, Align.Right, Align.Top, Align.Center, Align.Top, "The Best 6 Key Rhythm Game!", -450, 164, 5);
+            
             menu.AddPageChangeButton(0, 1, Align.Right, Align.Top, Align.Right, Align.Center, "Play", -16, 300);
             menu.AddPageChangeButton(0, 2, Align.Right, Align.Top, Align.Right, Align.Center, "Options", -16, 400);
             menu.AddFunctionCallButton(0, Editor, Align.Right, Align.Top, Align.Right, Align.Center, "Editor", -16, 500);
             menu.AddPageChangeButton(0, 3, Align.Right, Align.Top, Align.Right, Align.Center, "Exit", -16, 600);
-            //menu.AddInputField(0, Align.Right, Align.Top, "Test", -16, 700);
 
             // Are you sure you want to exit?
+            menu.AddLabel(3, Align.Center, Align.Center, Align.Center, Align.Center, "Are you sure you\nwant to exit?", -270, 0, 2);
+            
             menu.AddPageChangeNoHistoryButton(3, 0, Align.Right, Align.Top, Align.Right, Align.Center, "Cancel", -16, 400);
             menu.AddFunctionCallButton(3, Exit, Align.Right, Align.Top, Align.Right, Align.Center, "Exit", -16, 500);
 
+            
+            // Options
+            menu.AddLabel(2, Align.Center, Align.Top, Align.Center, Align.Top, "Options", 0, 0, 2);
+            
             Logger.Info("Getting Resolutions");
             List<string> resolutions = new List<string>();
             foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes) {
@@ -52,19 +61,21 @@ namespace RayKeys.UI {
             AddOptionCategory("Gameplay", 0, 5);
             AddOptionCategory("Editor", 100, 6);
             
-            AddBooleanOptionButton("limitfps", 0, "Do Limit FPS");
-            AddSwitcherOptionButton("fpslimit", 0, "FPS Limit", new object[]{"30 FPS", "60 FPS", "75 FPS", "120 FPS", "144 FPS", "165 FPS", "240 FPS", "1000 FPS"});
-            AddSwitcherOptionButton("resolution", 0, "Resolution", resolutions.Distinct().ToArray()); // remove dupes from list and convert to array
-            AddBooleanOptionButton("vsync", 0, "VSync");
-            AddBooleanOptionButton("fullscreen", 0, "Fullscreen");
+            AddBooleanOptionButton("limitfps", 0, "Do Limit FPS", "If the FPS limit should be followed");
+            AddSwitcherOptionButton("fpslimit", 0, "FPS Limit", new object[]{"30 FPS", "60 FPS", "75 FPS", "120 FPS", "144 FPS", "165 FPS", "240 FPS", "1000 FPS"}, "What the FPS limit should be");
+            AddSwitcherOptionButton("resolution", 0, "Resolution", resolutions.Distinct().ToArray(), "Change the Game's Resolution"); // remove dupes from list and convert to array
+            AddBooleanOptionButton("vsync", 0, "VSync", "Sync frames to monitors frames");
+            AddBooleanOptionButton("fullscreen", 0, "Fullscreen", "Windowed or Fullscreen Mode");
 
             OBYPos = 100;
-            AddBooleanOptionButton("downscroll", 1, "Downscroll");
-            AddBooleanOptionButton("repositiontracks", 1, "Reposition Tracks");
+            AddBooleanOptionButton("downscroll", 1, "Downscroll", "Do notes move up or down");
+
+            OBYPos = 100;
+            AddBooleanOptionButton("sectionScrolling", 2, "Section Scrolling", "You can change sections in the editor by scrolling past the border");
+
+            // Play
+            menu.AddLabel(1, Align.Center, Align.Top, Align.Center, Align.Top, "Play", 0, 0, 2);
             
-            OBYPos = 100;
-            AddBooleanOptionButton("sectionScrolling", 2, "Section Scrolling");
-
             // Get The Levels in the folder
             Logger.Info("Getting Levels");
             DirectoryInfo levelF = new DirectoryInfo("Content/Levels/");
@@ -84,13 +95,6 @@ namespace RayKeys.UI {
         }
         
         private void Draw(float delta) {
-            RRender.DrawString(Align.Right, Align.Top, Align.Center, Align.Top, "RayKeys!", -450, 0, 1);
-            RRender.DrawString(Align.Right, Align.Top, Align.Center, Align.Top, "The Best 6 Key Rhythm Game!", -450, 164, 5);
-            
-            RRender.DrawString(Align.Center, Align.Top, Align.Center, Align.Top, "Options", -1920, 0, 2);
-            RRender.DrawString(Align.Center, Align.Top, Align.Center, Align.Top, "Play", 1920, 0, 2);
-            RRender.DrawString(Align.Center, Align.Center, Align.Center, Align.Center, "Are you sure you\nwant to exit?", -270, -1080, 2);
-
             OBYPos = 200;
             foreach (OptionButton button in optionButtons[currentOptionCatagory]) {
                 RRender.DrawString(Align.Right, Align.Top, Align.Right, Align.Top, button.valueText, -100-1920, OBYPos, 3);
@@ -109,8 +113,9 @@ namespace RayKeys.UI {
 
         private int OBYPos = 100;
         
-        private void AddButtonCommon(string option, int optionCategory, string displayName, object[] values) {
+        private void AddOptionButtonCommon(string option, int optionCategory, string displayName, object[] values, string tooltip) {
             Button b = menu.AddButton(optionCategory + 4, Align.Left, Align.Top, Align.Left, Align.Top, displayName, 450, OBYPos);
+            menu.AddLabel(optionCategory + 4, Align.Center, Align.Bottom, Align.Center, Align.Bottom, tooltip, 0, -5, 4, Color.White, b);
             b.Hide();
 
             int index = startingCatagoryButtonId + optionCategory;
@@ -121,12 +126,12 @@ namespace RayKeys.UI {
             OBYPos += 100;
         }
         
-        private void AddBooleanOptionButton(string option, int optionCategory, string displayName) {
-            AddButtonCommon(option, optionCategory, displayName, new object[] {true, false});
+        private void AddBooleanOptionButton(string option, int optionCategory, string displayName, string tooltip) {
+            AddOptionButtonCommon(option, optionCategory, displayName, new object[] {true, false}, tooltip);
         }
         
-        private void AddSwitcherOptionButton(string option, int optionCategory, string displayName, object[] values) {
-            AddButtonCommon(option, optionCategory, displayName, values);
+        private void AddSwitcherOptionButton(string option, int optionCategory, string displayName, object[] values, string tooltip) {
+            AddOptionButtonCommon(option, optionCategory, displayName, values, tooltip);
         }
 
         private void OnOptionButtonClick(int id, params object[] args) {

@@ -6,7 +6,7 @@ using RayKeys.Render;
 using TextCopy;
 
 namespace RayKeys.UI {
-    public class InputField : MenuItem {
+    public class InputField : FocusableMenuItem {
         private int fontSize;
         private int sizeX;
         private int sizeY;
@@ -65,8 +65,6 @@ namespace RayKeys.UI {
         }
 
         private void Update(float delta) {  
-            isFocused = parent.CurrentId == Id;
-
             if (isFocused) {
                 cursorTimer -= delta;
                 if (cursorTimer < -cursorTimerMax)

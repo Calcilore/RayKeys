@@ -4,7 +4,7 @@ using RayKeys.Misc;
 using RayKeys.Render;
 
 namespace RayKeys.UI {
-    public class Button : MenuItem {
+    public class Button : FocusableMenuItem {
         private Color cColour;
         private int fontSize;
         private int sizeX;
@@ -25,7 +25,6 @@ namespace RayKeys.UI {
         private Vector2 pos;
 
         private bool isSubbed;
-        private bool isFocused;
 
         public Button(Menu parent, bool followCamera, Align h, Align v, Align hT, Align vT, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
             Game1.Game.UpdateEvent += Update;
@@ -64,15 +63,13 @@ namespace RayKeys.UI {
         }
 
         private void Update(float delta) {
-            isFocused = parent.CurrentId == Id;
-            
-            if (RKeyboard.IsKeyPressed(Keys.Enter) && isFocused) {
+            if (RKeyboard.IsKeyPressed(Keys.Enter) && IsFocused) {
                 ClickEvent?.Invoke(Id, args);
             }
         }
         
         private void Draw(float delta) {
-            pos.X = ThingTools.Lerp(pos.X, isFocused ? tPosFoc.X : tPos.X, 10 * delta);
+            pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
             Vector2 finalPos = pos;
             if (followCamera) finalPos += RRender.CameraPos;
             

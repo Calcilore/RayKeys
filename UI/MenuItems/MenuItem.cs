@@ -1,3 +1,5 @@
+using Microsoft.Xna.Framework;
+
 namespace RayKeys.UI {
     public abstract class MenuItem {
         public Menu parent;

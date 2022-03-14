@@ -18,33 +18,31 @@ namespace RayKeys.UI {
 
         public int CurrentPage { get; private set; }
         public int CurrentSelection { get; private set; }
-        public int CurrentId { get; private set; }
-        private int setCurrentId = 0; // multiple buttons would press at once stupid
+        private bool changeSel = false; 
+        private int oldPage; private int oldSel;
         private Vector2 tPos;
 
         private List<int> history = new List<int>();
         
         private int currentI;
 
-        public Button GetButton(int id) {
-            foreach (Page page in pages) {
-                foreach (MenuItem button in page.Items) {
-                    if (button.Id == id) return (Button)button;
-                }
-            }
+        private void ChangeSelectionPage(int selection, int page) {
+            Logger.Debug($"Changing Selection to {selection} from {CurrentSelection}");
+            
+            //pages[CurrentPage].FocusableItems[CurrentSelection].UnFocus();
+            oldPage = CurrentPage; oldSel = CurrentSelection;
+            changeSel = true;
 
-            return null;
+            CurrentPage = page;
+            CurrentSelection = selection;
         }
-
+        
         public void ChangePageNoHistory(int pageId) {
             tPos = pages[pageId].pos.ToVector2();
-            //Console.WriteLine(pageId);
-            
+
             ChangePageEvent?.Invoke(CurrentPage, pageId);
 
-            CurrentPage = pageId;
-            ChangeSelection(0);
-            CurrentId = -1;
+            ChangeSelectionPage(0, pageId);
         }
 
         public void ChangePage(int pageId) {
@@ -76,7 +74,14 @@ namespace RayKeys.UI {
         }
 
         private void Update(float delta) {
-            CurrentId = setCurrentId;
+            if (changeSel) {
+                pages[oldPage].FocusableItems[oldSel].UnFocus();
+                pages[CurrentPage].FocusableItems[CurrentSelection].Focus();
+                
+                ChangeSelectionEvent?.Invoke(pages[oldPage].FocusableItems[oldSel].Id, pages[CurrentPage].FocusableItems[CurrentSelection].Id);
+                
+                changeSel = false;
+            }
 
             if (!pages[CurrentPage].followCamera) {
                 RRender.CameraPos.X = ThingTools.Lerp(RRender.CameraPos.X, tPos.X, 10 * delta);
@@ -94,34 +99,32 @@ namespace RayKeys.UI {
             }
             
             if (RKeyboard.IsKeyPressed(Keys.Down)) {
-                if (CurrentSelection >= pages[CurrentPage].Items.Count - 1) ChangeSelection(0);
-                else                                                        ChangeSelection(CurrentSelection + 1);
+                if (CurrentSelection >= pages[CurrentPage].FocusableItems.Count - 1) ChangeSelectionPage(0, CurrentPage);
+                else                                                                 ChangeSelectionPage(CurrentSelection + 1, CurrentPage);
             }
             else if (RKeyboard.IsKeyPressed(Keys.Up)) {
-                if (CurrentSelection <= 0) ChangeSelection(pages[CurrentPage].Items.Count - 1);
-                else                       ChangeSelection(CurrentSelection - 1);
+                if (CurrentSelection <= 0) ChangeSelectionPage(pages[CurrentPage].FocusableItems.Count - 1, CurrentPage);
+                else                       ChangeSelectionPage(CurrentSelection - 1, CurrentPage);
             }
-        }
-
-        private void ChangeSelection(int selection) {
-            Logger.Debug($"Changing Selection to {selection} from {CurrentSelection}");
-            CurrentSelection = selection;
-            setCurrentId = pages[CurrentPage].Items[CurrentSelection].Id;
-            
-            ChangeSelectionEvent?.Invoke(CurrentId, setCurrentId);
         }
 
         public void AddPage(int x, int y, bool followCamera = false) {
             pages.Add(new Page(x, y, followCamera));
         }
 
+        private void AddCommon(int page, FocusableMenuItem mi) {
+            currentI++;
+            pages[page].FocusableItems.Add(mi);
+            
+            if (!pages[CurrentPage].FocusableItems[CurrentSelection].IsFocused) pages[CurrentPage].FocusableItems[CurrentSelection].Focus();
+        } 
+
         public Button AddButton(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
             x += pages[page].pos.X; y += pages[page].pos.Y;
             
             Button button = new Button(this, pages[page].followCamera, h, v, hT, vT, currentI, text, x, y, sizeX, sizeY, fontSize);
-            currentI++;
-
-            pages[page].Items.Add(button);
+            
+            AddCommon(page, button);
             return button;
         }
         
@@ -153,9 +156,8 @@ namespace RayKeys.UI {
             x += pages[page].pos.X; y += pages[page].pos.Y;
             
             InputField inputField = new InputField(this, pages[page].followCamera, h, v, currentI, label, x, y, sizeX, sizeY, fontSize);
-            currentI++;
-
-            pages[page].Items.Add(inputField);
+            
+            AddCommon(page, inputField);
             return inputField;
         }
 
@@ -165,6 +167,26 @@ namespace RayKeys.UI {
             inp.args = new object[] {func};
 
             return inp;
+        }
+        
+        public Label AddLabel(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int fontSize, Color color, FocusableMenuItem itemParent = null) {
+            x += pages[page].pos.X; y += pages[page].pos.Y;
+
+            Label label = new Label(this, pages[page].followCamera, h, v, hT, vT, currentI, text, x, y, fontSize, color);
+            currentI++;
+
+            pages[page].UnFocusableItems.Add(label);
+
+            if (itemParent != null) {
+                itemParent.Child = label;
+                label.Hide();
+            }
+            
+            return label;
+        }
+        
+        public Label AddLabel(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int fontSize = 3) {
+            return AddLabel(page, h, v, hT, vT, text, x, y, fontSize, Color.White);
         }
     }
 }

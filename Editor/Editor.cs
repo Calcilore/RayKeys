@@ -62,7 +62,7 @@ namespace RayKeys.Editor {
             ChangeZoom(1);
 
             pauseMenu = new PauseMenu(-50);
-            ((Button) pauseMenu.menu.pages[0].Items[0]).args = new object[] {2, true};
+            ((Button) pauseMenu.menu.pages[0].FocusableItems[0]).args = new object[] {2, true};
             pauseMenu.PauseEvent += OnPause;
             pauseMenu.UnPauseEvent += OnUnPause;
             
@@ -74,8 +74,8 @@ namespace RayKeys.Editor {
             menu.AddFunctionCallInputField(2, OnSongNameChange, Align.Right, Align.Top,  "Song Name", -16, 150);
             menu.AddFunctionCallInputField(2, OnArtistNameChange, Align.Right, Align.Top,  "Artist", -16, 300);
             menu.AddFunctionCallInputField(2, OnBPMChange, Align.Right, Align.Top,  "BPM", -16, 450);
-            ((InputField) menu.pages[^1].Items[^1]).Text = "100";
-            ((InputField) menu.pages[^1].Items[^1]).cursorPos = 3;
+            ((InputField) menu.pages[^1].FocusableItems[^1]).Text = "100";
+            ((InputField) menu.pages[^1].FocusableItems[^1]).cursorPos = 3;
         }
         
         private void DoTheNoteShit() {
