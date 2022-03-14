@@ -62,10 +62,8 @@ namespace RayKeys {
                 Fonts[i] = Content.Load<SpriteFont>("Fonts/Font" + i);
             }
 
-            Stuffs.Init();
-
             PrepareLoadScene();
-            LoadScene(new MainMenu());
+            LoadScene(new LoadingScene());
         }
 
         protected override void Update(GameTime gameTime) {
