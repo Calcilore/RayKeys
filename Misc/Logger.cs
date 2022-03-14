@@ -26,9 +26,7 @@ namespace RayKeys.Misc {
         }
 
         public static void WaitFlush() {
-            while (!writeTask.IsCompleted) {
-                Thread.Sleep(50);
-            }
+            writeTask.Wait();
 
             streamWriter.Write(typeText);
             typeText = "";
@@ -39,13 +37,12 @@ namespace RayKeys.Misc {
             
             if (!Directory.Exists("Logs")) Directory.CreateDirectory("Logs");
             
-            string logFileName = $"Logs/{DateTime.Now:yyyy-MM-dd}-0";
+            string logFileName = $"Logs/{DateTime.Now:yyyy-MM-dd}-";
 
-            for (int i = 1; File.Exists(logFileName + ".log"); i++) {
-                logFileName = logFileName[..^1] + i;
-            }
+            int i;
+            for (i = 1; File.Exists(logFileName + i + ".log"); i++) { }
 
-            logFileName += ".log";
+            logFileName += i + ".log";
             
             logFile = File.Create(logFileName);
             streamWriter = new StreamWriter(logFile);
