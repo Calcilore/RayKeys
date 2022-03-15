@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using RayKeys.Misc;
 using RayKeys.Options;
 using RayKeys.Render;
 
@@ -20,7 +21,7 @@ namespace RayKeys {
         
         private Action<Note, float, float> NoteHandler; // it might be more efficient to use this stupid action instead of 1 if statement in a for loop
 
-        private Keys[] controls;
+        private int controls;
         private bool autoPlay;
         private float[] autoPlayKeyTimer = new float[6];
         private int xpos;
@@ -46,11 +47,8 @@ namespace RayKeys {
         
         public Engine(int controls, int xpos = 0, float countdownTimer = 3f, float speed = 1f) {
             controls--;
-            if (controls == -1) {
-                autoPlay = true;
-            } else {
-                this.controls = Game1.Game.Controls[controls];
-            }
+            autoPlay = controls == -1;
+            this.controls = controls * 6;
 
             if (autoPlay) NoteHandler = AutoPlayNoteHandling;
             else          NoteHandler = NoAutoPlayNoteHandling;
@@ -61,7 +59,7 @@ namespace RayKeys {
             
             Game1.Game.DrawEvent += Draw;
 
-            downscroll = (bool) OptionsManager.GetOption("downscroll").currentValue;
+            downscroll = (bool) OptionsManager.GetOption("downscroll").CurrentValue;
             downscrollMul = downscroll ? 1 : -1;
             
             AudioManager.SetPause(true);
@@ -161,12 +159,14 @@ namespace RayKeys {
             if (!autoPlay) {
                 KeyboardState ks = Keyboard.GetState();
                 for (int i = 0; i < 6; i++) {
-                    keysHeld[i] = ks.IsKeyDown(controls[i]);
+                    Keys k = Stuffs.GetControl(controls + i);
+
+                    keysHeld[i] = ks.IsKeyDown(k);
                 
-                    keysHeldOnHit[i] = keysHeldOnHit[i] && ks.IsKeyDown(controls[i]);
+                    keysHeldOnHit[i] = keysHeldOnHit[i] && ks.IsKeyDown(k);
                 
                     // make keysheld2 = is key pressed (from keys held last frame)
-                    keysHeld2[i] = ks.IsKeyDown(controls[i]) && !keysHeld2[i];
+                    keysHeld2[i] = ks.IsKeyDown(k) && !keysHeld2[i];
                 }
             } 
             else {

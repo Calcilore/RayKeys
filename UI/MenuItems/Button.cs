@@ -5,7 +5,7 @@ using RayKeys.Render;
 
 namespace RayKeys.UI {
     public class Button : FocusableMenuItem {
-        private Color cColour;
+        public Color Colour;
         private int fontSize;
         private int sizeX;
         private int sizeY;
@@ -22,7 +22,7 @@ namespace RayKeys.UI {
 
         private Vector2 tPos;
         private Vector2 tPosFoc;
-        private Vector2 pos;
+        public Vector2 pos;
 
         private bool isSubbed;
 
@@ -49,7 +49,7 @@ namespace RayKeys.UI {
             tPosFoc = tPos + new Vector2(hT == Align.Right ? -64 : 64, 0);
             pos = tPos;
 
-            cColour = Color.White;
+            Colour = Color.White;
         }
 
         public override void Hide() {
@@ -73,7 +73,7 @@ namespace RayKeys.UI {
             Vector2 finalPos = pos;
             if (followCamera) finalPos += RRender.CameraPos;
             
-            RRender.DrawString(Alh, Alv, AlhT, AlvT, Label, (int)finalPos.X + sizeX / 2, (int)finalPos.Y + sizeY / 2, fontSize, cColour);
+            RRender.DrawString(Alh, Alv, AlhT, AlvT, Label, (int)finalPos.X + sizeX / 2, (int)finalPos.Y + sizeY / 2, fontSize, Colour);
         }
     }
 }

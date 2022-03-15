@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using RayKeys.Render;
 
@@ -13,8 +14,9 @@ namespace RayKeys.UI {
         public string Text;
         public int FontSize;
         public Color Color;
+        public float DrawDepth;
 
-        public Label(Menu parent, bool followCamera, Align h, Align v, Align hT, Align vT, int id, string text, int x, int y, int fontSize, Color color) {
+        public Label(Menu parent, bool followCamera, Align h, Align v, Align hT, Align vT, int id, string text, int x, int y, int fontSize, Color color, float drawDepth = RRender.DefaultDepth) {
             Game1.Game.DrawEvent += Draw;
             
             this.parent = parent;
@@ -26,6 +28,7 @@ namespace RayKeys.UI {
             Pos.X = x; Pos.Y = y;
             this.FontSize = fontSize;
             this.Color = color;
+            this.DrawDepth = drawDepth;
         }
 
         public override void Hide() {
@@ -37,7 +40,8 @@ namespace RayKeys.UI {
         }
 
         private void Draw(float delta) {
-            RRender.DrawString(Alh, Alv, AlhT, AlvT, Text, Pos.X, Pos.Y, FontSize);
+            if (followCamera) RRender.DrawStringNoCam(Alh, Alv, AlhT, AlvT, Text, Pos.X, Pos.Y, FontSize, Color, DrawDepth);
+            else                   RRender.DrawString(Alh, Alv, AlhT, AlvT, Text, Pos.X, Pos.Y, FontSize, Color, DrawDepth);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace RayKeys.UI {
     public class Menu {
         public delegate void EscapeEventD();
         public event EscapeEventD EscapeEvent;
+        public event EscapeEventD AllEscapeEvent;
         
         public delegate void ChangeSelectionEventD(int beforeId, int afterId);
         public event ChangeSelectionEventD ChangeSelectionEvent;
@@ -20,7 +21,7 @@ namespace RayKeys.UI {
         public int CurrentSelection { get; private set; }
         private bool changeSel = false; 
         private int oldPage; private int oldSel;
-        private Vector2 tPos;
+        public Vector2 tPos;
 
         private List<int> history = new List<int>();
         
@@ -45,8 +46,21 @@ namespace RayKeys.UI {
             ChangeSelectionPage(0, pageId);
         }
 
+        public void AddToHistory(int pageId) {
+            history.Add(pageId);
+        }
+        
+        public void DeleteHistoryNoPageChange() {
+            history.RemoveAt(history.Count - 1);
+        }
+        
+        public void DeleteHistory() {
+            ChangePageNoHistory(history[^1]);
+            DeleteHistoryNoPageChange();
+        }
+
         public void ChangePage(int pageId) {
-            history.Add(CurrentPage);
+            AddToHistory(CurrentPage);
             ChangePageNoHistory(pageId);
         }
 
@@ -89,12 +103,13 @@ namespace RayKeys.UI {
             }
 
             if (RKeyboard.IsKeyPressed(Keys.Escape)) {
+                AllEscapeEvent?.Invoke();
+                
                 if (history.Count == 0) {
                     EscapeEvent?.Invoke();
                 }
                 else {
-                    ChangePageNoHistory(history[^1]);
-                    history.RemoveAt(history.Count - 1);
+                    DeleteHistory();
                 }
             }
             
@@ -169,10 +184,10 @@ namespace RayKeys.UI {
             return inp;
         }
         
-        public Label AddLabel(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int fontSize, Color color, FocusableMenuItem itemParent = null) {
+        public Label AddLabel(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int fontSize, Color color, float drawDepth = RRender.DefaultDepth, FocusableMenuItem itemParent = null) {
             x += pages[page].pos.X; y += pages[page].pos.Y;
 
-            Label label = new Label(this, pages[page].followCamera, h, v, hT, vT, currentI, text, x, y, fontSize, color);
+            Label label = new Label(this, pages[page].followCamera, h, v, hT, vT, currentI, text, x, y, fontSize, color, drawDepth);
             currentI++;
 
             pages[page].UnFocusableItems.Add(label);

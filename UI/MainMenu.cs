@@ -14,6 +14,9 @@ namespace RayKeys.UI {
         private int startingCatagoryButtonId = -1;
         private Dictionary<int, List<OptionButton>> optionButtons = new Dictionary<int, List<OptionButton>>();
         private int currentOptionCatagory = -1;
+        
+        private const float CameraMovePointUp = 800;
+        private const float CameraMovePointDown = 280; // 1080 - CameraMovePointUp
 
         public MainMenu() {
             Logger.Info("Loading Main Menu");
@@ -30,7 +33,8 @@ namespace RayKeys.UI {
             menu.AddPage(0, -1080); // 3 are you sure you want to exit?
             menu.AddPage(-1920, 0); // 4 suboptions (Graphics)
             menu.AddPage(-1920, 0); // 5 suboptions (Gameplay)
-            menu.AddPage(-1920, 0); // 6 suboptions (Editor)
+            menu.AddPage(-1920, 0); // 6 suboptions (Controls)
+            menu.AddPage(-1920, 0); // 7 suboptions (Editor)
 
             // Main Page
             menu.AddLabel(0, Align.Right, Align.Top, Align.Center, Align.Top, "RayKeys!", -450, 0, 1);
@@ -57,22 +61,29 @@ namespace RayKeys.UI {
                 resolutions.Add($"{mode.Width}x{mode.Height}");
             }
             
-            AddOptionCategory("Graphics", -100, 4);
-            AddOptionCategory("Gameplay", 0, 5);
-            AddOptionCategory("Editor", 100, 6);
+            AddOptionCategory("Graphics", -150, 4);
+            AddOptionCategory("Gameplay", -50, 5);
+            AddOptionCategory("Controls", 50, 6);
+            AddOptionCategory("Editor", 150, 7);
             
-            AddBooleanOptionButton("limitfps", 0, "Do Limit FPS", "If the FPS limit should be followed");
-            AddSwitcherOptionButton("fpslimit", 0, "FPS Limit", new object[]{"30 FPS", "60 FPS", "75 FPS", "120 FPS", "144 FPS", "165 FPS", "240 FPS", "1000 FPS"}, "What the FPS limit should be");
-            AddSwitcherOptionButton("resolution", 0, "Resolution", resolutions.Distinct().ToArray(), "Change the Game's Resolution"); // remove dupes from list and convert to array
-            AddBooleanOptionButton("vsync", 0, "VSync", "Sync frames to monitors frames");
-            AddBooleanOptionButton("fullscreen", 0, "Fullscreen", "Windowed or Fullscreen Mode");
+            AddBooleanOptionButton("limitfps", 0, "If the FPS limit should be followed");
+            AddSwitcherOptionButton("fpslimit", 0, new object[]{"30 FPS", "60 FPS", "75 FPS", "120 FPS", "144 FPS", "165 FPS", "240 FPS", "1000 FPS"}, "What the FPS limit should be");
+            AddSwitcherOptionButton("resolution", 0, resolutions.Distinct().ToArray(), "Change the Game's Resolution"); // remove dupes from list and convert to array
+            AddBooleanOptionButton("vsync", 0, "Sync frames to monitors frames");
+            AddBooleanOptionButton("fullscreen", 0, "Windowed or Fullscreen Mode");
 
             OBYPos = 100;
-            AddBooleanOptionButton("downscroll", 1, "Downscroll", "Do notes move up or down");
+            AddBooleanOptionButton("downscroll", 1, "Do notes move up or down");
 
             OBYPos = 100;
-            AddBooleanOptionButton("sectionScrolling", 2, "Section Scrolling", "You can change sections in the editor by scrolling past the border");
+            AddBooleanOptionButton("sectionScrolling", 3, "You can change sections in the editor by scrolling past the border");
 
+            OBYPos = 100;
+            for (int i = 0; ((Controls)i).ToString() != i.ToString(); i++) {
+                if (i == 6 || i == 12) OBYPos += 100;
+                AddKeyOptionButton("control_" + (Controls)i, 2, "Enter to set, Escape to cancel");
+            }
+            
             // Play
             menu.AddLabel(1, Align.Center, Align.Top, Align.Center, Align.Top, "Play", 0, 0, 2);
             
@@ -95,11 +106,11 @@ namespace RayKeys.UI {
         }
         
         private void Draw(float delta) {
-            OBYPos = 200;
             foreach (OptionButton button in optionButtons[currentOptionCatagory]) {
-                RRender.DrawString(Align.Right, Align.Top, Align.Right, Align.Top, button.valueText, -100-1920, OBYPos, 3);
-                OBYPos += 100;
+                RRender.DrawString(Align.Right, Align.Top, Align.Right, Align.Top, button.valueText, -100-1920, (int) button.button.pos.Y + 100, 3);
             }
+            
+            RRender.DrawBlank(Align.Left, Align.Bottom, -1920,  -64 + (int)RRender.CameraPos.Y, 1920, 64, Color.DarkSlateGray, 0.4f);
         }
 
         private void AddOptionCategory(string text, int yp, int pt) {
@@ -112,49 +123,57 @@ namespace RayKeys.UI {
         }
 
         private int OBYPos = 100;
-        
-        private void AddOptionButtonCommon(string option, int optionCategory, string displayName, object[] values, string tooltip) {
-            Button b = menu.AddButton(optionCategory + 4, Align.Left, Align.Top, Align.Left, Align.Top, displayName, 450, OBYPos);
-            menu.AddLabel(optionCategory + 4, Align.Center, Align.Bottom, Align.Center, Align.Bottom, tooltip, 0, -5, 4, Color.White, b);
+
+        private Button AddButtonCommon(string option, int optionCategory, string tooltip) {
+            Button b = menu.AddButton(optionCategory + 4, Align.Left, Align.Top, Align.Left, Align.Top, OptionsManager.GetOption(option).DisplayName, 450, OBYPos);
+            Label l = menu.AddLabel(optionCategory + 4, Align.Center, Align.Bottom, Align.Center, Align.Bottom, tooltip, 1920, -5, 4, Color.White, 0.3f, b);
+            l.followCamera = true;
             b.Hide();
-
-            int index = startingCatagoryButtonId + optionCategory;
-            b.args = new object[] {index, optionButtons[index].Count};
-            b.ClickEvent += OnOptionButtonClick;
             
-            optionButtons[index].Add(new OptionButton(b, values, option));
             OBYPos += 100;
+            return b;
         }
         
-        private void AddBooleanOptionButton(string option, int optionCategory, string displayName, string tooltip) {
-            AddOptionButtonCommon(option, optionCategory, displayName, new object[] {true, false}, tooltip);
+        private void AddSwitcherOptionButton(string option, int optionCategory, object[] values, string tooltip) {
+            Button b = AddButtonCommon(option, optionCategory, tooltip);
+
+            optionButtons[startingCatagoryButtonId + optionCategory].Add(new OptionButtonSwitcher(b, values, option));
         }
         
-        private void AddSwitcherOptionButton(string option, int optionCategory, string displayName, object[] values, string tooltip) {
-            AddOptionButtonCommon(option, optionCategory, displayName, values, tooltip);
+        private void AddKeyOptionButton(string option, int optionCategory, string tooltip) {
+            Button b = AddButtonCommon(option, optionCategory, tooltip);
+
+            optionButtons[startingCatagoryButtonId + optionCategory].Add(new OptionButtonKey(b, option));
         }
-
-        private void OnOptionButtonClick(int id, params object[] args) {
-            int[] ii = new int[] {(int) args[0], (int) args[1]};
-            OptionButton optionB = optionButtons[ii[0]][ii[1]];
-            Option option = optionB.option;
-
-            int cI = -1;
-            for (int i = 0; i < optionB.values.Length; i++) {
-                if (option.currentValue.ToString() == optionB.values[i].ToString()) { // without .ToString() the first time you change a boolean option it wont work
-                    cI = i;
-                    break;
-                }
-            }
-
-            object valueTo = optionB.values[cI >= optionB.values.Length - 1 ? 0 : cI + 1];
-            OptionsManager.SetOption(optionB.optionName, valueTo);
-            Logger.Info($"Changing Option {optionB.optionName} to {valueTo}");
-
-            optionB.valueText = option.currentValue.ToString();
+        
+        private void AddBooleanOptionButton(string option, int optionCategory, string tooltip) {
+            AddSwitcherOptionButton(option, optionCategory, new object[] {true, false}, tooltip);
         }
 
         private void OnSelectSwitch(int before, int after) {
+            // Camera Movement
+            foreach (List<OptionButton> category in optionButtons.Values) {
+                foreach (OptionButton button in category) {
+                    if (button.button.Id == after) {
+                        if (before < after) { // Buttons are added in order from top to bottom so this should work
+                            Logger.Debug($"Down, {button.button.pos.Y} < {CameraMovePointUp}");
+                            
+                            if (button.button.pos.Y > RRender.CameraPos.Y + CameraMovePointUp) 
+                                 menu.tPos.Y = button.button.pos.Y - CameraMovePointUp;
+                            else ;
+                        }
+                        else {
+                            Logger.Debug($"Up, {button.button.pos.Y} < {RRender.CameraPos.Y} + {CameraMovePointDown} = {button.button.pos.Y} < {RRender.CameraPos.Y + CameraMovePointDown}");
+                            
+                            if (button.button.pos.Y < RRender.CameraPos.Y + CameraMovePointDown) 
+                                 menu.tPos.Y = button.button.pos.Y - 100;
+                            else ;
+                        }
+                    }
+                }
+            }
+            
+            // Category Change
             if (!optionButtons.ContainsKey(after)) return;
 
             foreach (KeyValuePair<int, List<OptionButton>> c in optionButtons) {

@@ -1,6 +1,7 @@
 namespace RayKeys.Options {
     public enum OptionType {
         Boolean, // bool
-        Switcher // string
+        Switcher, // string
+        Key // Keys
     }
 }

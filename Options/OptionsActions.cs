@@ -1,20 +1,21 @@
 using System;
 using Microsoft.Xna.Framework;
+using RayKeys.Render;
 
 namespace RayKeys.Options {
     public static class OptionsActions {
-        public static void LimitFPSChanged(object v) {
+        public static void LimitFPSChanged(string k, object v) {
             Game1.Game.IsFixedTimeStep = (bool) v;
             Game1.Game.Graphics.ApplyChanges();
         }
 
-        public static void FPSLimitChanged(object v) {
+        public static void FPSLimitChanged(string k, object v) {
             string fpsS = (string) v;
             float fps = float.Parse(fpsS[..fpsS.IndexOf(" ")]);
             Game1.Game.TargetElapsedTime = TimeSpan.FromSeconds(1 / fps);
         }
 
-        public static void ResolutionChanged(object v) {
+        public static void ResolutionChanged(string k, object v) {
             string[] vs = ((string) v).Split('x');
             Point a = new Point(int.Parse(vs[0]), int.Parse(vs[1]));
             //RRender.resolution = a;
@@ -25,12 +26,12 @@ namespace RayKeys.Options {
             Game1.Game.RedoRenderPos();
         }
         
-        public static void VSyncChanged(object v) {
+        public static void VSyncChanged(string k, object v) {
             Game1.Game.Graphics.SynchronizeWithVerticalRetrace = (bool)v;
             Game1.Game.Graphics.ApplyChanges();
         }
         
-        public static void FullscreenChanged(object v) {
+        public static void FullscreenChanged(string k, object v) {
             Game1.Game.Graphics.IsFullScreen = (bool)v;
             Game1.Game.Graphics.ApplyChanges();
         }

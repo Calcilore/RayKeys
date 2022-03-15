@@ -55,7 +55,7 @@ namespace RayKeys.Editor {
             AudioManager.SetPause(true);
             shouldBePaused = true;
 
-            sectionScroll = (bool) OptionsManager.GetOption("sectionScrolling").currentValue;
+            sectionScroll = (bool) OptionsManager.GetOption("sectionScrolling").CurrentValue;
             sectionScrollAdd = sectionScroll ? 1 : 0;
             
             sections.Add(new List<Note>());

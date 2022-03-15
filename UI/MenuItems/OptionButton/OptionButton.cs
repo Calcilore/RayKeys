@@ -3,18 +3,16 @@ using RayKeys.Options;
 namespace RayKeys.UI {
     public class OptionButton {
         public Button button;
-        public object[] values;
         public string optionName;
         public Option option;
         public string valueText;
 
-        public OptionButton(Button button, object[] values, string optionName) {
+        public OptionButton(Button button, string optionName) {
             this.button = button;
-            this.values = values;
             this.optionName = optionName;
             this.option = OptionsManager.GetOption(optionName);
 
-            valueText = option.currentValue.ToString();
+            valueText = option.CurrentValue.ToString();
         }
     }
 }
