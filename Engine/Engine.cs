@@ -232,10 +232,10 @@ namespace RayKeys {
 
             if (!autoPlay) {
                 healthD = ThingTools.Lerp(healthD, health, 10f * delta);
-            
-                RRender.Draw(Align.Center, vAl, Textures.HealthBarBackground, xpos - 200, -90 * downscrollMul, 400, 40);
-                RRender.Draw(Align.Left, vAl, Textures.HealthBar, xpos + 760, -90 * downscrollMul, (int) (400 * healthD), 40);
 
+                RRender.Draw(Align.Center, vAl, Textures.HealthBarBackground, xpos - 200, -90 * downscrollMul, 400, 40, Color.White);
+                RRender.Draw(Align.Center, vAl, Textures.HealthBar, xpos - 200, -90 * downscrollMul, (int) (400 * healthD), 40, Color.White, 0.25f);
+                
                 if (ratingTimer > 0f) {
                     RRender.DrawString(Align.Center, vAl, Align.Center, vAl, rating, xpos, -10 * downscrollMul, 4);
                     ratingTimer -= delta;

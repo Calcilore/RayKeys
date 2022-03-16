@@ -72,8 +72,8 @@ namespace RayKeys.Render {
             Game1.Game.SpriteBatch.Draw(
                 texture, 
                 new Rectangle(AlPosP(h, v, x, y), new Point(sizeX, sizeY)),
-                null,
-                color.Value, 0, Vector2.Zero, SpriteEffects.None, DefaultDepth);
+                new Rectangle(0, 0, sizeX, sizeY),
+                color.Value, 0, Vector2.Zero, SpriteEffects.None, depth);
         }
         
         public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth) {
