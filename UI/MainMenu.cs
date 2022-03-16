@@ -160,14 +160,12 @@ namespace RayKeys.UI {
                             
                             if (button.button.pos.Y > RRender.CameraPos.Y + CameraMovePointUp) 
                                  menu.tPos.Y = button.button.pos.Y - CameraMovePointUp;
-                            else ;
                         }
                         else {
                             Logger.Debug($"Up, {button.button.pos.Y} < {RRender.CameraPos.Y} + {CameraMovePointDown} = {button.button.pos.Y} < {RRender.CameraPos.Y + CameraMovePointDown}");
                             
                             if (button.button.pos.Y < RRender.CameraPos.Y + CameraMovePointDown) 
                                  menu.tPos.Y = button.button.pos.Y - 100;
-                            else ;
                         }
                     }
                 }

@@ -29,7 +29,6 @@ namespace RayKeys.UI {
         private Vector2 pos;
 
         private bool isSubbed;
-        private bool isFocused;
 
         public InputField(Menu parent, bool followCamera, Align h, Align v, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
             Game1.Game.UpdateEvent += Update;
@@ -64,8 +63,8 @@ namespace RayKeys.UI {
             isSubbed = true;
         }
 
-        private void Update(float delta) {  
-            if (isFocused) {
+        private void Update(float delta) {
+            if (IsFocused) {
                 cursorTimer -= delta;
                 if (cursorTimer < -cursorTimerMax)
                     cursorTimer = cursorTimerMax;
@@ -118,7 +117,7 @@ namespace RayKeys.UI {
         }
         
         private void TextInput(object a, TextInputEventArgs arg) {
-            if (!isFocused) return;
+            if (!IsFocused) return;
             if (arg.Key == Keys.Enter) return;
                 
             if (arg.Character != '	' && (char.IsLetterOrDigit(arg.Character) || char.IsPunctuation(arg.Character) || char.IsSymbol(arg.Character) || char.IsWhiteSpace(arg.Character))) {
@@ -163,7 +162,7 @@ namespace RayKeys.UI {
         }
         
         private void Draw(float delta) {
-            pos.X = ThingTools.Lerp(pos.X, isFocused ? tPosFoc.X : tPos.X, 10 * delta);
+            pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
             Point finalPos = pos.ToPoint();
             finalPos.X += sizeX / 2;
             finalPos.Y += sizeY / 2;
@@ -172,7 +171,7 @@ namespace RayKeys.UI {
             RRender.DrawString(Alh, Alv, Align.Left, Alv, Label, finalPos.X, finalPos.Y, fontSize);
             RRender.DrawString(Alh, Alv, Align.Left, Alv, Text, finalPos.X, finalPos.Y + 50, fontSize);
             RRender.DrawBlank(Alh, Alv, finalPos.X, finalPos.Y + 100, sizeX, 6, Color.White);
-            if (isFocused && cursorTimer > 0) RRender.DrawBlank(Alh, Alv, finalPos.X + (int)Game1.Game.Fonts[fontSize].MeasureString(Text.Substring(0, cursorPos)).X, finalPos.Y + 90, 40, 6, Color.White);
+            if (IsFocused && cursorTimer > 0) RRender.DrawBlank(Alh, Alv, finalPos.X + (int)Game1.Game.Fonts[fontSize].MeasureString(Text.Substring(0, cursorPos)).X, finalPos.Y + 90, 40, 6, Color.White);
         }
 
         private void SetCursorPos(int value) {
