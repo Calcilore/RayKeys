@@ -5,16 +5,22 @@ using Microsoft.Xna.Framework.Graphics;
 namespace RayKeys.Render {
     public class RRender {
         public const float DefaultDepth = 0.5f;
+        private const float DepthAddAmnt = -0.001f;
         
         public static Vector2 CameraPos;
         public static Point Resolution;
 
         public static Texture2D BlankTexture;
+        private static float depthAdd = 0f; // To make draw order second priority
 
         public static void Initialise() {
             Resolution = new Point(1920, 1080);
             BlankTexture = new Texture2D(Game1.Game.SpriteBatch.GraphicsDevice, 1, 1);
             BlankTexture.SetData(new [] {Color.White});
+        }
+
+        public static void Draw() {
+            depthAdd = 0f;
         }
 
         public static Point AlPosP(Align h, Align v, int x, int y) {
@@ -45,7 +51,9 @@ namespace RayKeys.Render {
                 texture,
                 new Rectangle(AlPosP(h, v, x, y), new Point(sizeX, sizeY)),
                 new Rectangle(sourceX, sourceY, sourceXSize, sourceYSize),
-                color.Value, 0, Vector2.Zero, SpriteEffects.None, depth);
+                color.Value, 0, Vector2.Zero, SpriteEffects.None, depth + depthAdd);
+
+            depthAdd += DepthAddAmnt;
         }
 
         public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int sourceX, int sourceY, int sourceXSize, int sourceYSize, Color? color = null, float depth = DefaultDepth) {
@@ -73,7 +81,9 @@ namespace RayKeys.Render {
                 texture, 
                 new Rectangle(AlPosP(h, v, x, y), new Point(sizeX, sizeY)),
                 new Rectangle(0, 0, sizeX, sizeY),
-                color.Value, 0, Vector2.Zero, SpriteEffects.None, depth);
+                color.Value, 0, Vector2.Zero, SpriteEffects.None, depth + depthAdd);
+
+            depthAdd += DepthAddAmnt;
         }
         
         public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth) {
@@ -138,7 +148,9 @@ namespace RayKeys.Render {
             pos = AlPosV(th, tv, pos.X, pos.Y, ts.X, ts.Y);
 
             Game1.Game.SpriteBatch.DrawString(Game1.Game.Fonts[scale], text, pos, color.Value, 
-                0, Vector2.Zero, Vector2.One, SpriteEffects.None, depth);
+                0, Vector2.Zero, Vector2.One, SpriteEffects.None, depth + depthAdd);
+
+            depthAdd += DepthAddAmnt;
         }
         
         public static void DrawString(Align h, Align v, Align th, Align tv, string text, int px, int py, int scale, Color? color = null, float depth = DefaultDepth) {

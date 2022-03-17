@@ -90,6 +90,8 @@ namespace RayKeys {
         }
         
         protected override void Draw(GameTime gameTime) {
+            RRender.Draw();
+            
             GraphicsDevice.Clear(Color.Black);
 
             GraphicsDevice.SetRenderTarget(test);
