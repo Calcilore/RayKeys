@@ -8,7 +8,7 @@ namespace RayKeys.Misc {
         public static LogLevel LoggingLevel;
         private static FileStream logFile;
         private static StreamWriter streamWriter;
-        private static Task writeTask;
+        private static Task writeTask = Task.CompletedTask;
         private static string typeText;
         
         public static void Log(string log, LogLevel level) {
@@ -53,8 +53,6 @@ namespace RayKeys.Misc {
                 using FileStream compressedFileStream = File.Create(gzFileLoc);
                 using GZipStream compressor = new GZipStream(compressedFileStream, CompressionMode.Compress);
                 originalFileStream.CopyTo(compressor);
-                
-                File.Delete("Logs/latest.log");
             }
 
             string logFileName = $"Logs/{DateTime.Now:yyyy-MM-dd}-";
@@ -64,10 +62,9 @@ namespace RayKeys.Misc {
 
             logFileName += i + ".log";
             
-            logFile = File.Create("Logs/latest.log");
+            logFile = File.OpenWrite("Logs/latest.log");
             streamWriter = new StreamWriter(logFile);
             streamWriter.AutoFlush = true;
-            writeTask = Task.CompletedTask;
             typeText = "";
             Logger.Info($"Logging to: {logFileName}");
         }
