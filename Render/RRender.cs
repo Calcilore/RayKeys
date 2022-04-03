@@ -23,24 +23,20 @@ namespace RayKeys.Render {
             depthAdd = 0f;
         }
 
-        public static Point AlPosP(Align h, Align v, int x, int y) {
-            return new Point(x + (int) h * Resolution.X / 2, y + (int)v * Resolution.Y / 2);
-        }
-        
-        public static Point AlPosP(Align h, Align v, int x, int y, int rx, int ry) {
-            return new Point(x + (int) h * rx / 2, y + (int)v * ry / 2);
-        }
-        
-        public static Vector2 AlPosV(Align h, Align v, float x, float y) {
-            return new Vector2(x - (float)(int) h * Resolution.X / 2, y - (float)(int)v * Resolution.Y / 2);
-        }
-        
-        public static Vector2 AlPosV(Align h, Align v, float x, float y, float rx, float ry) {
-            return new Vector2(x - (float)(int) h * rx / 2, y - (float)(int)v * ry / 2);
-        }
+        public static Point AlPosP(Align h, Align v, int x, int y)
+            => new Point(x + (int) h * Resolution.X / 2, y + (int)v * Resolution.Y / 2);
 
-        
-        // -=-=-=-=-=-=-=-=-
+        public static Point AlPosP(Align h, Align v, int x, int y, int rx, int ry)
+            => new Point(x + (int) h * rx / 2, y + (int)v * ry / 2);
+
+        public static Vector2 AlPosV(Align h, Align v, float x, float y)
+            => new Vector2(x - (float)(int) h * Resolution.X / 2, y - (float)(int)v * Resolution.Y / 2);
+
+        public static Vector2 AlPosV(Align h, Align v, float x, float y, float rx, float ry)
+            => new Vector2(x - (float)(int) h * rx / 2, y - (float)(int)v * ry / 2);
+
+
+            // -=-=-=-=-=-=-=-=-
         // |    Big Draw   |
         // -=-=-=-=-=-=-=-=-
         
@@ -56,9 +52,8 @@ namespace RayKeys.Render {
             depthAdd += DepthAddAmnt;
         }
 
-        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int sourceX, int sourceY, int sourceXSize, int sourceYSize, Color? color = null, float depth = DefaultDepth) {
-            DrawNoCam(h, v, texture, x - (int)CameraPos.X, y - (int)CameraPos.Y, sizeX, sizeY, sourceX, sourceY, sourceXSize, sourceYSize, color, depth);
-        }
+        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int sourceX, int sourceY, int sourceXSize, int sourceYSize, Color? color = null, float depth = DefaultDepth)
+           => DrawNoCam(h, v, texture, x - (int)CameraPos.X, y - (int)CameraPos.Y, sizeX, sizeY, sourceX, sourceY, sourceXSize, sourceYSize, color, depth);
         
         public static void DrawNoCam(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY, int sourceX, int sourceY, int sourceXSize, int sourceYSize, Color? color = null, float depth = DefaultDepth) {
             Texture2D tex = Stuffs.GetTexture(texture);
@@ -86,10 +81,9 @@ namespace RayKeys.Render {
             depthAdd += DepthAddAmnt;
         }
         
-        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth) {
-            DrawNoCam(h, v, texture, x - (int)CameraPos.X, y - (int)CameraPos.Y, sizeX, sizeY, color, depth);
-        }
-        
+        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth) 
+            => DrawNoCam(h, v, texture, x - (int)CameraPos.X, y - (int)CameraPos.Y, sizeX, sizeY, color, depth);
+
         public static void DrawNoCam(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth) {
             Texture2D tex = Stuffs.GetTexture(texture);
             DrawNoCam(h, v, tex, x, y, sizeX, sizeY, color, depth);
@@ -104,14 +98,12 @@ namespace RayKeys.Render {
         // |  Smallerer Draw |
         // -=-=-=-=-=-=-=-=-=-
 
-        public static void DrawNoCam(Align h, Align v, Texture2D texture, int x, int y, Color? color = null, float depth = DefaultDepth) {
-            DrawNoCam(h, v, texture, x, y, texture.Width, texture.Height, color, depth);
-        }
-        
-        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, Color? color = null, float depth = DefaultDepth) {
-            Draw(h, v, texture, x, y, texture.Width, texture.Height, color, depth);
-        }
-        
+        public static void DrawNoCam(Align h, Align v, Texture2D texture, int x, int y, Color? color = null, float depth = DefaultDepth)
+            => DrawNoCam(h, v, texture, x, y, texture.Width, texture.Height, color, depth);
+
+        public static void Draw(Align h, Align v, Texture2D texture, int x, int y, Color? color = null, float depth = DefaultDepth)
+            => Draw(h, v, texture, x, y, texture.Width, texture.Height, color, depth);
+
         public static void DrawNoCam(Align h, Align v, Textures texture, int x, int y, Color? color = null, float depth = DefaultDepth) {
             Texture2D tex = Stuffs.GetTexture(texture);
             DrawNoCam(h, v, tex, x, y, tex.Width, tex.Height, color, depth);
@@ -126,15 +118,13 @@ namespace RayKeys.Render {
         // |  Blank Draw |
         // -=-=-=-=-=-=-=-
 
-        public static void DrawBlankNoCam(Align h, Align v, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth) {
-            DrawNoCam(h, v, BlankTexture, x, y, sizeX, sizeY, 0, 0, 1, 1, color, depth);
-        }
-        
-        public static void DrawBlank(Align h, Align v, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth) {
-            Draw(h, v, BlankTexture, x, y, sizeX, sizeY, 0, 0, 1, 1, color, depth);
-        }
+        public static void DrawBlankNoCam(Align h, Align v, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth)
+            => DrawNoCam(h, v, BlankTexture, x, y, sizeX, sizeY, 0, 0, 1, 1, color, depth);
 
-        // -=-=-=-=-=-=-
+        public static void DrawBlank(Align h, Align v, int x, int y, int sizeX, int sizeY, Color? color = null, float depth = DefaultDepth)
+            => Draw(h, v, BlankTexture, x, y, sizeX, sizeY, 0, 0, 1, 1, color, depth);
+
+            // -=-=-=-=-=-=-
         // |  Strings  |
         // -=-=-=-=-=-=-
         
@@ -153,22 +143,19 @@ namespace RayKeys.Render {
             depthAdd += DepthAddAmnt;
         }
         
-        public static void DrawString(Align h, Align v, Align th, Align tv, string text, int px, int py, int scale, Color? color = null, float depth = DefaultDepth) {
-            DrawStringNoCam(h, v, th, tv, text, px - (int)CameraPos.X, py - (int)CameraPos.Y, scale, color, depth);
-        }
-        
+        public static void DrawString(Align h, Align v, Align th, Align tv, string text, int px, int py, int scale, Color? color = null, float depth = DefaultDepth)
+            => DrawStringNoCam(h, v, th, tv, text, px - (int)CameraPos.X, py - (int)CameraPos.Y, scale, color, depth);
+
         // -=-=-=-=-=-=-=-=-=-=-
         // |  Smaller Strings  |
         // -=-=-=-=-=-=-=-=-=-=-
 
-        public static void DrawStringNoCam(Align h, Align v, string text, int px, int py, int scale, Color? color = null, float depth = DefaultDepth) {
-            DrawStringNoCam(h, v, h, v, text, px, py, scale, color, depth);
-        }
-        
-        public static void DrawString(Align h, Align v, string text, int px, int py, int scale, Color? color = null, float depth = DefaultDepth) {
-            DrawString(h, v, h, v, text, px, py, scale, color, depth);
-        }
-        
+        public static void DrawStringNoCam(Align h, Align v, string text, int px, int py, int scale, Color? color = null, float depth = DefaultDepth)
+            => DrawStringNoCam(h, v, h, v, text, px, py, scale, color, depth);
+
+        public static void DrawString(Align h, Align v, string text, int px, int py, int scale, Color? color = null, float depth = DefaultDepth)
+            => DrawString(h, v, h, v, text, px, py, scale, color, depth);
+
         // -=-=-=-=-=-=-=-=-
         // |  Tiling Draw  |
         // -=-=-=-=-=-=-=-=-
@@ -186,13 +173,12 @@ namespace RayKeys.Render {
             }
         }
 
-        public static void DrawTileDownNoCam(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth) {
-            DrawTileDownCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, DrawNoCam);
-        }
+        public static void DrawTileDownNoCam(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth)
+            => DrawTileDownCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, DrawNoCam);
+
+        public static void DrawTileDown(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth)
+            => DrawTileDownCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, Draw);
         
-        public static void DrawTileDown(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth) {
-            DrawTileDownCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, Draw);
-        }   
         
         public static void DrawTileDownNoCam(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth) {
             Texture2D tex = Stuffs.GetTexture(texture);
@@ -217,14 +203,12 @@ namespace RayKeys.Render {
             }
         }
         
-        public static void DrawTileUpNoCam(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth) {
-            DrawTileUpCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, DrawNoCam);
-        }
-        
-        public static void DrawTileUp(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth) {
-            DrawTileUpCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, Draw);
-        }   
-        
+        public static void DrawTileUpNoCam(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth)
+            => DrawTileUpCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, DrawNoCam);
+
+        public static void DrawTileUp(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth)
+            => DrawTileUpCommon(h, v, texture, x, y, sizeX, sizeY, tileX, tileY, color, depth, Draw);
+
         public static void DrawTileUpNoCam(Align h, Align v, Textures texture, int x, int y, int sizeX, int sizeY, int tileX, int tileY, Color? color = null, float depth = DefaultDepth) {
             Texture2D tex = Stuffs.GetTexture(texture);
             DrawTileUpCommon(h, v, tex, x, y, sizeX, sizeY, tileX, tileY, color, depth, DrawNoCam);
