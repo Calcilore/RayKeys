@@ -145,7 +145,7 @@ namespace RayKeys.Render {
             content = Game1.Game.Content;
             root = OptionsManager.GetJson();
 
-            textures = new Texture2D[29];
+            textures = new Texture2D[30];
             sounds = new SoundEffect[1];
             controls = new Keys[18];
 
@@ -179,6 +179,7 @@ namespace RayKeys.Render {
             things.Add(new List<object> {"tex"  , "button"});
             things.Add(new List<object> {"sheet", "trackeditorbg", 0, 0, 96, 96});
             things.Add(new List<object> {"sheet", "trackeditorbg", 96, 0, 96, 96});
+            things.Add(new List<object> {"tex"  , "arrow"});
 
             things.Add(new List<object> {"reseti"});
             things.Add(new List<object> {"sound", "hitsound"});
@@ -274,7 +275,9 @@ namespace RayKeys.Render {
         Button,
         
         TrackEditorBG,
-        TrackEditorBGOther
+        TrackEditorBGOther,
+        
+        Arrow
     }
 
     public enum Sounds {

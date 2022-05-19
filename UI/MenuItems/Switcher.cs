@@ -4,7 +4,7 @@ using RayKeys.Misc;
 using RayKeys.Render;
 
 namespace RayKeys.UI {
-    public class Button : FocusableMenuItem {
+    public class Switcher : FocusableMenuItem {
         public Color Color;
         private int fontSize;
         private int sizeX;
@@ -14,12 +14,9 @@ namespace RayKeys.UI {
         public event ClickEventD ClickEvent;
 
         public object[] args;
-        public Align AlhT;
-        public Align AlvT;
-        
         public string Label;
 
-        public Button(Menu parent, bool followCamera, Align h, Align v, Align hT, Align vT, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
+        public Switcher(Menu parent, bool followCamera, Align h, Align v, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
             Game1.Game.UpdateEvent += Update;
 
             this.parent = parent;
@@ -31,13 +28,11 @@ namespace RayKeys.UI {
             this.Id = id;
             Alh = h;
             Alv = v;
-            AlhT = hT;
-            AlvT = vT;
 
-            tPos.X = x; // idk why it needs this
+            tPos.X = x - sizeX / 2; // idk why it needs this
             tPos.Y = y;
             
-            tPosFoc = tPos + new Vector2(hT == Align.Right ? -64 : 64, 0);
+            tPosFoc = tPos + new Vector2(h == Align.Right ? -64 : 64, 0);
             pos = tPos;
 
             Color = Color.White;
@@ -50,31 +45,13 @@ namespace RayKeys.UI {
         }
         
         protected override void Draw(float delta) {
-            CalculateOffset();
+            base.Draw(delta);
             
             pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
             Vector2 finalPos = pos;
             if (followCamera) finalPos += RRender.CameraPos;
             
-            RRender.DrawString(Alh, Alv, AlhT, AlvT, Label, (int)finalPos.X, (int)finalPos.Y, fontSize, Color);
-            
-            base.Draw(delta);
-        }
-
-        protected override Vector2 CalculateOffset() {
-            int hah = AlvT switch {
-                Align.Center => 0,
-                Align.Bottom => Stuffs.GetTexture(Textures.Arrow).Height,
-                /* Top */ _  => Stuffs.GetTexture(Textures.Arrow).Height / 2
-            };
-            
-            int tLen = (int) RRender.MeasureString(fontSize, Label).X;
-
-            return Alh switch {
-                Align.Left  => new Vector2(tLen, hah),
-                Align.Right => new Vector2(-tLen, hah),
-                /*Center*/_ => new Vector2(-tLen / 2f, hah),
-            };
+            RRender.DrawString(Alh, Alv, Align.Center, Align.Center, Label, (int)finalPos.X + sizeX / 2, (int)finalPos.Y + sizeY / 2, fontSize, Color);
         }
     }
 }

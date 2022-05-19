@@ -11,13 +11,15 @@ namespace RayKeys.Misc {
         private static Task writeTask = Task.CompletedTask;
         private static string typeText;
         
-        public static void Log(string log, LogLevel level) {
+        public static void Log(object log, LogLevel level) {
             if (LoggingLevel < level) return;
             
-            log = $"[{DateTime.Now.ToLongTimeString()}] [{level}]: {log}\n";
-            Console.Write(log);
+            string text = log.ToString();
             
-            typeText += log;
+            text = $"[{DateTime.Now.ToLongTimeString()}] [{level}]: {text}\n";
+            Console.Write(text);
+            
+            typeText += text;
 
             if (writeTask.IsCompleted) {
                 writeTask = streamWriter.WriteAsync(typeText);
@@ -69,15 +71,15 @@ namespace RayKeys.Misc {
             Logger.Info($"Logging to: {logFileName}");
         }
         
-        public static void Error(string log) {
+        public static void Error(object log) {
             Log(log, LogLevel.Error);
         }
         
-        public static void Info(string log) {
+        public static void Info(object log) {
             Log(log, LogLevel.Info);
         }
         
-        public static void Debug(string log) {
+        public static void Debug(object log) {
             Log(log, LogLevel.Debug);
         }
     }

@@ -4,17 +4,17 @@ using System.Text.Json;
 namespace RayKeys {
     public static class ThingTools {
         public static Random Rand = new Random();
-        public static JsonSerializerOptions jsonSOptions;
-        public static JsonDocumentOptions jsonDOptions;
+        public static JsonSerializerOptions JsonSOptions;
+        public static JsonDocumentOptions JsonDOptions;
 
         public static void Init() {
-            jsonSOptions = new JsonSerializerOptions {
+            JsonSOptions = new JsonSerializerOptions {
                 WriteIndented = true,
                 ReadCommentHandling = JsonCommentHandling.Skip,
                 AllowTrailingCommas = true
             };
 
-            jsonDOptions = new JsonDocumentOptions {
+            JsonDOptions = new JsonDocumentOptions {
                 CommentHandling = JsonCommentHandling.Skip,
                 AllowTrailingCommas = true
             };

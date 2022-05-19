@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using RayKeys.UI;
@@ -22,12 +21,15 @@ namespace RayKeys.Editor {
 
         private PauseMenu pauseMenu;
         private Menu menu;
+        private bool isSongLoaded = false;
         private bool shouldBePaused; // music
         private bool isPaused;
 
         private string infoText;
         private float infoTextTimer;
         private const float infoTextTimerMax = 2f;
+
+        private string dirName;
         
         // Sections
         private int currentSection;
@@ -44,24 +46,16 @@ namespace RayKeys.Editor {
         private string songName = "";
         private string artist = "";
 
-        public Editor() {
+        public Editor(string dirName) {
             Logger.Info("Loading Editor");
+
+            this.dirName = dirName;
             
             Game1.Game.DrawEvent += Draw;
             Game1.Game.UpdateEvent += Update;
 
-            AudioManager.LoadSong("Levels/1/song.ogg", 100);
-            AudioManager.Play();
-            AudioManager.SetPause(true);
-            shouldBePaused = true;
-
-            sectionScroll = (bool) OptionsManager.GetOption("sectionScrolling").CurrentValue;
-            sectionScrollAdd = sectionScroll ? 1 : 0;
-            
-            sections.Add(new List<Note>());
-            ChangeZoom(1);
-
             pauseMenu = new PauseMenu(-50);
+            // Make pressing enter open the menu instead of pause menu
             ((Button) pauseMenu.menu.pages[0].FocusableItems[0]).args = new object[] {2, true};
             pauseMenu.PauseEvent += OnPause;
             pauseMenu.UnPauseEvent += OnUnPause;
@@ -70,12 +64,58 @@ namespace RayKeys.Editor {
 
             menu = pauseMenu.menu;
             menu.AddPage(0, 0, true);
-            menu.AddFunctionCallInputField(2, OnLevelNameChange, Align.Right, Align.Top,  "Level Name", -16, 0);
-            menu.AddFunctionCallInputField(2, OnSongNameChange, Align.Right, Align.Top,  "Song Name", -16, 150);
-            menu.AddFunctionCallInputField(2, OnArtistNameChange, Align.Right, Align.Top,  "Artist", -16, 300);
-            menu.AddFunctionCallInputField(2, OnBPMChange, Align.Right, Align.Top,  "BPM", -16, 450);
+            menu.AddFunctionCallInputField(2, OnLevelNameChange, Align.Right, Align.Top,  "Level Name", -16-600, 0);
+            menu.AddFunctionCallInputField(2, OnSongNameChange, Align.Right, Align.Top,  "Song Name", -16-600, 150);
+            menu.AddFunctionCallInputField(2, OnArtistNameChange, Align.Right, Align.Top,  "Artist", -16-600, 300);
+            menu.AddFunctionCallInputField(2, OnBPMChange, Align.Right, Align.Top,  "BPM", -16-600, 450);
             ((InputField) menu.pages[^1].FocusableItems[^1]).Text = "100";
             ((InputField) menu.pages[^1].FocusableItems[^1]).cursorPos = 3;
+            
+            AudioManager.Stop();
+            LoadSong();
+
+            if (SongJsonManager.LoadJson(dirName, out JsonFileThing songJson)) {
+                ((InputField) menu.pages[^1].FocusableItems[0]).Text = songJson.name;
+                OnLevelNameChange(songJson.name);
+                ((InputField) menu.pages[^1].FocusableItems[1]).Text = songJson.songName;
+                OnSongNameChange(songJson.songName);
+                ((InputField) menu.pages[^1].FocusableItems[2]).Text = songJson.artist;
+                OnArtistNameChange(songJson.artist);
+                ((InputField) menu.pages[^1].FocusableItems[3]).Text = songJson.bpm.ToString();
+                OnBPMChange(songJson.bpm.ToString());
+
+                foreach (var secs in songJson.beatmaps) {
+                    foreach (var section in secs) {
+                        sections.Add(new List<Note>());
+                        foreach (var note in section) {
+                            sections[^1].Add(new Note(note.time, note.lane));
+                        }
+                    }   
+                }
+            }
+            
+            sectionScroll = (bool) OptionsManager.GetOption("sectionScrolling").CurrentValue;
+            sectionScrollAdd = sectionScroll ? 1 : 0;
+            
+            if (sections.Count == 0) sections.Add(new List<Note>());
+            ChangeZoom(1);
+        }
+
+        private bool LoadSong() {
+            Logger.Info("Loading song");
+            if (!File.Exists($"Content/Levels/{dirName}/song.ogg")) 
+                return false;
+            
+            Logger.Debug("File does exist, continuing");
+            
+            AudioManager.LoadSong($"Levels/{dirName}/song.ogg", 100);
+            AudioManager.Play();
+            AudioManager.SetPause(true);
+            shouldBePaused = true;
+            isSongLoaded = true;
+            
+            Logger.Debug("Loaded Song");
+            return true;
         }
         
         private void DoTheNoteShit() {
@@ -143,16 +183,23 @@ namespace RayKeys.Editor {
             }
 
             if (RKeyboard.IsKeyPressed(Keys.Space)) {
-                if (AudioManager.IsPlaying()) {
-                    AudioManager.SetPause(true);
-                    shouldBePaused = true;
-                    scrollPosR = (int) ThingTools.RoundN(scrollPos, 96);
+                Logger.Debug(isSongLoaded);
+                
+                if (!isSongLoaded) {
+                    if (!LoadSong()) InfoText("Song Not Loaded, Please Put a Song in the Level Folder");
                 }
                 else {
-                    AudioManager.SetPause(false);
-                    shouldBePaused = false;
-                    // making it start at 0 seconds causes it to lagspike, so i made it seek to a minimum of 1 millisecond
-                    AudioManager.Seek(Math.Max(0.001f, (scrollPos / 96 / zoom + currentSection * 16) / AudioManager.bps));
+                    if (AudioManager.IsPlaying()) {
+                        AudioManager.SetPause(true);
+                        shouldBePaused = true;
+                        scrollPosR = (int) ThingTools.RoundN(scrollPos, 96);
+                    }
+                    else {
+                        AudioManager.SetPause(false);
+                        shouldBePaused = false;
+                        // making it start at 0 seconds causes it to lagspike, so i made it seek to a minimum of 1 millisecond
+                        AudioManager.Seek(Math.Max(0.001f, (scrollPos / 96 / zoom + currentSection * 16) / AudioManager.bps));
+                    }   
                 }
             }
 
@@ -187,10 +234,9 @@ namespace RayKeys.Editor {
                     beatmaps = new List<List<List<Note>>>() { sections }
                 };
                 
-                SongJsonManager.SaveJson(levelName, jf);
+                SongJsonManager.SaveJson(dirName, jf);
 
-                infoText = "Level Saved...";
-                infoTextTimer = infoTextTimerMax;
+                InfoText("Level Saved...");
             }
         }
 
@@ -294,6 +340,11 @@ namespace RayKeys.Editor {
    
             AudioManager.bpm = bpm;
             AudioManager.bps = bpm / Engine.BeatMultiplier;
+        }
+
+        private void InfoText(string text) {
+            infoText = text;
+            infoTextTimer = infoTextTimerMax;
         }
     }
 }

@@ -15,26 +15,16 @@ namespace RayKeys.UI {
         public event EnterEventD EnterEvent;
 
         public object[] args;
-        public Align Alh;
-        public Align Alv;
         public string Label;
         
         public string Text = "";
         public int cursorPos;
         private float cursorTimer = 0f;
-        private float cursorTimerMax = 0.4f;
-
-        private Vector2 tPos;
-        private Vector2 tPosFoc;
-        private Vector2 pos;
-
-        private bool isSubbed;
+        private const float CursorTimerMax = 0.4f;
 
         public InputField(Menu parent, bool followCamera, Align h, Align v, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
             Game1.Game.UpdateEvent += Update;
-            Game1.Game.DrawEvent += Draw;
             Game1.Game.Window.TextInput += TextInput;
-            isSubbed = true;
 
             this.parent = parent;
             this.followCamera = followCamera;
@@ -46,28 +36,18 @@ namespace RayKeys.UI {
             Alh = h;
             Alv = v;
 
-            tPos.X = x - sizeX / 2 - (h == Align.Right ? sizeX : 0); // idk why it needs this
+            tPos.X = x - sizeX / 2; // idk why it needs this
             tPos.Y = y;
             
             tPosFoc = tPos + new Vector2(h == Align.Right ? -64 : 64, 0);
             pos = tPos;
         }
 
-        public override void Hide() {
-            if (isSubbed) Game1.Game.DrawEvent -= Draw;
-            isSubbed = false;
-        }
-        
-        public override void Show() {
-            if (!isSubbed) Game1.Game.DrawEvent += Draw;
-            isSubbed = true;
-        }
-
         private void Update(float delta) {
             if (IsFocused) {
                 cursorTimer -= delta;
-                if (cursorTimer < -cursorTimerMax)
-                    cursorTimer = cursorTimerMax;
+                if (cursorTimer < -CursorTimerMax)
+                    cursorTimer = CursorTimerMax;
                 
                 if (RKeyboard.IsKeyPressed(Keys.Enter)) {
                     EnterEvent?.Invoke(Id, Text, args);
@@ -112,7 +92,7 @@ namespace RayKeys.UI {
                 }
             }
             else {
-                cursorTimer = cursorTimerMax;
+                cursorTimer = CursorTimerMax;
             }
         }
         
@@ -160,28 +140,51 @@ namespace RayKeys.UI {
                 }
             }
         }
-        
-        private void Draw(float delta) {
+
+        protected override void Draw(float delta) {
+            base.Draw(delta);
+            
             pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
             Point finalPos = pos.ToPoint();
             finalPos.X += sizeX / 2;
             finalPos.Y += sizeY / 2;
             if (followCamera) finalPos += RRender.CameraPos.ToPoint();
             
-            RRender.DrawString(Alh, Alv, Align.Left, Alv, Label, finalPos.X, finalPos.Y, fontSize);
-            RRender.DrawString(Alh, Alv, Align.Left, Alv, Text, finalPos.X, finalPos.Y + 50, fontSize);
+            RRender.DrawString(Alh, Alv, Align.Left, Align.Top, Label, finalPos.X, finalPos.Y, fontSize);
+            RRender.DrawString(Alh, Alv, Align.Left, Align.Top, Text, finalPos.X, finalPos.Y + 50, fontSize);
             RRender.DrawBlank(Alh, Alv, finalPos.X, finalPos.Y + 100, sizeX, 6, Color.White);
-            if (IsFocused && cursorTimer > 0) RRender.DrawBlank(Alh, Alv, finalPos.X + (int)Game1.Game.Fonts[fontSize].MeasureString(Text.Substring(0, cursorPos)).X, finalPos.Y + 90, 40, 6, Color.White);
+            if (IsFocused && cursorTimer > 0) RRender.DrawBlank(Alh, Alv, finalPos.X + (int)RRender.MeasureString(fontSize, Text[..cursorPos]).X, finalPos.Y + 90, 40, 6, Color.White);
         }
 
+        protected override Vector2 CalculateOffset() {
+            // int hah = AlvT switch {
+            //     Align.Center => 0,
+            //     Align.Bottom => Stuffs.GetTexture(Textures.Arrow).Height,
+            //     /* Top */ _  => Stuffs.GetTexture(Textures.Arrow).Height / 2
+            // };
+            
+            int tLen = (int) RRender.MeasureString(fontSize, Label).X;
+
+            return Alh switch { // I dont understand these magical numbers for the x axis
+                Align.Left  => new Vector2(tLen + 96, 128),
+                Align.Right => new Vector2(-tLen + 416, 128),
+                /*Center*/_ => new Vector2(-tLen / 2f + 256, 128),
+            };
+        }
+        
         private void SetCursorPos(int value) {
             cursorPos = value;
-            cursorTimer = cursorTimerMax;
+            cursorTimer = CursorTimerMax;
         }
         
         private void AddCursorPos(int value) {
             cursorPos += value;
-            cursorTimer = cursorTimerMax;
+            cursorTimer = CursorTimerMax;
+        }
+
+        public override void UnFocus() {
+            EnterEvent?.Invoke(Id, Text, args);
+            base.UnFocus();
         }
     }
 }

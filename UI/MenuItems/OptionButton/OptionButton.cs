@@ -2,15 +2,17 @@ using RayKeys.Options;
 
 namespace RayKeys.UI {
     public class OptionButton {
-        public Button button;
+        public FocusableMenuItem menuItem;
         public string optionName;
         public Option option;
         public string valueText;
+        public string displayName;
 
-        public OptionButton(Button button, string optionName) {
-            this.button = button;
+        public OptionButton(FocusableMenuItem menuItem, string optionName) {
+            this.menuItem = menuItem;
             this.optionName = optionName;
             this.option = OptionsManager.GetOption(optionName);
+            this.displayName = option.DisplayName;
 
             valueText = option.CurrentValue.ToString();
         }

@@ -1,54 +1,64 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using RayKeys.Misc;
 
 namespace RayKeys {
     public static class SongJsonManager {
-        public static JsonFileThing LoadJson(string path) {
-            JsonFileThing jf = new JsonFileThing();
+        public static bool LoadJson(string path, out JsonFileThing json) {
+            try {
+                JsonFileThing jf = new JsonFileThing();
 
-            // Read Json
-            string fileS = File.ReadAllText("Content/Levels/" + path + "/song.json");
-            using JsonDocument doc = JsonDocument.Parse(fileS, ThingTools.jsonDOptions);
-            JsonElement root = doc.RootElement;
+                // Read Json
+                string fileS = File.ReadAllText("Content/Levels/" + path + "/song.json");
+                using JsonDocument doc = JsonDocument.Parse(fileS, ThingTools.JsonDOptions);
+                JsonElement root = doc.RootElement;
             
-            // Get BPS
-            jf.bpm = (float)root.GetProperty("bpm").GetDouble();
-            jf.bps = jf.bpm / Engine.BeatMultiplier;
+                // Get BPS
+                jf.bpm = (float)root.GetProperty("bpm").GetDouble();
+                jf.bps = jf.bpm / Engine.BeatMultiplier;
             
-            // Get Info
-            jf.name = root.GetProperty("name").GetString();
-            jf.songName = root.GetProperty("songName").GetString();
-            jf.artist = root.GetProperty("artist").GetString();
+                // Get Info
+                jf.name = root.GetProperty("name").GetString();
+                jf.songName = root.GetProperty("songName").GetString();
+                jf.artist = root.GetProperty("artist").GetString();
 
-            // Get notes
-            JsonElement beatmaps = root.GetProperty("beatmaps");
-            int bmLen = beatmaps.GetArrayLength();
+                // Get notes
+                JsonElement beatmaps = root.GetProperty("beatmaps");
+                int bmLen = beatmaps.GetArrayLength();
 
-            jf.beatmaps = new List<List<List<Note>>>();
-            for (int i = 0; i < bmLen; i++) {
-                jf.beatmaps.Add(new List<List<Note>>());
-                for (int j = 0; j < beatmaps[i].GetArrayLength(); j++) {
-                    jf.beatmaps[i].Add(new List<Note>());
-                    for (int k = 0; k < beatmaps[i][j].GetArrayLength(); k++) {
-                        jf.beatmaps[i][j].Add(new Note((float) beatmaps[i][j][k].GetProperty("time").GetDouble(), beatmaps[i][j][k].GetProperty("lane").GetByte()));
+                jf.beatmaps = new List<List<List<Note>>>();
+                for (int i = 0; i < bmLen; i++) {
+                    jf.beatmaps.Add(new List<List<Note>>());
+                    for (int j = 0; j < beatmaps[i].GetArrayLength(); j++) {
+                        jf.beatmaps[i].Add(new List<Note>());
+                        for (int k = 0; k < beatmaps[i][j].GetArrayLength(); k++) {
+                            jf.beatmaps[i][j].Add(new Note((float) beatmaps[i][j][k].GetProperty("time").GetDouble(), beatmaps[i][j][k].GetProperty("lane").GetByte()));
+                        }
                     }
                 }
-            }
             
-            // Get which engine for which beatmap
-            JsonElement playersJ = root.GetProperty("players");
+                // Get which engine for which beatmap
+                JsonElement playersJ = root.GetProperty("players");
 
-            // Get Players
-            jf.players = new List<Player>();
-            for (int i = 0; i < playersJ.GetArrayLength(); i++) {
-                jf.players.Add(new Player {
-                    controls = playersJ[i].TryGetProperty("controls", out JsonElement contJ) ? contJ.GetInt32() : 1,
-                    beatmap = playersJ[i].GetProperty("beatmap").GetInt32() - 1
-                });
+                // Get Players
+                jf.players = new List<Player>();
+                for (int i = 0; i < playersJ.GetArrayLength(); i++) {
+                    jf.players.Add(new Player {
+                        controls = playersJ[i].TryGetProperty("controls", out JsonElement contJ) ? contJ.GetInt32() : 1,
+                        beatmap = playersJ[i].GetProperty("beatmap").GetInt32() - 1
+                    });
+                }
+
+                json = jf;
+                return true;
             }
-
-            return jf;
+            catch (Exception e) {
+                Logger.Error(e.Message);
+                json = new JsonFileThing();
+                return false;
+            }
         }
 
         public static void SaveJson(string path, JsonFileThing data) {
@@ -76,7 +86,7 @@ namespace RayKeys {
             json.Add("players", players);
             json.Add("beatmaps", beatmaps);
             
-            string jsonS = JsonSerializer.Serialize(json, ThingTools.jsonSOptions);
+            string jsonS = JsonSerializer.Serialize(json, ThingTools.JsonSOptions);
             File.WriteAllText("Content/Levels/" + path + "/song.json", jsonS);
         }
     }

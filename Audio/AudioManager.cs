@@ -75,7 +75,7 @@ namespace RayKeys {
         }
 
         public static void SetPause(bool pause) {
-               MediaPlayer.SetPause(pause);
+            MediaPlayer.SetPause(pause);
         }
 
         public static void LoadSong(string song, float bpm, float speed = 1f) {

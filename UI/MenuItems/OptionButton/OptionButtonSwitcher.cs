@@ -8,7 +8,7 @@ namespace RayKeys.UI {
         public OptionButtonSwitcher(Button button, object[] values, string optionName) : base(button, optionName) {
             this.values = values;
 
-            this.button.ClickEvent += OnClick;
+            button.ClickEvent += OnClick;
         }
         
         private void OnClick(int id, params object[] args) {

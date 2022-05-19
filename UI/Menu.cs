@@ -81,6 +81,11 @@ namespace RayKeys.UI {
             action.Invoke(text);
         }
         
+        private void FunctionCallSwitcherEventListener(int id, float swPos, params object[] args) {
+            Action<float> action = (Action<float>) args[0];
+            action.Invoke(swPos);
+        }
+        
         public Menu() {
             pages = new List<Page>();
 
@@ -183,7 +188,25 @@ namespace RayKeys.UI {
 
             return inp;
         }
-        
+
+        public Slider AddSlider(int page, Align h, Align v, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
+            x += pages[page].pos.X; y += pages[page].pos.Y;
+            
+            Slider slider = new Slider(this, pages[page].followCamera, h, v, currentI, label, x, y, sizeX, sizeY, fontSize);
+            
+            AddCommon(page, slider);
+            return slider;
+        }
+
+        public Slider AddFunctionCallSlider(int page, Action<float> func, Align h, Align v, string label, int x, int y,
+            int sizeX = 600, int sizeY = 200, int fontSize = 4) {
+            Slider slider = AddSlider(page, h, v, label, x, y, sizeX, sizeY, fontSize);
+            slider.EnterEvent += FunctionCallSwitcherEventListener;
+            slider.args = new object[] {func};
+
+            return slider;
+        }
+
         public Label AddLabel(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int fontSize, Color color, float drawDepth = RRender.DefaultDepth, FocusableMenuItem itemParent = null) {
             x += pages[page].pos.X; y += pages[page].pos.Y;
 

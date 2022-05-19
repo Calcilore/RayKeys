@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using RayKeys.Misc;
-using RayKeys.Options;
+using RayKeys.Render;
+using RayKeys.UI;
 
 namespace RayKeys {
     public class EngineManager {
@@ -22,7 +22,12 @@ namespace RayKeys {
             
             engines = new List<Engine>();
 
-            JsonFileThing rawLevel = SongJsonManager.LoadJson(level);
+            if (!SongJsonManager.LoadJson(level, out JsonFileThing rawLevel)) {
+                Logger.Error("Failed to load level json");
+                Game1.Game.DrawEvent += Draw;
+                return;
+            }
+            
             bps = rawLevel.bps;
             
             // add notes to engines
@@ -74,6 +79,17 @@ namespace RayKeys {
         public void UnPause() {
             foreach (Engine engine in engines) {
                 engine.UnPause();
+            }
+        }
+
+        // If failed to load:
+        public void Draw(float delta) {
+            RRender.DrawString(Align.Center, Align.Center, "Failed to load level", 0, 0, 2, Color.Red);
+            RRender.DrawString(Align.Center, Align.Center, "Press space to go to Main Menu", 0, 70, 4);
+            
+            if (RKeyboard.IsKeyPressed(Keys.Space)) {
+                Game1.Game.PrepareLoadScene();
+                Game1.Game.LoadScene(new MainMenu());
             }
         }
     }
