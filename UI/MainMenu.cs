@@ -54,10 +54,6 @@ namespace RayKeys.UI {
             menu.AddPageChangeButton(0, EditorSelectPage, Align.Right, Align.Top, Align.Right, Align.Center, "Editor", -16, 500);
             menu.AddPageChangeButton(0, RUSureUWTEPage, Align.Right, Align.Top, Align.Right, Align.Center, "Exit", -16, 600);
 
-            menu.AddLabel(0, Align.Left, Align.Top, Align.Left, Align.Top, "A", 64, 300);
-            menu.AddLabel(0, Align.Center, Align.Top, Align.Center, Align.Top, "V", -1920/2 + 364, 300);
-            menu.AddLabel(0, Align.Right, Align.Top, Align.Right, Align.Top, "C", -1920 + 664, 300);
-
             // Are you sure you want to exit?
             menu.AddLabel(RUSureUWTEPage, Align.Center, Align.Center, Align.Center, Align.Center, "Are you sure you\nwant to exit?", -270, 0, 2);
             
