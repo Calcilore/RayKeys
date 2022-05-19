@@ -46,8 +46,7 @@ namespace RayKeys.UI {
         
         protected override void Draw(float delta) {
             base.Draw(delta);
-            
-            pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
+
             Vector2 finalPos = pos;
             if (followCamera) finalPos += RRender.CameraPos;
             

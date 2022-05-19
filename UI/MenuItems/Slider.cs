@@ -55,7 +55,6 @@ namespace RayKeys.UI {
         protected override void Draw(float delta) {
             base.Draw(delta);
             
-            pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
             Point finalPos = pos.ToPoint();
             finalPos.X += sizeX / 2;
             finalPos.Y += sizeY / 2;

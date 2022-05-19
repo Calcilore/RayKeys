@@ -6,6 +6,7 @@ namespace RayKeys.UI {
     public class FocusableMenuItem : MenuItem {
         public MenuItem Child;
         public bool IsFocused = false;
+        public bool hideFocus = false; // Makes focus not change looks, used for OtherFocusLabel
         
         public Align Alh;
         public Align Alv;
@@ -51,8 +52,12 @@ namespace RayKeys.UI {
         protected override void Draw(float delta) {
             base.Draw(delta);
 
-            if (IsFocused) {
-                DrawArrow();
+            if (!hideFocus) {
+                pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
+                
+                if (IsFocused) {
+                    DrawArrow();
+                }   
             }
         }
     }

@@ -7,8 +7,8 @@ namespace RayKeys.UI {
     public class OptionButtonKey : OptionButton {
         private bool isListening;
 
-        public OptionButtonKey(Button button, string optionName) : base(button, optionName) {
-            button.ClickEvent += OnClick;
+        public OptionButtonKey(OtherFocusLabel otl, string optionName) : base(otl, optionName) {
+            ((Button)otl.Other).ClickEvent += OnClick;
             isListening = false;
         }
         
@@ -22,7 +22,7 @@ namespace RayKeys.UI {
             menu.EscapeEvent += OnEscape;
             Game1.Game.UpdateEvent += Update;
 
-            ((Button)menuItem).Color = Color.SlateGray;
+            ((Button)menuItem.Other).Color = Color.SlateGray;
         }
 
         private void RegisterClick(Keys key) {
@@ -39,8 +39,8 @@ namespace RayKeys.UI {
             }
             
             isListening = false;
-            ((Button)menuItem).Color = Color.White;
-            
+            ((Button)menuItem.Other).Color = Color.White;
+
             menuItem.parent.EscapeEvent -= OnEscape;
             Game1.Game.UpdateEvent -= Update;
         }
@@ -54,6 +54,7 @@ namespace RayKeys.UI {
                 menuItem.parent.DeleteHistoryNoPageChange();
                 RegisterClick(RKeyboard.PressedKeys[0]);
                 FinishClick();
+                ((Button)menuItem.Other).Label = valueText;
             }
         }
     }

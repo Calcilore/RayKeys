@@ -137,10 +137,10 @@ namespace RayKeys.UI {
         }
         
         private void Draw(float delta) {
-            foreach (OptionButton button in optionButtons[currentOptionCatagory]) {
-                //RRender.DrawString(Align.Right, Align.Top, Align.Right, Align.Top, button.valueText, -100-1920, (int) button.button.pos.Y, 3);
-                RRender.DrawString(Align.Left, Align.Top, button.displayName, 450-1920, (int) button.menuItem.pos.Y, 3);
-            }
+            // foreach (OptionButton button in optionButtons[currentOptionCatagory]) {
+            //     //RRender.DrawString(Align.Right, Align.Top, Align.Right, Align.Top, button.valueText, -100-1920, (int) button.button.pos.Y, 3);
+            //     RRender.DrawString(Align.Left, Align.Top, button.displayName, 450-1920, (int) button.menuItem.pos.Y, 3);
+            // }
             
             RRender.DrawBlank(Align.Left, Align.Bottom, -1920,  -64 + (int)RRender.CameraPos.Y, 1920, 64, Color.DarkSlateGray, 0.4f);
         }
@@ -156,24 +156,28 @@ namespace RayKeys.UI {
 
         private int OBYPos;
 
-        private Button AddButtonCommon(string option, int optionCategory, string tooltip) {
-            Button b = menu.AddButton(optionCategory + OptionsPage + 1, Align.Right, Align.Top, Align.Right, Align.Top, OptionsManager.GetOption(option).CurrentValue.ToString(), -100, OBYPos);
+        private OtherFocusLabel AddButtonCommon(string option, int optionCategory, string tooltip) {
+            Button b = new Button(null, false, Align.Right, Align.Top, Align.Right, Align.Top, -1, OptionsManager.GetOption(option).CurrentValue.ToString(), -100-1920, OBYPos);
+            OtherFocusLabel t = menu.AddOtherFocusLabel(optionCategory + OptionsPage + 1, Align.Left, Align.Top, Align.Left, Align.Top, "Some Error", b, 450, OBYPos, 3);
+            
+            //Button b = menu.AddButton(optionCategory + OptionsPage + 1, Align.Right, Align.Top, Align.Right, Align.Top, OptionsManager.GetOption(option).CurrentValue.ToString(), -100, OBYPos);
             Label l = menu.AddLabel(optionCategory + OptionsPage + 1, Align.Center, Align.Bottom, Align.Center, Align.Bottom, tooltip, 1920, -5, 4, Color.White, 0.3f, b);
             l.followCamera = true;
             b.Hide();
+            t.Hide();
             
             OBYPos += 100;
-            return b;
+            return t;
         }
         
         private void AddSwitcherOptionButton(string option, int optionCategory, object[] values, string tooltip) {
-            Button b = AddButtonCommon(option, optionCategory, tooltip);
+            OtherFocusLabel b = AddButtonCommon(option, optionCategory, tooltip);
 
             optionButtons[startingCatagoryButtonId + optionCategory].Add(new OptionButtonSwitcher(b, values, option));
         }
         
         private void AddKeyOptionButton(string option, int optionCategory, string tooltip) {
-            Button b = AddButtonCommon(option, optionCategory, tooltip);
+            OtherFocusLabel b = AddButtonCommon(option, optionCategory, tooltip);
 
             optionButtons[startingCatagoryButtonId + optionCategory].Add(new OptionButtonKey(b, option));
         }
@@ -224,11 +228,11 @@ namespace RayKeys.UI {
             foreach (KeyValuePair<int, List<OptionButton>> c in optionButtons) {
                 if (c.Key == after) {
                     foreach (OptionButton b in c.Value) {
-                        b.menuItem.Show();
+                        b.Show();
                     }
                 } else {
                     foreach (OptionButton b in c.Value) {
-                        b.menuItem.Hide();
+                        b.Hide();
                     }
                 }
             }

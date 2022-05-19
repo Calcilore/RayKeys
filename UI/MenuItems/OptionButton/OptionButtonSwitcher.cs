@@ -5,10 +5,10 @@ namespace RayKeys.UI {
     public class OptionButtonSwitcher : OptionButton {
         public object[] values;
         
-        public OptionButtonSwitcher(Button button, object[] values, string optionName) : base(button, optionName) {
+        public OptionButtonSwitcher(OtherFocusLabel otl, object[] values, string optionName) : base(otl, optionName) {
             this.values = values;
 
-            button.ClickEvent += OnClick;
+            ((Button)otl.Other).ClickEvent += OnClick;
         }
         
         private void OnClick(int id, params object[] args) {
@@ -25,6 +25,7 @@ namespace RayKeys.UI {
             Logger.Info($"Changing Option {option.DisplayName} to {valueTo}");
 
             valueText = option.CurrentValue.ToString();
+            ((Button)menuItem.Other).Label = valueText;
         }
     }
 }

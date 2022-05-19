@@ -34,7 +34,7 @@ namespace RayKeys.UI {
             AlhT = hT;
             AlvT = vT;
 
-            tPos.X = x; // idk why it needs this
+            tPos.X = x;
             tPos.Y = y;
             
             tPosFoc = tPos + new Vector2(hT == Align.Right ? -64 : 64, 0);
@@ -50,9 +50,6 @@ namespace RayKeys.UI {
         }
         
         protected override void Draw(float delta) {
-            CalculateOffset();
-            
-            pos.X = ThingTools.Lerp(pos.X, IsFocused ? tPosFoc.X : tPos.X, 10 * delta);
             Vector2 finalPos = pos;
             if (followCamera) finalPos += RRender.CameraPos;
             

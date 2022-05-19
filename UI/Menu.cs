@@ -198,13 +198,22 @@ namespace RayKeys.UI {
             return slider;
         }
 
-        public Slider AddFunctionCallSlider(int page, Action<float> func, Align h, Align v, string label, int x, int y,
-            int sizeX = 600, int sizeY = 200, int fontSize = 4) {
+        public Slider AddFunctionCallSlider(int page, Action<float> func, Align h, Align v, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
             Slider slider = AddSlider(page, h, v, label, x, y, sizeX, sizeY, fontSize);
             slider.EnterEvent += FunctionCallSwitcherEventListener;
             slider.args = new object[] {func};
 
             return slider;
+        }
+        
+        public OtherFocusLabel AddOtherFocusLabel(int page, Align h, Align v, Align hT, Align vT, string text, FocusableMenuItem other, int x, int y, int fontSize = 4, Color? color = null, float drawdepth = RRender.DefaultDepth) {
+            x += pages[page].pos.X; y += pages[page].pos.Y;
+
+            color ??= Color.White;
+            OtherFocusLabel button = new OtherFocusLabel(this, pages[page].followCamera, h, v, hT, vT, currentI, text, other, x, y, fontSize, color.Value, drawdepth);
+            
+            AddCommon(page, button);
+            return button;
         }
 
         public Label AddLabel(int page, Align h, Align v, Align hT, Align vT, string text, int x, int y, int fontSize, Color color, float drawDepth = RRender.DefaultDepth, FocusableMenuItem itemParent = null) {
