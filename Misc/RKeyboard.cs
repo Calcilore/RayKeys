@@ -11,7 +11,7 @@ namespace RayKeys.Misc {
         public static Keys[] PressedKeys = Array.Empty<Keys>();
         public static KeyboardState ks;
 
-        public static void Update() {
+        public static void Update(float _) {
             LastHeldKeys = HeldKeys;
             
             ks = Keyboard.GetState();

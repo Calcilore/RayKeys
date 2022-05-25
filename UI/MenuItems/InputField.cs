@@ -23,7 +23,7 @@ namespace RayKeys.UI {
         private const float CursorTimerMax = 0.4f;
 
         public InputField(Menu parent, bool followCamera, Align h, Align v, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
-            Game1.Game.UpdateEvent += Update;
+            Game1.UpdateEvent += Update;
             Game1.Game.Window.TextInput += TextInput;
 
             this.parent = parent;

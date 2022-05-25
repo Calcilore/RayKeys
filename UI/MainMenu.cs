@@ -28,7 +28,7 @@ namespace RayKeys.UI {
         public MainMenu() {
             Logger.Info("Loading Main Menu");
             
-            Game1.Game.DrawEvent += Draw;
+            Game1.DrawEvent += Draw;
             
             menu = new Menu();
             menu.EscapeEvent += OnEscape;

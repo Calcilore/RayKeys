@@ -57,7 +57,7 @@ namespace RayKeys {
             this.speed = speed;
             this.countdownTimer = countdownTimer + .001f;
             
-            Game1.Game.DrawEvent += Draw;
+            Game1.DrawEvent += Draw;
 
             downscroll = (bool) OptionsManager.GetOption("downscroll").CurrentValue;
             downscrollMul = downscroll ? 1 : -1;
@@ -67,7 +67,7 @@ namespace RayKeys {
         }
 
         public void Start() {
-            Game1.Game.UpdateEvent += Update;
+            Game1.UpdateEvent += Update;
         }
 
         public void Pause() {

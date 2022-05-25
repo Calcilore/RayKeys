@@ -51,8 +51,8 @@ namespace RayKeys.Editor {
 
             this.dirName = dirName;
             
-            Game1.Game.DrawEvent += Draw;
-            Game1.Game.UpdateEvent += Update;
+            Game1.DrawEvent += Draw;
+            Game1.UpdateEvent += Update;
 
             pauseMenu = new PauseMenu(-50);
             // Make pressing enter open the menu instead of pause menu

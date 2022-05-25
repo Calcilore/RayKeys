@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace RayKeys.Render {
-    public class RRender {
+    public static class RRender {
         public const float DefaultDepth = 0.5f;
         private const float DepthAddAmnt = -0.001f;
         
@@ -11,11 +11,12 @@ namespace RayKeys.Render {
         public static Point Resolution;
 
         public static Texture2D BlankTexture;
+        public static SpriteFont[] Fonts = new SpriteFont[7];
         private static float depthAdd = 0f; // To make draw order second priority
 
         public static void Initialise() {
             Resolution = new Point(1920, 1080);
-            BlankTexture = new Texture2D(Game1.Game.SpriteBatch.GraphicsDevice, 1, 1);
+            BlankTexture = new Texture2D(Game1.SpriteBatch.GraphicsDevice, 1, 1);
             BlankTexture.SetData(new [] {Color.White});
         }
 
@@ -36,7 +37,7 @@ namespace RayKeys.Render {
             => new Vector2(x - (float)(int) h * rx / 2, y - (float)(int)v * ry / 2);
 
         public static Vector2 MeasureString(int fontSize, string text) {
-            return Game1.Game.Fonts[fontSize].MeasureString(text);
+            return Fonts[fontSize].MeasureString(text);
         }
         
         // -=-=-=-=-=-=-=-=-
@@ -45,7 +46,7 @@ namespace RayKeys.Render {
         
         public static void DrawNoCam(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, int sourceX, int sourceY, int sourceXSize, int sourceYSize, 
             Color? color = null, float depth = DefaultDepth, float rotation = 0f, Vector2? origin = null, SpriteEffects spriteEffects = SpriteEffects.None) {
-            Game1.Game.SpriteBatch.Draw(
+            Game1.SpriteBatch.Draw(
                 texture,
                 new Rectangle(AlPosP(h, v, x, y), new Point(sizeX, sizeY)),
                 new Rectangle(sourceX, sourceY, sourceXSize, sourceYSize),
@@ -76,7 +77,7 @@ namespace RayKeys.Render {
         
         public static void DrawNoCam(Align h, Align v, Texture2D texture, int x, int y, int sizeX, int sizeY, 
             Color? color = null, float depth = DefaultDepth, float rotation = 0f, Vector2? origin = null, SpriteEffects spriteEffects = SpriteEffects.None) {
-            Game1.Game.SpriteBatch.Draw(
+            Game1.SpriteBatch.Draw(
                 texture, 
                 new Rectangle(AlPosP(h, v, x, y), new Point(sizeX, sizeY)),
                 new Rectangle(0, 0, sizeX, sizeY),
@@ -146,10 +147,10 @@ namespace RayKeys.Render {
             // Align pos
             Vector2 pos = new Vector2(px + (int) h * Resolution.X / 2, py + (int) v * Resolution.Y / 2);
             // Center Text
-            Vector2 ts = Game1.Game.Fonts[scale].MeasureString(text);
+            Vector2 ts = Fonts[scale].MeasureString(text);
             pos = AlPosV(th, tv, pos.X, pos.Y, ts.X, ts.Y);
 
-            Game1.Game.SpriteBatch.DrawString(Game1.Game.Fonts[scale], text, pos, color.GetValueOrDefault(Color.White), 
+            Game1.SpriteBatch.DrawString(Fonts[scale], text, pos, color.GetValueOrDefault(Color.White), 
                 rotation, origin.GetValueOrDefault(Vector2.Zero), Vector2.One, spriteEffects, depth + depthAdd);
 
             depthAdd += DepthAddAmnt;

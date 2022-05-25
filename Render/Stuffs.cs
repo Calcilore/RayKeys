@@ -114,11 +114,31 @@ namespace RayKeys.Render {
                     LogAndText("Loading Button: " + thing[2]);
                     OptionsManager.AddOption("control_" + (Controls) assetIndex, (string) thing[2], OptionType.Key, thing[1], root, ControlChanged);
                     break;
+                
+                case "fonts":
+                    LogAndText("Loading Fonts");
+                    for (int i = 0; i < RRender.Fonts.Length; i++) {
+                        RRender.Fonts[i] = content.Load<SpriteFont>("Fonts/Font" + i);
+                    }
+
+                    LoadingScene.canText = true;
+                    break;
+                
+                case "libvlc":
+                    LogAndText("Loading AudioManager");
+                    AudioManager.Initialise();
+                    Game1.StaticUpdateEvent += AudioManager.Update;
+                    break;
+                
+                case "thingtools":
+                    LogAndText("Loading Utilities");
+                    ThingTools.Init();
+                    break;
 
                 case "end":
                     //thingsIndex = 0; assetIndex = 0; /*
                     Game1.Game.IsFixedTimeStep = (bool) OptionsManager.GetOption("limitfps").CurrentValue;
-                    Game1.Game.Graphics.ApplyChanges();
+                    Game1.Graphics.ApplyChanges();
                     Game1.Game.PrepareLoadScene();
                     Game1.Game.LoadScene(new MainMenu()); /* */
                     return;
@@ -138,9 +158,9 @@ namespace RayKeys.Render {
         public static void Init() {
             Logger.Info("Loading Textures");
 
-            Game1.Game.UpdateEvent += Update;
+            Game1.UpdateEvent += Update;
             Game1.Game.IsFixedTimeStep = false;
-            Game1.Game.Graphics.ApplyChanges();
+            Game1.Graphics.ApplyChanges();
 
             content = Game1.Game.Content;
             root = OptionsManager.GetJson();
@@ -148,6 +168,11 @@ namespace RayKeys.Render {
             textures = new Texture2D[30];
             sounds = new SoundEffect[1];
             controls = new Keys[18];
+
+            things.Add(new List<object>() {"fonts"});
+            
+            things.Add(new List<object>() {"thingtools"});
+            things.Add(new List<object>() {"libvlc"});
 
             things.Add(new List<object> {"reseti"});
             things.Add(new List<object> {"sheet", "notes", 0, 0, 64, 64});

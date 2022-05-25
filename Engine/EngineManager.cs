@@ -24,7 +24,7 @@ namespace RayKeys {
 
             if (!SongJsonManager.LoadJson(level, out JsonFileThing rawLevel)) {
                 Logger.Error("Failed to load level json");
-                Game1.Game.DrawEvent += Draw;
+                Game1.DrawEvent += Draw;
                 return;
             }
             

@@ -89,7 +89,7 @@ namespace RayKeys.UI {
         public Menu() {
             pages = new List<Page>();
 
-            Game1.Game.UpdateEvent += Update;
+            Game1.UpdateEvent += Update;
         }
 
         private void Update(float delta) {

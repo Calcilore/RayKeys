@@ -9,19 +9,19 @@ namespace RayKeys.UI {
         private bool isSubbed;
 
         protected MenuItem() {
-            Game1.Game.DrawEvent += Draw;
+            Game1.DrawEvent += Draw;
             isSubbed = true;
         }
 
         protected virtual void Draw(float delta) {}
 
         public virtual void Hide() {
-            if (isSubbed) Game1.Game.DrawEvent -= Draw;
+            if (isSubbed) Game1.DrawEvent -= Draw;
             isSubbed = false;
         }
 
         public virtual void Show() {
-            if (!isSubbed) Game1.Game.DrawEvent += Draw;
+            if (!isSubbed) Game1.DrawEvent += Draw;
             isSubbed = true;
         }
     }

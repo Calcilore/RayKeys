@@ -20,7 +20,7 @@ namespace RayKeys.UI {
         public int cursorPos;
 
         public Slider(Menu parent, bool followCamera, Align h, Align v, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 4) {
-            Game1.Game.UpdateEvent += Update;
+            Game1.UpdateEvent += Update;
             
             this.parent = parent;
             this.followCamera = followCamera;

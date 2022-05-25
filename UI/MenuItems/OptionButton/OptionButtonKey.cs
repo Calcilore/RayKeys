@@ -20,7 +20,7 @@ namespace RayKeys.UI {
             
             menu.AddToHistory(menu.CurrentPage);
             menu.EscapeEvent += OnEscape;
-            Game1.Game.UpdateEvent += Update;
+            Game1.UpdateEvent += Update;
 
             ((Button)menuItem.Other).Color = Color.SlateGray;
         }
@@ -42,7 +42,7 @@ namespace RayKeys.UI {
             ((Button)menuItem.Other).Color = Color.White;
 
             menuItem.parent.EscapeEvent -= OnEscape;
-            Game1.Game.UpdateEvent -= Update;
+            Game1.UpdateEvent -= Update;
         }
 
         private void OnEscape() {

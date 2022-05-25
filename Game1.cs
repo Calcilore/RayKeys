@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,21 +11,18 @@ using RayKeys.Render;
 namespace RayKeys {
     public class Game1 : Game {
         public static Game1 Game; 
-        public readonly GraphicsDeviceManager Graphics;
-        public SpriteBatch SpriteBatch;
-        public float Scaling;
-        public SpriteFont[] Fonts = new SpriteFont[7];
-        public Rectangle RenderRectangle { get; private set; }
+        public static GraphicsDeviceManager Graphics;
+        public static SpriteBatch SpriteBatch;
+        public static float Scaling;
+        public static Rectangle RenderRectangle { get; private set; }
 
-        private Scene currentScene;
         private FPSCounter fpsCounter = new FPSCounter();
-        private RenderTarget2D test;
+        private RenderTarget2D renderTarget;
 
         public delegate void UpdateEventD(float delta);
-        public event UpdateEventD UpdateEvent;
-        
-        public delegate void DrawEventD(float delta);
-        public event DrawEventD DrawEvent;
+        public static event UpdateEventD UpdateEvent;
+        public static event UpdateEventD StaticUpdateEvent; // an update event that will never clear
+        public static event UpdateEventD DrawEvent;
 
         public Game1(LogLevel logLevel) {
             Game = this;
@@ -38,36 +36,26 @@ namespace RayKeys {
 
         protected override void Initialize() {
             Scaling = Graphics.PreferredBackBufferHeight / 1080.0f;
-            
-            AudioManager.Initialise();
-            ThingTools.Init();
-
-            test = new RenderTarget2D(GraphicsDevice, 1920, 1080, false, GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24);
+            renderTarget = new RenderTarget2D(GraphicsDevice, 1920, 1080, false, GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24);
+            StaticUpdateEvent += RKeyboard.Update;
+            StaticUpdateEvent += RMouse.Update;
 
             base.Initialize();
         }
 
         protected override void LoadContent() {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            
             RRender.Initialise();
-
-            for (int i = 0; i < Fonts.Length; i++) {
-                Fonts[i] = Content.Load<SpriteFont>("Fonts/Font" + i);
-            }
 
             PrepareLoadScene();
             LoadScene(new LoadingScene());
         }
 
         protected override void Update(GameTime gameTime) {
-
             float delta = (float) gameTime.ElapsedGameTime.TotalSeconds;
             
-            RKeyboard.Update();
-            RMouse.Update();
-            AudioManager.Update(delta);
             fpsCounter.Update(gameTime);
+            StaticUpdateEvent?.Invoke(delta);
             UpdateEvent?.Invoke(delta);
 
             base.Update(gameTime);
@@ -80,7 +68,6 @@ namespace RayKeys {
 
         public void LoadScene(Scene scene) {
             RRender.CameraPos = Vector2.Zero;
-            currentScene = scene;
         }
 
         public void RedoRenderPos() {
@@ -94,7 +81,7 @@ namespace RayKeys {
             
             GraphicsDevice.Clear(Color.Black);
 
-            GraphicsDevice.SetRenderTarget(test);
+            GraphicsDevice.SetRenderTarget(renderTarget);
             SpriteBatch.Begin(SpriteSortMode.BackToFront);  
 
             DrawEvent?.Invoke((float) gameTime.ElapsedGameTime.TotalSeconds);
@@ -105,7 +92,7 @@ namespace RayKeys {
             SpriteBatch.Begin();
             
             GraphicsDevice.SetRenderTarget(null);
-            SpriteBatch.Draw(test, RenderRectangle, new Rectangle(0, 0, 1920, 1080), Color.White);
+            SpriteBatch.Draw(renderTarget, RenderRectangle, new Rectangle(0, 0, 1920, 1080), Color.White);
             
             SpriteBatch.End();
             

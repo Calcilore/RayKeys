@@ -30,7 +30,7 @@ namespace RayKeys.Misc {
         public static bool XButton1Pressed;
         public static bool XButton2Pressed;
 
-        public static void Update() {
+        public static void Update(float _) {
             LastX = X; LastY = Y;
             LastLeftButton = LeftButton;
             LastMiddleButton = MiddleButton;
@@ -43,7 +43,7 @@ namespace RayKeys.Misc {
             MouseState ms = Mouse.GetState();
             
             // funny window things
-            Point pos = ((ms.Position - Game1.Game.RenderRectangle.Location).ToVector2() / Game1.Game.Scaling).ToPoint();
+            Point pos = ((ms.Position - Game1.RenderRectangle.Location).ToVector2() / Game1.Scaling).ToPoint();
             pos += RRender.CameraPos.ToPoint();
 
             X = pos.X; Y = pos.Y;

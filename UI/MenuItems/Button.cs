@@ -20,7 +20,7 @@ namespace RayKeys.UI {
         public string Label;
 
         public Button(Menu parent, bool followCamera, Align h, Align v, Align hT, Align vT, int id, string label, int x, int y, int sizeX = 600, int sizeY = 200, int fontSize = 3) {
-            Game1.Game.UpdateEvent += Update;
+            Game1.UpdateEvent += Update;
 
             this.parent = parent;
             this.followCamera = followCamera;

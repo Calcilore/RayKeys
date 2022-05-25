@@ -1,15 +1,17 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using MonoGame.Framework.Utilities.Deflate;
 
 namespace RayKeys.Misc {
     public static class Logger {
         public static LogLevel LoggingLevel;
+        private static bool hasLoaded = false; // prevent saving to file before file exists
         private static FileStream logFile;
         private static StreamWriter streamWriter;
         private static Task writeTask = Task.CompletedTask;
-        private static string typeText;
+        private static string typeText = "";
         
         public static void Log(object log, LogLevel level) {
             if (LoggingLevel < level) return;
@@ -21,7 +23,7 @@ namespace RayKeys.Misc {
             
             typeText += text;
 
-            if (writeTask.IsCompleted) {
+            if (hasLoaded && writeTask.IsCompleted) {
                 writeTask = streamWriter.WriteAsync(typeText);
                 typeText = "";
             }
@@ -36,7 +38,14 @@ namespace RayKeys.Misc {
 
         public static void Init(LogLevel logLevel) {
             LoggingLevel = logLevel;
+            new Thread(SynchronousInit).Start(); 
+            // why async? Because this gets loaded before the window appears
+            // so therefore i want this to not delay the window opening bc i want that to be speedy.
+            // this barely affects boot times
+            // I just wanted to do this because im obsessed with efficiency
+        }
 
+        private static void SynchronousInit() {
             if (!Directory.Exists("Logs")) Directory.CreateDirectory("Logs");
             
             if (File.Exists("Logs/latest.log")) {
@@ -59,16 +68,24 @@ namespace RayKeys.Misc {
 
             string logFileName = $"Logs/{DateTime.Now:yyyy-MM-dd}-";
 
-            int i;
-            for (i = 1; File.Exists(logFileName + i + ".log.gz"); i++) { }
+            int i = 1;
+            while (File.Exists(logFileName + i + ".log.gz")) {
+                i++;
+            }
 
             logFileName += i + ".log";
             
             logFile = File.OpenWrite("Logs/latest.log");
             streamWriter = new StreamWriter(logFile);
             streamWriter.AutoFlush = true;
+
+            hasLoaded = true;
+            
+            // make first log Logging to: {LogFileName}
+            string tt = typeText;
             typeText = "";
             Logger.Info($"Logging to: {logFileName}");
+            typeText = tt;
         }
         
         public static void Error(object log) {
