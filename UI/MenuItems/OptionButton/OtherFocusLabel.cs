@@ -3,8 +3,6 @@ using RayKeys.Render;
 
 namespace RayKeys.UI {
     public class OtherFocusLabel : FocusableMenuItem {
-        public Align Alh;
-        public Align Alv;
         public Align AlhT;
         public Align AlvT;
 
