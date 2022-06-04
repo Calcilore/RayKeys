@@ -7,6 +7,7 @@ using RayKeys.Options;
 using RayKeys.Render;
 
 namespace RayKeys {
+    
     /*
      *        NN
      *           NN
@@ -16,6 +17,7 @@ namespace RayKeys {
      *
      *  [] [] [] [] [] []  <-- Keys
      */
+    
     public class Engine {
         public static float BeatMultiplier = 30f;
         
