@@ -1,10 +1,11 @@
 # Raykeys
 
-## a 6 key rhythm game made in C#
+## Info
+A 6 key rhythm game made in C#
 
-### currently very unfinished.
+Currently very unfinished.
 
 ## How to compile:
-- press build (dotnet build)
+- Press build (dotnet build)
 
 *Made for Linux and Windows*
