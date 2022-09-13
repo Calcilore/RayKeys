@@ -12,9 +12,9 @@ namespace RayKeys.UI {
     public class MainMenu : Scene {
         private Menu menu;
         
-        private int startingCatagoryButtonId = -1;
+        private int startingCategoryButtonId = -1;
         private Dictionary<int, List<OptionButton>> optionButtons = new Dictionary<int, List<OptionButton>>();
-        private int currentOptionCatagory = -1;
+        private int currentOptionCategory = -1;
         
         private const float CameraMovePointUp = 360;
         private const float CameraMovePointDown = 720; // 1080 - CameraMovePointUp
@@ -137,7 +137,7 @@ namespace RayKeys.UI {
         }
         
         private void Draw(float delta) {
-            // foreach (OptionButton button in optionButtons[currentOptionCatagory]) {
+            // foreach (OptionButton button in optionButtons[currentOptionCategory]) {
             //     //RRender.DrawString(Align.Right, Align.Top, Align.Right, Align.Top, button.valueText, -100-1920, (int) button.button.pos.Y, 3);
             //     RRender.DrawString(Align.Left, Align.Top, button.displayName, 450-1920, (int) button.menuItem.pos.Y, 3);
             // }
@@ -148,9 +148,9 @@ namespace RayKeys.UI {
         private void AddOptionCategory(string text, int yp, int pt) {
             Button b = menu.AddPageChangeButton(OptionsPage, pt, Align.Left, Align.Center, Align.Left, Align.Center, text, 16, yp);
             optionButtons.Add(b.Id, new List<OptionButton>());
-            if (startingCatagoryButtonId == -1) {
-                startingCatagoryButtonId = b.Id;
-                currentOptionCatagory = b.Id;
+            if (startingCategoryButtonId == -1) {
+                startingCategoryButtonId = b.Id;
+                currentOptionCategory = b.Id;
             }
         }
 
@@ -173,13 +173,13 @@ namespace RayKeys.UI {
         private void AddSwitcherOptionButton(string option, int optionCategory, object[] values, string tooltip) {
             OtherFocusLabel b = AddButtonCommon(option, optionCategory, tooltip);
 
-            optionButtons[startingCatagoryButtonId + optionCategory].Add(new OptionButtonSwitcher(b, values, option));
+            optionButtons[startingCategoryButtonId + optionCategory].Add(new OptionButtonSwitcher(b, values, option));
         }
         
         private void AddKeyOptionButton(string option, int optionCategory, string tooltip) {
             OtherFocusLabel b = AddButtonCommon(option, optionCategory, tooltip);
 
-            optionButtons[startingCatagoryButtonId + optionCategory].Add(new OptionButtonKey(b, option));
+            optionButtons[startingCategoryButtonId + optionCategory].Add(new OptionButtonKey(b, option));
         }
         
         private void AddBooleanOptionButton(string option, int optionCategory, string tooltip) {
@@ -237,7 +237,7 @@ namespace RayKeys.UI {
                 }
             }
 
-            currentOptionCatagory = after;
+            currentOptionCategory = after;
         }
         
         private void OnEscape() {
